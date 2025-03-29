@@ -10,7 +10,7 @@ const CityTable = () => {
       const res = await fetch("https://node2-plum.vercel.app/api/user/city");
       const result = await res.json();
 
-      console.log("Data:", result.cities);
+      // console.log("Data:", result.cities);
       setCities(result.cities);
     } catch (error) {
       console.error("Error fetching data:", error);
