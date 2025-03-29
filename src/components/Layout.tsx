@@ -1,19 +1,29 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
-const Layout = ({ children }) => {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [userName, setUserName] = useState("Admin");    
+  const [userName, setUserName] = useState("Admin");
+
+  const setUsername = (name: string) => {
+    setUserName(name);
+  };
+
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
 
   useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (isOpen && !e.target.closest(".sidebar")) {
-        closeSidebar();
-      }
+    const handleOutsideClick = (e: MouseEvent) => {
+    if (isOpen && !(e.target as HTMLElement)?.closest(".sidebar")) {
+            closeSidebar();
+     }
     };
 
     document.addEventListener("click", handleOutsideClick);

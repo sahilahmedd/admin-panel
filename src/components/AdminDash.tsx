@@ -1,14 +1,14 @@
-"use client";
-import { useEffect, useState } from "react";
-import DataTable from "react-data-table-component";
+// "use client";
+// import { useEffect, useState } from "react";
+// import DataTable from "react-data-table-component";
 
-const AdminPanel = () => {
+// const AdminPanel = () => {
 
-  return (
-    <div className="p-4">
+//   return (
+//     <div className="p-4">
       
-    </div>
-  );
-};
+//     </div>
+//   );
+// };
 
-export default AdminPanel;
+// export default AdminPanel;

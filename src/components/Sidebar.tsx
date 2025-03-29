@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React from "react";
 import Link from "next/link";
 
-const Sidebar = ({ isOpen }) => {
+const Sidebar = ({ isOpen, closeSidebar }) => {
   return (
     <div
       className={`fixed z-50 top-0 left-0 h-full bg-gray-900 text-white w-64 p-5 transition-transform ${

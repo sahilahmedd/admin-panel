@@ -21,30 +21,39 @@ const CityTable = () => {
     fetchCities();
   }, []);
 
-  // Define columns for the table
+  interface City {
+    CITY_ID: string;
+    CITY_NAME: string;
+    CITY_DS_NAME: string;
+    CITY_DS_CODE: string;
+    CITY_ST_NAME: string;
+    CITY_ST_CODE: string;
+    PIN_CODE: string;
+  }
+  
   const columns = [
     {
       name: "City Name",
-      selector: (row) => `${row?.CITY_ID} - ${row?.CITY_NAME}`,
+      selector: (row: City) => `${row.CITY_ID} - ${row.CITY_NAME}`,
       sortable: true,
     },
     {
-      name: "District Name",
-      selector: (row) => `${row?.CITY_DS_CODE} - ${row?.CITY_DS_NAME}`,
+      name: "District",
+      selector: (row: City) => `${row.CITY_DS_CODE} - ${row.CITY_DS_NAME}`,
       sortable: true,
     },
     {
-      name: "State Name",
-      selector: (row) => `${row?.CITY_ST_CODE} - ${row?.CITY_ST_NAME}`,
+      name: "State",
+      selector: (row: City) => `${row.CITY_ST_CODE} - ${row.CITY_ST_NAME}`,
       sortable: true,
     },
     {
       name: "PIN Code",
-      selector: (row) => row?.CITY_PIN_CODE,
+      selector: (row: City) => row.PIN_CODE,
       sortable: true,
     },
   ];
-
+  
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">City</h2>
