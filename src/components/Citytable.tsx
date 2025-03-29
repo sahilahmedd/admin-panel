@@ -28,7 +28,7 @@ const CityTable = () => {
     CITY_DS_CODE: string;
     CITY_ST_NAME: string;
     CITY_ST_CODE: string;
-    PIN_CODE: string;
+    CITY_PIN_CODE: string;
   }
   
   const columns = [
@@ -49,7 +49,7 @@ const CityTable = () => {
     },
     {
       name: "PIN Code",
-      selector: (row: City) => row.PIN_CODE,
+      selector: (row: City) => row.CITY_PIN_CODE,
       sortable: true,
     },
   ];
