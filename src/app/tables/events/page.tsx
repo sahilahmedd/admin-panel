@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { fetchData } from "@/utils/api";
-import Image from "next/image";
+// import Image from "next/image";
 
 const EventsTable = () => {
   const [data, setData] = useState([]);
