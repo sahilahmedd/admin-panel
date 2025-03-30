@@ -1,17 +1,3 @@
-// import React from 'react'
-// // import Citytable from "@/components/Citytable";
-
-// const Dashboard = () => {
-//   return (
-//     <div>
-//       <h1>Dashboard</h1>
-//       {/* <Citytable /> */}
-//     </div>
-//   )
-// }
-
-// export default Dashboard
-
 "use client";
 
 import React, { useEffect, useState } from "react";

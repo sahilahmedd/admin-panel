@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-// import { FaBars } from "react-icons/fa";
 import { UserCircle, LogOut, KeyRound, Menu } from "lucide-react";
 
 const Navbar = ({ toggleSidebar, userName }) => {
