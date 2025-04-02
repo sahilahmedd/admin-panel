@@ -109,13 +109,13 @@ const HobbiesTable = () => {
         <div className="flex gap-1">
           <button
             onClick={() => handleEdit(row)}
-            className="bg-transparent text-white cursor-pointer px-2 py-1 rounded-full hover:bg-green-200"
+            className="bg-transparent text-white px-2 cursor-pointer py-1 rounded-full hover:bg-green-200"
           >
            <Pencil size={15} className="text-green-500"/>
           </button>
           <button
             onClick={() => handleDelete(row.HOBBY_ID)}
-            className="bg-transparent text-white cursor-pointer px-2 py-1 rounded-full hover:bg-red-200"
+            className="bg-transparent text-white px-2 cursor-pointer py-1 rounded-full hover:bg-red-200"
           >
             <CircleX size={15} className="text-red-500" />
           </button>
@@ -150,7 +150,7 @@ const HobbiesTable = () => {
             title={showModal === "add" ? "Add New Hobby" : "Edit Hobby"}
             onClose={() => setShowModal(null)}
             onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-            city={newHobby}
+            hobby={newHobby}
             onChange={handleChange}
           />
         )}
@@ -159,7 +159,7 @@ const HobbiesTable = () => {
   );
 };
 
-const Modal = ({ title, onClose, onSubmit, city, onChange }: any) => (
+const Modal = ({ title, onClose, onSubmit, hobby, onChange }: any) => (
   <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
       <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
@@ -170,7 +170,7 @@ const Modal = ({ title, onClose, onSubmit, city, onChange }: any) => (
           <input
             type="text"
             name="HOBBY_NAME"
-            value={city.HOBBY_NAME}
+            value={hobby.HOBBY_NAME}
             onChange={onChange}
             className="w-full p-2 border rounded"
           />
@@ -180,7 +180,7 @@ const Modal = ({ title, onClose, onSubmit, city, onChange }: any) => (
           <input
             type="text"
             name="HOBBY_IMAGE_URL"
-            value={city.HOBBY_IMAGE_URL}
+            value={hobby.HOBBY_IMAGE_URL}
             onChange={onChange}
             className="w-full p-2 border rounded"
           />
