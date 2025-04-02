@@ -1,8 +1,8 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import DashboardCard from "@/components/Card";
 import { fetchData } from "@/utils/api";
+import { ColorRing } from "react-loader-spinner";
 
 const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
@@ -48,7 +48,15 @@ const Dashboard = () => {
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
       {loading ? (
-        <p className="text-gray-500">Loading data...</p>
+        <div className="flex justify-center items-center h-screen">
+          <ColorRing
+            visible={true}
+            height="80"
+            width="80"
+            ariaLabel="color-ring-loading"
+            colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']}
+          />
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {tables.map((table, index) => (

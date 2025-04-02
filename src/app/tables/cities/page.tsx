@@ -5,6 +5,7 @@ import DataTable from "react-data-table-component";
 import { fetchData, postData, updateData, deleteData } from "@/utils/api";
 import toast, { Toaster } from "react-hot-toast";
 import {Pencil,CircleX} from 'lucide-react'
+import { ColorRing } from "react-loader-spinner";
 
 const CitiesTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -162,6 +163,17 @@ const CitiesTable = () => {
           columns={columns}
           data={data}
           progressPending={loading}
+          progressComponent={
+              <div className="flex justify-center items-center h-32">
+                  <ColorRing
+                    visible={true}
+                    height="80"
+                    width="80"
+                    ariaLabel="color-ring-loading"
+                    colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+                    />
+              </div>
+              }
           pagination
         />
 

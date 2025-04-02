@@ -5,6 +5,7 @@ import DataTable from "react-data-table-component";
 import { fetchData, postData, updateData, deleteData } from "@/utils/api";
 import { Pencil, CircleX } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
+import { ColorRing } from "react-loader-spinner";
 
 const ProfessionsTable = () => {
   const [data, setData] = useState([]);
@@ -149,11 +150,21 @@ const ProfessionsTable = () => {
             Add New Profession
           </button>
         </div>
-        <h1 className="text-2xl font-bold mb-4">Professions</h1>
         <DataTable
           columns={columns}
           data={data}
           progressPending={loading}
+          progressComponent={
+            <div className="flex justify-center items-center h-32">
+              <ColorRing
+                visible={true}
+                height="80"
+                width="80"
+                ariaLabel="color-ring-loading"
+                colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+              />
+            </div>
+          }
           pagination
         />
         {/* Add/Edit City Modal */}
