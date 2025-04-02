@@ -8,38 +8,39 @@ const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(true);
 
-  const tables = ["city", "Hobbies", "events", "profession"]; // Add other API tables here
+  const tables = ["cities", "hobbies", "events", "professions"]; // List of tables
 
-  // console.log("1st count: ", tableCounts);
-  
-  const tableMappings: Record<string, string> = {
-    city: "cities",
-    Hobbies: "Hobbies", // Different casing
-    events: "events",
-    profession: "professions",
+  const fetchTableCounts = async () => {
+    try {
+      // setLoading(true);
+
+      // Fetch all tables in parallel
+      const results = await Promise.all(tables.map((table) => fetchData(table)));
+
+      // Process results
+      const counts = tables.reduce((acc, table, index) => {
+        acc[table] = results[index]?.[table]?.length || 0; // Direct access since names are consistent
+        return acc;
+      }, {} as { [key: string]: number });
+
+      setTableCounts(counts);
+    } catch (error) {
+      console.error("Error fetching table counts:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-  
 
   useEffect(() => {
-    const fetchTableCounts = async () => {
-      const counts: { [key: string]: number } = {}; // Store table counts
-    
-      for (const table of Object.keys(tableMappings)) {
-        const result = await fetchData(table); // Fetch data from API
-    
-        if (result) {
-          const objectName = tableMappings[table]; // Get the correct object name
-          counts[table] = result[objectName]?.length || 0; // Use correct object name
-        }
-      }
-    
-      setTableCounts(counts);
-      setLoading(false);
-    };
-
     fetchTableCounts();
+
+    const fetchInterval = setInterval(()=>{
+      fetchTableCounts();
+    }, 1000) 
+
+    return () => clearInterval(fetchInterval);
   }, []);
-  
+
 
   const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500"];
 
