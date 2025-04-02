@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { fetchData, postData, updateData, deleteData } from "@/utils/api";
 import toast, { Toaster } from "react-hot-toast";
+import {Pencil,CircleX} from 'lucide-react'
 
 const CitiesTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -57,10 +58,10 @@ const CitiesTable = () => {
     const response = await postData("cities", newCity);
     if (response) {
       loadData();
-      toast.success('City Added successfully!')
+      toast.success("City Added successfully!");
       setShowModal(null);
     } else {
-      toast.error("City could not be added!!!")
+      toast.error("Failed to add City!!!");
     }
   };
 
@@ -82,15 +83,14 @@ const CitiesTable = () => {
   // Submit Edit City
   const handleUpdate = async () => {
     if (!selectedCity) return;
-    const response = await updateData("cities",selectedCity.CITY_ID, newCity);
+    const response = await updateData("cities", selectedCity.CITY_ID, newCity);
     if (response) {
       loadData();
-      toast.success('Successfully updated!')
+      toast.success("Successfully updated!");
       setShowModal(null);
     } else {
-      toast.error("Error Updating city!!!")
+      toast.error("Error Updating city!!!");
     }
-
   };
 
   // Delete a city
@@ -99,27 +99,45 @@ const CitiesTable = () => {
       const response = await deleteData("cities", id);
       if (response) {
         loadData();
-        toast.success('Successfully deleted!')
+        toast.success("Successfully deleted!");
       } else {
-        toast.error("Error deleting city!!!")
+        toast.error("Error deleting city!!!");
       }
     }
   };
 
   // Table columns
   const columns = [
-    { name: "City Name", selector: (row) => `${row.CITY_ID} - ${row.CITY_NAME}`, sortable: true },
-    { name: "District", selector: (row) => `${row.CITY_DS_CODE} - ${row.CITY_DS_NAME}`, sortable: true },
-    { name: "State", selector: (row) => `${row.CITY_ST_CODE} - ${row.CITY_ST_NAME}`, sortable: true },
+    {
+      name: "City Name",
+      selector: (row) => `${row.CITY_ID} - ${row.CITY_NAME}`,
+      sortable: true,
+    },
+    {
+      name: "District",
+      selector: (row) => `${row.CITY_DS_CODE} - ${row.CITY_DS_NAME}`,
+      sortable: true,
+    },
+    {
+      name: "State",
+      selector: (row) => `${row.CITY_ST_CODE} - ${row.CITY_ST_NAME}`,
+      sortable: true,
+    },
     {
       name: "Actions",
       cell: (row) => (
-        <div className="flex gap-2">
-          <button onClick={() => handleEdit(row)} className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600">
-            Edit
+        <div className="flex gap-1">
+          <button
+            onClick={() => handleEdit(row)}
+            className="bg-transparent text-white cursor-pointer px-2 py-1 rounded-full hover:bg-green-200"
+          >
+           <Pencil size={15} className="text-green-500"/>
           </button>
-          <button onClick={() => handleDelete(row.CITY_ID)} className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-            Delete
+          <button
+            onClick={() => handleDelete(row.HOBBY_ID)}
+            className="bg-transparent text-white cursor-pointer px-2 py-1 rounded-full hover:bg-red-200"
+          >
+            <CircleX size={15} className="text-red-500" />
           </button>
         </div>
       ),
@@ -127,30 +145,38 @@ const CitiesTable = () => {
   ];
 
   return (
-      <>
+    <>
       <Toaster position="top-right" reverseOrder={false} />
       <div className="p-6">
-      <div className="flex justify-between mb-4">
-        <h1 className="text-2xl font-bold">Cities</h1>
-        <button onClick={handleAdd} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-          Add New City
-        </button>
-      </div>
+        <div className="flex justify-between mb-4">
+          <h1 className="text-2xl font-bold">Cities</h1>
+          <button
+            onClick={handleAdd}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Add New City
+          </button>
+        </div>
 
-      <DataTable columns={columns} data={data} progressPending={loading} pagination />
-
-      {/* Add/Edit City Modal */}
-      {showModal && (
-        <Modal
-          title={showModal === "add" ? "Add New City" : "Edit City"}
-          onClose={() => setShowModal(null)}
-          onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-          city={newCity}
-          onChange={handleChange}
+        <DataTable
+          columns={columns}
+          data={data}
+          progressPending={loading}
+          pagination
         />
-      )}
-    </div>
-   </>
+
+        {/* Add/Edit City Modal */}
+        {showModal && (
+          <Modal
+            title={showModal === "add" ? "Add New City" : "Edit City"}
+            onClose={() => setShowModal(null)}
+            onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
+            city={newCity}
+            onChange={handleChange}
+          />
+        )}
+      </div>
+    </>
   );
 };
 
@@ -234,10 +260,16 @@ const Modal = ({ title, onClose, onSubmit, city, onChange }: any) => (
       </div>
 
       <div className="flex justify-end mt-4 gap-2">
-        <button onClick={onClose} className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+        <button
+          onClick={onClose}
+          className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
           Cancel
         </button>
-        <button onClick={onSubmit} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <button
+          onClick={onSubmit}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
           Save
         </button>
       </div>
