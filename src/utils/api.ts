@@ -65,3 +65,69 @@ export async function deleteData(endpoint: string, id: string) {
     return null;
   }
 }
+
+// Image upload API
+// export const uploadImageToHostinger = async (file: File): Promise<string> => {
+//   try {
+//     const uploadUrl = process.env.NEXT_PUBLIC_HOSTINGER_UPLOAD_API_URL;
+//     if (!uploadUrl) throw new Error("Upload API URL is missing");
+
+//     const formData = new FormData();
+//     formData.append("image", file); // ✅ match backend's expected key
+
+//     console.log("📤 Uploading image..."); 
+//     const res = await fetch(uploadUrl, {
+//       mode: "no-cors",
+//       method: "POST",
+//       body: formData,
+//     });
+
+//     const text = await res.text();
+//     console.log("📤 Raw upload response text:", text);
+
+//     if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+//     const json = JSON.parse(text);
+
+//     if (json.status !== "success" || !json.url) {
+//       throw new Error(json.message || "Upload failed");
+//     }
+
+//     return json.url;
+//   } catch (err) {
+//     console.error("Upload Error:", err);
+//     throw err;
+//   }
+// };
+
+// utils/api.ts
+export const uploadImageToHostinger = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await fetch("https://rangrezsamaj.kunxite.com/", {
+    mode: "no-cors",
+    method: "POST",
+    body: formData,
+  });
+
+  // Check response status code
+  if (!response.ok) {
+    throw new Error(`Image upload failed with status ${response.status}`);
+  }
+
+  let result: any;
+
+  try {
+    result = await response.json();
+  } catch (err) {
+    throw new Error("Failed to parse response from image server. Not valid JSON.");
+  }
+
+  // Validate response format
+  if (result?.status === true && result?.file) {
+    return `https://rangrezsamaj.kunxite.com/${result.file}`;
+  } else {
+    throw new Error(result?.message || "Unknown error occurred during image upload.");
+  }
+};
