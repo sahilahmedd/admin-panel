@@ -67,46 +67,12 @@ export async function deleteData(endpoint: string, id: string) {
 }
 
 // Image upload API
-// export const uploadImageToHostinger = async (file: File): Promise<string> => {
-//   try {
-//     const uploadUrl = process.env.NEXT_PUBLIC_HOSTINGER_UPLOAD_API_URL;
-//     if (!uploadUrl) throw new Error("Upload API URL is missing");
 
-//     const formData = new FormData();
-//     formData.append("image", file); // ✅ match backend's expected key
-
-//     console.log("📤 Uploading image..."); 
-//     const res = await fetch(uploadUrl, {
-//       mode: "no-cors",
-//       method: "POST",
-//       body: formData,
-//     });
-
-//     const text = await res.text();
-//     console.log("📤 Raw upload response text:", text);
-
-//     if (!res.ok) throw new Error(`Server returned ${res.status}`);
-
-//     const json = JSON.parse(text);
-
-//     if (json.status !== "success" || !json.url) {
-//       throw new Error(json.message || "Upload failed");
-//     }
-
-//     return json.url;
-//   } catch (err) {
-//     console.error("Upload Error:", err);
-//     throw err;
-//   }
-// };
-
-// utils/api.ts
 export const uploadImageToHostinger = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("image", file);
 
-  const response = await fetch("https://rangrezsamaj.kunxite.com/", {
-    mode: "no-cors",
+  const response = await fetch("/api/uploadImage/", {
     method: "POST",
     body: formData,
   });
@@ -126,7 +92,7 @@ export const uploadImageToHostinger = async (file: File): Promise<string> => {
 
   // Validate response format
   if (result?.status === true && result?.file) {
-    return `https://rangrezsamaj.kunxite.com/${result.file}`;
+    return `https://rangrezsamaj.kunxite.com/${result.url}`;
   } else {
     throw new Error(result?.message || "Unknown error occurred during image upload.");
   }

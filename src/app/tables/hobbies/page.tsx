@@ -13,7 +13,6 @@ const HobbiesTable = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<'add' | 'edit' | null>(null);
   const [selectedHobby, setSelectedHobby] = useState<any>(null);
-  const [uploading, setUploading] = useState(false);
 
   const defaultHobby = {
     HOBBY_NAME: '',
@@ -21,7 +20,6 @@ const HobbiesTable = () => {
   };
 
   const [newHobby, setNewHobby] = useState(defaultHobby);
-  const [file, setFile] = useState<File | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -44,51 +42,14 @@ const HobbiesTable = () => {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const uploadImage = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const res = await fetch('https://rangrezsamaj.kunxite.com/', {
-      mode: "no-cors",
-      method: 'POST',
-      body: formData,
-    });
-
-    const data = await res.json();
-
-    if (data?.status === true && data.file) {
-      return `https://rangrezsamaj.kunxite.com/${data.file}`;
-    } else {
-      throw new Error(data?.message || 'Image upload failed');
-    }
-  };
-
   const handleAdd = () => {
     setNewHobby(defaultHobby);
-    setFile(null);
     setShowModal('add');
   };
 
   const handleSubmit = async () => {
     try {
-      setUploading(true);
-      let imageUrl = newHobby.HOBBY_IMAGE_URL;
-
-      if (file) {
-        imageUrl = await uploadImage(file);
-      }
-
-      const res = await postData('hobbies', {
-        ...newHobby,
-        HOBBY_IMAGE_URL: imageUrl,
-      });
-
+      const res = await postData('hobbies', newHobby);
       if (res) {
         loadData();
         toast.success('Hobby added successfully!');
@@ -98,8 +59,6 @@ const HobbiesTable = () => {
       }
     } catch (err: any) {
       toast.error(err.message);
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -109,24 +68,12 @@ const HobbiesTable = () => {
       HOBBY_NAME: hobby.HOBBY_NAME,
       HOBBY_IMAGE_URL: hobby.HOBBY_IMAGE_URL,
     });
-    setFile(null);
     setShowModal('edit');
   };
 
   const handleUpdate = async () => {
     try {
-      setUploading(true);
-      let imageUrl = newHobby.HOBBY_IMAGE_URL;
-
-      if (file) {
-        imageUrl = await uploadImage(file);
-      }
-
-      const res = await updateData('hobbies', selectedHobby.HOBBY_ID, {
-        ...newHobby,
-        HOBBY_IMAGE_URL: imageUrl,
-      });
-
+      const res = await updateData('hobbies', selectedHobby.HOBBY_ID, newHobby);
       if (res) {
         loadData();
         toast.success('Hobby updated successfully!');
@@ -136,8 +83,6 @@ const HobbiesTable = () => {
       }
     } catch (err: any) {
       toast.error(err.message);
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -212,70 +157,20 @@ const HobbiesTable = () => {
 
         {showModal && (
           <Modal
-          title={showModal === "add" ? "Add New Hobby" : "Edit Hobby"}
-          onClose={() => setShowModal(null)}
-          onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-          hobby={newHobby}
-          onChange={handleChange}
-          setHobby={setNewHobby}
-        />        
+            title={showModal === 'add' ? 'Add New Hobby' : 'Edit Hobby'}
+            onClose={() => setShowModal(null)}
+            onSubmit={showModal === 'add' ? handleSubmit : handleUpdate}
+            hobby={newHobby}
+            onChange={handleChange}
+            setHobby={setNewHobby}
+          />
         )}
       </div>
     </>
   );
 };
 
-// const Modal = ({ title, onClose, onSubmit, hobby, onChange, file, onFileChange, uploading }: any) => (
-//   <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
-//     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
-//       <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
-
-//       <div className="grid grid-cols-1 gap-4">
-//         <div>
-//           <label className="block text-sm font-medium">Hobby Name</label>
-//           <input
-//             type="text"
-//             name="HOBBY_NAME"
-//             value={hobby.HOBBY_NAME}
-//             onChange={onChange}
-//             className="w-full p-2 border rounded"
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-sm font-medium">Icon Image</label>
-//           <input type="file" accept="image/*" onChange={onFileChange} className="w-full" />
-//           {file && (
-//             <p className="text-sm text-gray-500 mt-1">
-//               Selected: <strong>{file.name}</strong>
-//             </p>
-//           )}
-//           {!file && hobby.HOBBY_IMAGE_URL && (
-//             <img src={hobby.HOBBY_IMAGE_URL} alt="icon" width={50} className="mt-2" />
-//           )}
-//         </div>
-
-//         <div className="flex w-full justify-end mt-4 gap-2">
-//           <button
-//             onClick={onClose}
-//             className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-//           >
-//             Cancel
-//           </button>
-//           <button
-//             onClick={onSubmit}
-//             disabled={uploading}
-//             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-//           >
-//             {uploading ? 'Saving...' : 'Save'}
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   </div>
-// );
-
-const Modal = ({ title, onClose, onSubmit, hobby, onChange }: any) => {
+const Modal = ({ title, onClose, onSubmit, hobby, onChange, setHobby }: any) => {
   const [uploading, setUploading] = useState(false);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -283,33 +178,36 @@ const Modal = ({ title, onClose, onSubmit, hobby, onChange }: any) => {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append('image', file);
 
     try {
       setUploading(true);
 
-      const res = await fetch("/api/uploadImage", {
-        method: "POST",
+      const res = await fetch('/api/uploadImage', {
+        method: 'POST',
         body: formData,
       });
 
       const result = await res.json();
-      console.log("Result: ", result);
-      
-      if (result.status === "success") {
+
+      if (result.status === 'success') {
         const fullImageUrl = `https://rangrezsamaj.kunxite.com/${result.url}`;
         onChange({
           target: {
-            name: "HOBBY_IMAGE_URL",
+            name: 'HOBBY_IMAGE_URL',
             value: fullImageUrl,
           },
         });
-        toast.success("Image uploaded successfully!");
+        setHobby((prev: any) => ({
+          ...prev,
+          HOBBY_IMAGE_URL: fullImageUrl,
+        }));
+        toast.success('Image uploaded successfully!');
       } else {
-        toast.error("Image upload failed.");
+        toast.error('Image upload failed.');
       }
     } catch (error) {
-      toast.error("Something went wrong during upload.");
+      toast.error('Something went wrong during upload.');
     } finally {
       setUploading(false);
     }
@@ -362,6 +260,7 @@ const Modal = ({ title, onClose, onSubmit, hobby, onChange }: any) => {
             <button
               onClick={onSubmit}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              disabled={uploading}
             >
               Save
             </button>
@@ -371,6 +270,5 @@ const Modal = ({ title, onClose, onSubmit, hobby, onChange }: any) => {
     </div>
   );
 };
-
 
 export default HobbiesTable;
