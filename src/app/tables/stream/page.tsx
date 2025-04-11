@@ -6,7 +6,6 @@ import DataTable from 'react-data-table-component';
 import { fetchData, postData, updateData, deleteData } from '@/utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, CircleX } from 'lucide-react';
-import Image from 'next/image';
 
 const StreamTable = () => {
   const [data, setData] = useState([]);
@@ -116,21 +115,6 @@ const StreamTable = () => {
       selector: (row) => `${row.STREAM_ID} - ${row.STREAM_NAME}`,
       sortable: true,
     },
-    // {
-    //   name: 'Image',
-    //   cell: (row) =>
-    //     row.STREAM_IMAGE_URL ? (
-    //       <Image
-    //         src={row.STREAM_IMAGE_URL}
-    //         alt="icon"
-    //         width={40}
-    //         height={40}
-    //         className="rounded"
-    //       />
-    //     ) : (
-    //       'No Image'
-    //     ),
-    // },
     {
       name: 'Actions',
       cell: (row) => (
@@ -182,49 +166,8 @@ const StreamTable = () => {
   );
 };
 
-const Modal = ({ title, onClose, onSubmit, streams, onChange, setStream }: any) => {
-  const [uploading, setUploading] = useState(false);
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-      setUploading(true);
-
-      const res = await fetch('/api/uploadImage', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await res.json();
-
-      if (result.status === 'success') {
-        const fullImageUrl = `https://rangrezsamaj.kunxite.com/${result.url}`;
-        onChange({
-          target: {
-            name: 'STREAM_IMAGE_URL',
-            value: fullImageUrl,
-          },
-        });
-        setStream((prev: any) => ({
-          ...prev,
-          STREAM_IMAGE_URL: fullImageUrl,
-        }));
-        toast.success('Image uploaded successfully!');
-      } else {
-        toast.error('Image upload failed.');
-      }
-    } catch (error) {
-      toast.error('Something went wrong during upload.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
+const Modal = ({ title, onClose, onSubmit, streams, onChange }: any) => {
+  
   return (
     <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
@@ -241,26 +184,6 @@ const Modal = ({ title, onClose, onSubmit, streams, onChange, setStream }: any) 
               className="w-full p-2 border rounded"
             />
           </div>
-{/* 
-          <div>
-            <label className="block text-sm font-medium">Stream Icon</label>
-            {streams.STREAM_IMAGE_URL && (
-              <Image
-                width={40}
-                height={40}
-                src={streams.STREAM_IMAGE_URL}
-                alt="Uploaded icon"
-                className="h-12 w-12 mb-2 object-contain rounded-full border"
-              />
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full"
-            />
-            {uploading && <p className="text-sm text-blue-500 mt-1">Uploading...</p>}
-          </div> */}
 
           <div className="flex w-full justify-end mt-4 gap-2">
             <button
@@ -272,7 +195,6 @@ const Modal = ({ title, onClose, onSubmit, streams, onChange, setStream }: any) 
             <button
               onClick={onSubmit}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              disabled={uploading}
             >
               Save
             </button>
