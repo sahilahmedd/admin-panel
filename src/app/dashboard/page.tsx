@@ -3,6 +3,15 @@ import React, { useEffect, useState } from "react";
 import DashboardCard from "@/components/Card";
 import { fetchData } from "@/utils/api";
 import { ColorRing } from "react-loader-spinner";
+import {
+  Building2,
+  Heart,
+  Calendar,
+  Briefcase,
+  Book,
+  LayoutGrid,
+} from "lucide-react";
+
 
 const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
@@ -41,8 +50,18 @@ const Dashboard = () => {
     return () => clearInterval(fetchInterval);
   }, []);
 
-
+  
   const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500", "bg-sky-500"];
+
+  const iconMap: { [key: string]: React.ReactNode } = {
+    cities: <Building2 className="w-6 h-6 text-white" />,
+    hobbies: <Heart className="w-6 h-6 text-white" />,
+    events: <Calendar className="w-6 h-6 text-white" />,
+    professions: <Briefcase className="w-6 h-6 text-white" />,
+    education: <Book className="w-6 h-6 text-white" />,
+    streams: <LayoutGrid className="w-6 h-6 text-white" />,
+  };
+  
 
   return (
     <div className="p-6">
@@ -65,6 +84,7 @@ const Dashboard = () => {
               title={table}
               count={tableCounts[table] || 0}
               color={colors[index % colors.length]}
+              icon={iconMap[table]}
             />
           ))}
         </div>
