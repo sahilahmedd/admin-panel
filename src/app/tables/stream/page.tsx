@@ -100,7 +100,7 @@ const StreamTable = () => {
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this Stream?')) {
-      const res = await deleteData('stream', id);
+      const res = await deleteData('streams', id);
       if (res) {
         loadData();
         toast.success('Stream deleted!');
