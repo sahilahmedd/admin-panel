@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { UserCircle, LogOut, KeyRound, Menu } from "lucide-react";
+// import { logout } from "@/lib/actions/auth";
+import { signOut } from "next-auth/react";
 
 const Navbar = ({ toggleSidebar, userName }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -24,7 +26,7 @@ const Navbar = ({ toggleSidebar, userName }) => {
               <button className="flex items-center gap-2 px-4 py-2 w-full hover:bg-gray-200">
                 <KeyRound className="w-5 h-5" /> Change Password
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 w-full hover:bg-gray-200">
+              <button onClick={()=>signOut({ redirect: true, redirectTo: "/login" })} className="flex items-center gap-2 px-4 py-2 w-full hover:bg-gray-200">
                 <LogOut className="w-5 h-5 text-red-500" /> Logout
               </button>
             </div>

@@ -5,13 +5,13 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  redirects: async () => [
-    {
-      source: "/",
-      destination: "/dashboard",
-      permanent: true, // Use false if this is temporary
-    },
-  ],
+  // redirects: async () => [
+  //   {
+  //     source: "/",
+  //     destination: "/login",
+  //     permanent: false, // Use false if this is temporary
+  //   },
+  // ],
   images: {
     remotePatterns: [
       {
