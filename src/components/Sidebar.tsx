@@ -9,6 +9,7 @@ import {
   Briefcase,
   CalendarHeart,
   Settings,
+  BookA
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
@@ -19,6 +20,8 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     { name: "Hobbies", path: "hobbies", icon: <UserPen className="w-5 h-5" /> },
     { name: "Professions", path: "professions", icon: <Briefcase className="w-5 h-5" /> },
     { name: "Events", path: "events", icon: <CalendarHeart className="w-5 h-5" /> },
+    { name: "Education", path: "education", icon: <BookA className="w-5 h-5" /> },
+    { name: "Stream", path: "stream", icon: <BookA className="w-5 h-5" /> },
   ];
 
   // console.log("Path: ", tableLinks[0].path);

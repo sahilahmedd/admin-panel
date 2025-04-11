@@ -8,7 +8,7 @@ const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(true);
 
-  const tables = ["cities", "hobbies", "events", "professions"]; // List of tables
+  const tables = ["cities", "hobbies", "events", "professions", "education", "streams"]; // List of tables
 
   const fetchTableCounts = async () => {
     try {
@@ -42,7 +42,7 @@ const Dashboard = () => {
   }, []);
 
 
-  const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500"];
+  const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500", "bg-sky-500"];
 
   return (
     <div className="p-6">

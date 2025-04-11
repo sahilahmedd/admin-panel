@@ -68,32 +68,32 @@ export async function deleteData(endpoint: string, id: string) {
 
 // Image upload API
 
-export const uploadImageToHostinger = async (file: File): Promise<string> => {
-  const formData = new FormData();
-  formData.append("image", file);
+// export const uploadImageToHostinger = async (file: File): Promise<string> => {
+//   const formData = new FormData();
+//   formData.append("image", file);
 
-  const response = await fetch("/api/uploadImage/", {
-    method: "POST",
-    body: formData,
-  });
+//   const response = await fetch("/api/uploadImage/", {
+//     method: "POST",
+//     body: formData,
+//   });
 
-  // Check response status code
-  if (!response.ok) {
-    throw new Error(`Image upload failed with status ${response.status}`);
-  }
+//   // Check response status code
+//   if (!response.ok) {
+//     throw new Error(`Image upload failed with status ${response.status}`);
+//   }
 
-  let result: any;
+//   let result: any;
 
-  try {
-    result = await response.json();
-  } catch (err) {
-    throw new Error("Failed to parse response from image server. Not valid JSON.");
-  }
+//   try {
+//     result = await response.json();
+//   } catch (err) {
+//     throw new Error("Failed to parse response from image server. Not valid JSON.");
+//   }
 
-  // Validate response format
-  if (result?.status === true && result?.file) {
-    return `https://rangrezsamaj.kunxite.com/${result.url}`;
-  } else {
-    throw new Error(result?.message || "Unknown error occurred during image upload.");
-  }
-};
+//   // Validate response format
+//   if (result?.status === true && result?.file) {
+//     return `https://rangrezsamaj.kunxite.com/${result.url}`;
+//   } else {
+//     throw new Error(result?.message || "Unknown error occurred during image upload.");
+//   }
+// };

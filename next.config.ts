@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "ibb.co",
+      },
+      {
+        protocol: "https",
         hostname: "rangrezsamaj.kunxite.com",
       },
     ],
