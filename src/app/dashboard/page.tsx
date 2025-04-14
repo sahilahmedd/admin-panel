@@ -12,7 +12,6 @@ import {
   LayoutGrid,
 } from "lucide-react";
 
-
 const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(true);
@@ -54,12 +53,12 @@ const Dashboard = () => {
   const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500", "bg-sky-500"];
 
   const iconMap: { [key: string]: React.ReactNode } = {
-    cities: <Building2 className="w-6 h-6 text-white" />,
-    hobbies: <Heart className="w-6 h-6 text-white" />,
-    events: <Calendar className="w-6 h-6 text-white" />,
-    professions: <Briefcase className="w-6 h-6 text-white" />,
-    education: <Book className="w-6 h-6 text-white" />,
-    streams: <LayoutGrid className="w-6 h-6 text-white" />,
+    cities: <Building2 strokeWidth={1} className="w-20 h-20 text-white" />,
+    hobbies: <Heart strokeWidth={1} className="w-20 h-20 text-white" />,
+    events: <Calendar strokeWidth={1} className="w-20 h-20 text-white" />,
+    professions: <Briefcase strokeWidth={1} className="w-20 h-20 text-white" />,
+    education: <Book strokeWidth={1} className="w-20 h-20 text-white" />,
+    streams: <LayoutGrid strokeWidth={1} className="w-20 h-20 text-white" />,
   };
   
 

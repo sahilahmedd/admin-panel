@@ -4,24 +4,26 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   Table,
-  UserPen,
-  Building,
-  Briefcase,
-  CalendarHeart,
   Settings,
-  BookA
+  Building2,
+  Heart,
+  Calendar,
+  Briefcase,
+  Book,
+  LayoutGrid,
 } from "lucide-react";
+
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const [tablesOpen, setTablesOpen] = useState(false);
 
   const tableLinks = [
-    { name: "Cities", path: "cities", icon: <Building className="w-5 h-5" /> },
-    { name: "Hobbies", path: "hobbies", icon: <UserPen className="w-5 h-5" /> },
+    { name: "Cities", path: "cities", icon: <Building2 className="w-5 h-5" /> },
+    { name: "Hobbies", path: "hobbies", icon: <Heart className="w-5 h-5" /> },
     { name: "Professions", path: "professions", icon: <Briefcase className="w-5 h-5" /> },
-    { name: "Events", path: "events", icon: <CalendarHeart className="w-5 h-5" /> },
-    { name: "Education", path: "education", icon: <BookA className="w-5 h-5" /> },
-    { name: "Stream", path: "stream", icon: <BookA className="w-5 h-5" /> },
+    { name: "Events", path: "events", icon: <Calendar className="w-5 h-5" /> },
+    { name: "Education", path: "education", icon: <Book className="w-5 h-5" /> },
+    { name: "Stream", path: "stream", icon: <LayoutGrid className="w-5 h-5" /> },
   ];
 
   // console.log("Path: ", tableLinks[0].path);

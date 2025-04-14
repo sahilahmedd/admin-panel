@@ -11,15 +11,17 @@ interface DashboardCardProps {
 const DashboardCard: React.FC<DashboardCardProps> = ({ title, count, color, icon }) => {
   return (
     <div
-      className={`p-4 rounded-lg shadow-md text-white flex flex-col items-center justify-center ${
+      className={`p-4 rounded-lg shadow-md transform-3d md:transform-flat text-white flex items-start justify-around ${
         color || "bg-blue-500"
       }`}
     >
-      <div className="flex gap-2">
-        <div className="opacity-80">{icon}</div>
-        <h3 className="text-lg font-semibold capitalize">{title}</h3>
+      <div className="">
+        {icon}
       </div>
-      <p className="text-2xl font-bold">{count}</p>
+      <div className="flex flex-col justify-end relative top-1">
+        <h3 className="text-lg font-bold uppercase">{title}</h3>
+        <p className="text-2xl font-semibold">Entires: {count}</p>
+      </div>
     </div>
   );
 };
