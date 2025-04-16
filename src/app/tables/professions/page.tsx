@@ -6,12 +6,14 @@ import { fetchData, postData, updateData, deleteData } from "@/utils/api";
 import { Pencil, CircleX } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { ColorRing } from "react-loader-spinner";
+import TableHeader from "@/components/TableHeader";
 
 const ProfessionsTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<"add" | "edit" | null>(null);
   const [selectedProf, setSelectedProf] = useState<any>(null);
+  const [searchText, setSearchText] = useState("");
 
   const defaultProf = {
     PROF_NAME: "",
@@ -35,6 +37,11 @@ const ProfessionsTable = () => {
   useEffect(() => {
     getProfessions();
   }, []);
+
+  // Handle Search
+  const filteredData = data.filter((item) =>
+    item.PROF_NAME.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -141,18 +148,17 @@ const ProfessionsTable = () => {
     <>
       <Toaster position="top-right" reverseOrder={false} />
       <div className="p-6">
-        <div className="flex justify-between mb-4">
-          <h1 className="text-2xl font-bold">Professions</h1>
-          <button
-            onClick={handleAdd}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Add New Profession
-          </button>
-        </div>
+
+        <TableHeader
+          title="Professions"
+          text="Profession"          placeholder="Search for professions..."
+          handleAdd={handleAdd}
+          searchText={searchText}
+          setSearchText={setSearchText}
+        />
         <DataTable
           columns={columns}
-          data={data}
+          data={filteredData}
           progressPending={loading}
           progressComponent={
             <div className="flex justify-center items-center h-32">
@@ -170,7 +176,9 @@ const ProfessionsTable = () => {
         {/* Add/Edit City Modal */}
         {showModal && (
           <Modal
-            title={showModal === "add" ? "Add New Profession" : "Edit Profession"}
+            title={
+              showModal === "add" ? "Add New Profession" : "Edit Profession"
+            }
             onClose={() => setShowModal(null)}
             onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
             prof={newProf}
@@ -181,7 +189,6 @@ const ProfessionsTable = () => {
     </>
   );
 };
-
 
 const Modal = ({ title, onClose, onSubmit, prof, onChange }: any) => (
   <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
@@ -220,22 +227,22 @@ const Modal = ({ title, onClose, onSubmit, prof, onChange }: any) => (
           />
         </div> */}
         <div>
-        <label className="block text-sm font-medium">Active</label>
-        <input
-          type="checkbox"
-          name="PROF_ACTIVE_YN"
-          checked={prof.PROF_ACTIVE_YN === "Y"} // Check if value is "Y"
-          onChange={(e) =>
-            onChange({
-              target: {
-                name: "PROF_ACTIVE_YN",
-                value: e.target.checked ? "Y" : "N", // "Y" when checked, "N" when unchecked
-              },
-            })
-          }
-          className="w-5 h-5 border rounded"
-        />
-      </div>
+          <label className="block text-sm font-medium">Active</label>
+          <input
+            type="checkbox"
+            name="PROF_ACTIVE_YN"
+            checked={prof.PROF_ACTIVE_YN === "Y"} // Check if value is "Y"
+            onChange={(e) =>
+              onChange({
+                target: {
+                  name: "PROF_ACTIVE_YN",
+                  value: e.target.checked ? "Y" : "N", // "Y" when checked, "N" when unchecked
+                },
+              })
+            }
+            className="w-5 h-5 border rounded"
+          />
+        </div>
 
         <div className="flex w-full justify-end mt-4 gap-2">
           <button

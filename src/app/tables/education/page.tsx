@@ -1,18 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import DataTable from 'react-data-table-component';
-import { fetchData, postData, updateData, deleteData } from '@/utils/api';
-import toast, { Toaster } from 'react-hot-toast';
-import { Pencil, CircleX } from 'lucide-react';
-import Image from 'next/image';
+import React, { useEffect, useState } from "react";
+import DataTable from "react-data-table-component";
+import { fetchData, postData, updateData, deleteData } from "@/utils/api";
+import toast, { Toaster } from "react-hot-toast";
+import { Pencil, CircleX } from "lucide-react";
+import Image from "next/image";
+import TableSearch from "@/components/TableSearch";
+import Modal from "@/components/AddEdit";
+import Input from "@/components/FormInput";
+import TableHeader from "@/components/TableHeader";
 
 const EducationTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState<'add' | 'edit' | null>(null);
+  const [showModal, setShowModal] = useState<"add" | "edit" | null>(null);
   const [selectedEdu, setSelectedEdu] = useState<any>(null);
+  const [searchText, setSearchText] = useState("");
 
   const defaultEdu = {
     EDUCATION_ID: 1,
@@ -21,16 +26,16 @@ const EducationTable = () => {
     EDUCATION_CREATED_BY: 1,
     EDUCATION_CREATED_DT: "",
     EDUCATION_UPDATED_BY: null,
-    EDUCATION_UPDATED_DT: null
+    EDUCATION_UPDATED_DT: null,
   };
 
   const [newEdu, setNewEdu] = useState(defaultEdu);
 
   const loadData = async () => {
     setLoading(true);
-    const response = await fetchData('education');
+    const response = await fetchData("education");
     console.log("Education: ", response);
-    
+
     if (response && response.education) {
       setData(response.education);
     }
@@ -40,6 +45,11 @@ const EducationTable = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Handle search
+  const filteredData = data.filter((item) =>
+    item.EDUCATION_NAME.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -51,20 +61,20 @@ const EducationTable = () => {
 
   const handleAdd = () => {
     setNewEdu(defaultEdu);
-    setShowModal('add');
+    setShowModal("add");
   };
 
   const handleSubmit = async () => {
     try {
-      const res = await postData('education', newEdu);
+      const res = await postData("education", newEdu);
       console.log("Send: ", res);
-      
+
       if (res) {
         loadData();
-        toast.success('Edcuation added successfully!');
+        toast.success("Edcuation added successfully!");
         setShowModal(null);
       } else {
-        toast.error('Failed to add Education!');
+        toast.error("Failed to add Education!");
       }
     } catch (err: any) {
       toast.error(err.message);
@@ -74,26 +84,30 @@ const EducationTable = () => {
   const handleEdit = (edu: any) => {
     setSelectedEdu(edu);
     setNewEdu({
-        EDUCATION_ID: edu.EDUCATION_ID,
-        EDUCATION_NAME: edu.EDUCATION_NAME,
-        EDUCATION_IMAGE_URL: edu.EDUCATION_IMAGE_URL,
-        EDUCATION_CREATED_BY: 1,
-        EDUCATION_CREATED_DT: edu.EDUCATION_CREATED_DT,
-        EDUCATION_UPDATED_BY: null,
-        EDUCATION_UPDATED_DT: null
+      EDUCATION_ID: edu.EDUCATION_ID,
+      EDUCATION_NAME: edu.EDUCATION_NAME,
+      EDUCATION_IMAGE_URL: edu.EDUCATION_IMAGE_URL,
+      EDUCATION_CREATED_BY: 1,
+      EDUCATION_CREATED_DT: edu.EDUCATION_CREATED_DT,
+      EDUCATION_UPDATED_BY: null,
+      EDUCATION_UPDATED_DT: null,
     });
-    setShowModal('edit');
+    setShowModal("edit");
   };
 
   const handleUpdate = async () => {
     try {
-      const res = await updateData('education', selectedEdu.EDUCATION_ID, newEdu);
+      const res = await updateData(
+        "education",
+        selectedEdu.EDUCATION_ID,
+        newEdu
+      );
       if (res) {
         loadData();
-        toast.success('Education updated successfully!');
+        toast.success("Education updated successfully!");
         setShowModal(null);
       } else {
-        toast.error('Failed to update Education!');
+        toast.error("Failed to update Education!");
       }
     } catch (err: any) {
       toast.error(err.message);
@@ -101,25 +115,25 @@ const EducationTable = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this Education?')) {
-      const res = await deleteData('education', id);
+    if (confirm("Are you sure you want to delete this Education?")) {
+      const res = await deleteData("education", id);
       if (res) {
         loadData();
-        toast.success('Education deleted!');
+        toast.success("Education deleted!");
       } else {
-        toast.error('Failed to delete Education!');
+        toast.error("Failed to delete Education!");
       }
     }
   };
 
   const columns = [
     {
-      name: 'Education',
+      name: "Education",
       selector: (row) => `${row.EDUCATION_ID} - ${row.EDUCATION_NAME}`,
       sortable: true,
     },
     {
-      name: 'Image',
+      name: "Image",
       cell: (row) =>
         row.EDUCATION_IMAGE_URL ? (
           <Image
@@ -130,11 +144,11 @@ const EducationTable = () => {
             className="rounded"
           />
         ) : (
-          'No Image'
+          "No Image"
         ),
     },
     {
-      name: 'Actions',
+      name: "Actions",
       cell: (row) => (
         <div className="flex gap-1">
           <button
@@ -158,7 +172,7 @@ const EducationTable = () => {
     <>
       <Toaster position="top-right" reverseOrder={false} />
       <div className="p-6">
-        <div className="flex justify-between mb-4">
+        {/* <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold">Hobbies</h1>
           <button
             onClick={handleAdd}
@@ -166,19 +180,73 @@ const EducationTable = () => {
           >
             Add New Education
           </button>
-        </div>
-        <DataTable columns={columns} data={data} progressPending={loading} pagination />
+        </div> */}
+        {/* <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <h1 className="text-2xl font-semibold text-gray-800">Cities</h1>
+          <div className="w-full sm:w-64">
+            <TableSearch
+              searchText={searchText}
+              setSearchText={setSearchText}
+              placeholder="Search by city, district, or state..."
+            />
+          </div>
+          <button
+            onClick={handleAdd}
+            className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-3 py-2 rounded-full shadow-sm transition"
+          >
+            + Add New Education
+            <PlusIcon strokeWidth={3} />
+          </button>
+        </div> */}
+
+        <TableHeader
+          title="Educations"
+          text="Edu"
+          placeholder="Search for educaiton..."
+          handleAdd={handleAdd}
+          searchText={searchText}
+          setSearchText={setSearchText}
+        />
+
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          progressPending={loading}
+          pagination
+        />
 
         {showModal && (
           <Modal
-            title={showModal === 'add' ? 'Add New Education' : 'Edit Education'}
+            title={showModal === "add" ? "Add New Education" : "Edit Education"}
             onClose={() => setShowModal(null)}
-            onSubmit={showModal === 'add' ? handleSubmit : handleUpdate}
+            onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
             edu={newEdu}
             onChange={handleChange}
             setEdu={setNewEdu}
           />
         )}
+        {/* {showModal && (
+          <Modal
+            title={showModal === "add" ? "Add City" : "Edit City"}
+            onClose={() => setShowModal(null)}
+            onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
+          >
+            <Input
+              type="text"
+              label="Education Name"
+              name="EDUCATION_NAME"
+              value={newEdu.EDUCATION_NAME}
+              onChange={handleChange}
+            />
+            <Input
+              type="file"
+              label="Choose File"
+              name="EDUCATION_IMAGE_URL"
+              value={newEdu.EDUCATION_IMAGE_URL}
+              onChange={handleChange}
+            />
+          </Modal>
+        )} */}
       </div>
     </>
   );
@@ -192,23 +260,23 @@ const Modal = ({ title, onClose, onSubmit, edu, onChange, setEdu }: any) => {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append("image", file);
 
     try {
       setUploading(true);
 
-      const res = await fetch('/api/uploadImage', {
-        method: 'POST',
+      const res = await fetch("/api/uploadImage", {
+        method: "POST",
         body: formData,
       });
 
       const result = await res.json();
 
-      if (result.status === 'success') {
+      if (result.status === "success") {
         const fullImageUrl = `https://rangrezsamaj.kunxite.com/${result.url}`;
         onChange({
           target: {
-            name: 'EDUCATION_IMAGE_URL',
+            name: "EDUCATION_IMAGE_URL",
             value: fullImageUrl,
           },
         });
@@ -216,12 +284,12 @@ const Modal = ({ title, onClose, onSubmit, edu, onChange, setEdu }: any) => {
           ...prev,
           EDUCATION_IMAGE_URL: fullImageUrl,
         }));
-        toast.success('Image uploaded successfully!');
+        toast.success("Image uploaded successfully!");
       } else {
-        toast.error('Image upload failed.');
+        toast.error("Image upload failed.");
       }
     } catch (error) {
-      toast.error('Something went wrong during upload.');
+      toast.error("Something went wrong during upload.");
     } finally {
       setUploading(false);
     }
@@ -261,7 +329,9 @@ const Modal = ({ title, onClose, onSubmit, edu, onChange, setEdu }: any) => {
               onChange={handleImageChange}
               className="w-full"
             />
-            {uploading && <p className="text-sm text-blue-500 mt-1">Uploading...</p>}
+            {uploading && (
+              <p className="text-sm text-blue-500 mt-1">Uploading...</p>
+            )}
           </div>
 
           <div className="flex w-full justify-end mt-4 gap-2">

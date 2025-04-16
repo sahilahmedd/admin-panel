@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { fetchData } from "@/utils/api";
+import TableHeader from "@/components/TableHeader";
 // import Image from "next/image";
 
 const EventsTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     const getEvents = async () => {
@@ -21,6 +23,15 @@ const EventsTable = () => {
     getEvents();
   }, []);
 
+  // Handle search
+  // handle search
+  const filteredData = data.filter(
+    (item) =>
+      item.ENVT_DESC.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.ENVT_CITY.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.ENVT_ADDRESS.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   // Define columns similar to the City table
   const columns = [
     {
@@ -29,24 +40,24 @@ const EventsTable = () => {
       sortable: true,
     },
     {
-        name: "Location",
-        selector: (row) => `${row.ENVT_CITY}`,
-        sortable: true,
+      name: "Location",
+      selector: (row) => `${row.ENVT_CITY}`,
+      sortable: true,
     },
     {
-        name: "Address",
-        selector: (row) => `${row.ENVT_ADDRESS}`,
-        sortable: true,
+      name: "Address",
+      selector: (row) => `${row.ENVT_ADDRESS}`,
+      sortable: true,
     },
     {
-        name: "Contact No.",
-        selector: (row) => `${row.ENVT_CONTACT_NO}`,
-        sortable: true,
+      name: "Contact No.",
+      selector: (row) => `${row.ENVT_CONTACT_NO}`,
+      sortable: true,
     },
     {
-        name: "Active",
-        selector: (row) => `${row.EVET_ACTIVE_YN}`,
-        sortable: true,
+      name: "Active",
+      selector: (row) => `${row.EVET_ACTIVE_YN}`,
+      sortable: true,
     },
     // {
     //     name: "Discription",
@@ -72,8 +83,20 @@ const EventsTable = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Events</h1>
-      <DataTable columns={columns} data={data} progressPending={loading} pagination />
+      {/* <h1 className="text-2xl font-bold mb-4">Events</h1> */}
+      <TableHeader
+        title="Events"
+        text="Event"
+        placeholder="Search for events..."
+        searchText={searchText}
+        setSearchText={setSearchText}
+      />
+      <DataTable
+        columns={columns}
+        data={filteredData}
+        progressPending={loading}
+        pagination
+      />
     </div>
   );
 };

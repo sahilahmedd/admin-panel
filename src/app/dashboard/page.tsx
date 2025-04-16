@@ -12,9 +12,11 @@ import {
   LayoutGrid,
 } from "lucide-react";
 
+
 const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(true);
+
 
   const tables = ["cities", "hobbies", "events", "professions", "education", "streams"]; // List of tables
 
@@ -64,6 +66,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-6">
+ 
       <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
       {loading ? (
         <div className="flex justify-center items-center h-screen">

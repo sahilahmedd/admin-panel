@@ -7,12 +7,14 @@ import { fetchData, postData, updateData, deleteData } from '@/utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, CircleX } from 'lucide-react';
 import Image from 'next/image';
+import TableHeader from '@/components/TableHeader';
 
 const HobbiesTable = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<'add' | 'edit' | null>(null);
   const [selectedHobby, setSelectedHobby] = useState<any>(null);
+  const [searchText, setSearchText] = useState("");
 
   const defaultHobby = {
     HOBBY_NAME: '',
@@ -33,6 +35,11 @@ const HobbiesTable = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+    // Handle search 
+  const filteredData = data.filter((item) =>
+    item.HOBBY_NAME.toLowerCase().includes(searchText.toLowerCase()) 
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -144,7 +151,7 @@ const HobbiesTable = () => {
     <>
       <Toaster position="top-right" reverseOrder={false} />
       <div className="p-6">
-        <div className="flex justify-between mb-4">
+        {/* <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold">Hobbies</h1>
           <button
             onClick={handleAdd}
@@ -152,8 +159,35 @@ const HobbiesTable = () => {
           >
             Add New Hobby
           </button>
-        </div>
-        <DataTable columns={columns} data={data} progressPending={loading} pagination />
+        </div> */}
+        {/* <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <h1 className="text-2xl font-semibold text-gray-800">Cities</h1>
+          <div className="w-full sm:w-64">
+            <TableSearch
+              searchText={searchText}
+              setSearchText={setSearchText}
+              placeholder="Search by city, district, or state..."
+            />
+          </div>
+          <button
+            onClick={handleAdd}
+            className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-3 py-2 rounded-full shadow-sm transition"
+          >
+            + Add New Hobby
+            <PlusIcon strokeWidth={3} />
+          </button>
+        </div> */}
+
+        <TableHeader
+          title="Hobbies"
+          text="Hobby"
+          placeholder="Search for hobbies..."
+          searchText={searchText}
+          setSearchText={setSearchText}
+          handleAdd={handleAdd}
+        />
+
+        <DataTable columns={columns} data={filteredData} progressPending={loading} pagination />
 
         {showModal && (
           <Modal
