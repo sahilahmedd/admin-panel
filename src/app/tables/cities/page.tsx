@@ -162,9 +162,9 @@ const CitiesTable = () => {
       <Toaster position="top-right" reverseOrder={false} />
       <div className="p-6">
         <TableHeader
-          title="cities"
+          title="Cities"
           text="City"
-          placeholder="Search for cities..."
+          placeholder="Search for cities, district, state..."
           searchText={searchText}
           setSearchText={setSearchText}
           handleAdd={handleAdd}

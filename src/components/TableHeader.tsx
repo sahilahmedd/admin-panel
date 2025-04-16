@@ -1,5 +1,5 @@
 import TableSearch from "./TableSearch";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 const TableHeader = ({
   title,

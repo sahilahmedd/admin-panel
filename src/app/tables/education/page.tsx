@@ -7,17 +7,17 @@ import { fetchData, postData, updateData, deleteData } from "@/utils/api";
 import toast, { Toaster } from "react-hot-toast";
 import { Pencil, CircleX } from "lucide-react";
 import Image from "next/image";
-import TableSearch from "@/components/TableSearch";
 import Modal from "@/components/AddEdit";
 import Input from "@/components/FormInput";
 import TableHeader from "@/components/TableHeader";
 
 const EducationTable = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<"add" | "edit" | null>(null);
   const [selectedEdu, setSelectedEdu] = useState<any>(null);
   const [searchText, setSearchText] = useState("");
+
 
   const defaultEdu = {
     EDUCATION_ID: 1,
@@ -51,12 +51,53 @@ const EducationTable = () => {
     item.EDUCATION_NAME.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewEdu((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value } = e.target;
+  //   setNewEdu((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  // };
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, files } = e.target;
+  
+    if (type === "file" && files?.[0]) {
+      const formData = new FormData();
+      formData.append("image", files[0]); // 👈 key must match what your API expects
+  
+      try {
+        const response = await fetch("/api/uploadImage", {
+          method: "POST",
+          body: formData,
+        });
+  
+        const result = await response.json();
+        console.log("Response: ", result );
+        
+        if (result.status) {
+          const imageUrl = `https://rangrezsamaj.kunxite.com/${result.url}`; // This is likely a relative path
+          console.log("URL: ", imageUrl);
+          
+  
+          // ✅ Store the uploaded image URL in your form data
+          setNewEdu((prev) => ({
+            ...prev,
+            [name]: imageUrl,
+          }));
+        } else {
+          toast.error("Image upload failed");
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast.error("Image upload error");
+      }
+    } else {
+      setNewEdu((prev) => ({
+        ...prev,
+        [name]: type === "number" ? Number(value) || 0 : value,
+      }));
+    }
   };
 
   const handleAdd = () => {
@@ -215,7 +256,7 @@ const EducationTable = () => {
           pagination
         />
 
-        {showModal && (
+        {/* {showModal && (
           <Modal
             title={showModal === "add" ? "Add New Education" : "Edit Education"}
             onClose={() => setShowModal(null)}
@@ -224,8 +265,8 @@ const EducationTable = () => {
             onChange={handleChange}
             setEdu={setNewEdu}
           />
-        )}
-        {/* {showModal && (
+        )} */}
+        {showModal && (
           <Modal
             title={showModal === "add" ? "Add City" : "Edit City"}
             onClose={() => setShowModal(null)}
@@ -240,119 +281,119 @@ const EducationTable = () => {
             />
             <Input
               type="file"
-              label="Choose File"
+              label="Upload Icon"
               name="EDUCATION_IMAGE_URL"
               value={newEdu.EDUCATION_IMAGE_URL}
               onChange={handleChange}
             />
           </Modal>
-        )} */}
+        )}
       </div>
     </>
   );
 };
 
-const Modal = ({ title, onClose, onSubmit, edu, onChange, setEdu }: any) => {
-  const [uploading, setUploading] = useState(false);
+// const Modal = ({ title, onClose, onSubmit, edu, onChange, setEdu }: any) => {
+//   const [uploading, setUploading] = useState(false);
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+//   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const file = e.target.files?.[0];
+//     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("image", file);
+//     const formData = new FormData();
+//     formData.append("image", file);
 
-    try {
-      setUploading(true);
+//     try {
+//       setUploading(true);
 
-      const res = await fetch("/api/uploadImage", {
-        method: "POST",
-        body: formData,
-      });
+//       const res = await fetch("/api/uploadImage", {
+//         method: "POST",
+//         body: formData,
+//       });
 
-      const result = await res.json();
+//       const result = await res.json();
 
-      if (result.status === "success") {
-        const fullImageUrl = `https://rangrezsamaj.kunxite.com/${result.url}`;
-        onChange({
-          target: {
-            name: "EDUCATION_IMAGE_URL",
-            value: fullImageUrl,
-          },
-        });
-        setEdu((prev: any) => ({
-          ...prev,
-          EDUCATION_IMAGE_URL: fullImageUrl,
-        }));
-        toast.success("Image uploaded successfully!");
-      } else {
-        toast.error("Image upload failed.");
-      }
-    } catch (error) {
-      toast.error("Something went wrong during upload.");
-    } finally {
-      setUploading(false);
-    }
-  };
+//       if (result.status === "success") {
+//         const fullImageUrl = `https://rangrezsamaj.kunxite.com/${result.url}`;
+//         onChange({
+//           target: {
+//             name: "EDUCATION_IMAGE_URL",
+//             value: fullImageUrl,
+//           },
+//         });
+//         setEdu((prev: any) => ({
+//           ...prev,
+//           EDUCATION_IMAGE_URL: fullImageUrl,
+//         }));
+//         toast.success("Image uploaded successfully!");
+//       } else {
+//         toast.error("Image upload failed.");
+//       }
+//     } catch (error) {
+//       toast.error("Something went wrong during upload.");
+//     } finally {
+//       setUploading(false);
+//     }
+//   };
 
-  return (
-    <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
-        <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
+//   return (
+//     <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
+//       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
+//         <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
 
-        <div className="grid grid-cols-1 gap-4">
-          <div>
-            <label className="block text-sm font-medium">Education Name</label>
-            <input
-              type="text"
-              name="EDUCATION_NAME"
-              value={edu.EDUCATION_NAME}
-              onChange={onChange}
-              className="w-full p-2 border rounded"
-            />
-          </div>
+//         <div className="grid grid-cols-1 gap-4">
+//           <div>
+//             <label className="block text-sm font-medium">Education Name</label>
+//             <input
+//               type="text"
+//               name="EDUCATION_NAME"
+//               value={edu.EDUCATION_NAME}
+//               onChange={onChange}
+//               className="w-full p-2 border rounded"
+//             />
+//           </div>
 
-          <div>
-            <label className="block text-sm font-medium">Education Icon</label>
-            {edu.EDUCATION_IMAGE_URL && (
-              <Image
-                width={40}
-                height={40}
-                src={edu.EDUCATION_IMAGE_URL}
-                alt="Uploaded icon"
-                className="h-12 w-12 mb-2 object-contain rounded-full border"
-              />
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full"
-            />
-            {uploading && (
-              <p className="text-sm text-blue-500 mt-1">Uploading...</p>
-            )}
-          </div>
+//           <div>
+//             <label className="block text-sm font-medium">Education Icon</label>
+//             {edu.EDUCATION_IMAGE_URL && (
+//               <Image
+//                 width={40}
+//                 height={40}
+//                 src={edu.EDUCATION_IMAGE_URL}
+//                 alt="Uploaded icon"
+//                 className="h-12 w-12 mb-2 object-contain rounded-full border"
+//               />
+//             )}
+//             <input
+//               type="file"
+//               accept="image/*"
+//               onChange={handleImageChange}
+//               className="w-full"
+//             />
+//             {uploading && (
+//               <p className="text-sm text-blue-500 mt-1">Uploading...</p>
+//             )}
+//           </div>
 
-          <div className="flex w-full justify-end mt-4 gap-2">
-            <button
-              onClick={onClose}
-              className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onSubmit}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              disabled={uploading}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//           <div className="flex w-full justify-end mt-4 gap-2">
+//             <button
+//               onClick={onClose}
+//               className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+//             >
+//               Cancel
+//             </button>
+//             <button
+//               onClick={onSubmit}
+//               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+//               disabled={uploading}
+//             >
+//               Save
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 export default EducationTable;

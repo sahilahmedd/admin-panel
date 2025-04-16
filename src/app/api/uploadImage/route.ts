@@ -10,8 +10,9 @@ export async function POST(req: Request) {
       method: "POST",
       body: formData,
     });
-
+    
     const result = await response.json();
+    console.log("API Response:", result);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Server proxy error:", error);

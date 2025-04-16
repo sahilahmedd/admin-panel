@@ -9,7 +9,7 @@ import { ColorRing } from "react-loader-spinner";
 import TableHeader from "@/components/TableHeader";
 
 const ProfessionsTable = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<"add" | "edit" | null>(null);
   const [selectedProf, setSelectedProf] = useState<any>(null);

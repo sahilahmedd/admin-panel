@@ -11,7 +11,7 @@ import Modal from "@/components/AddEdit";
 import Input from "@/components/FormInput";
 
 const StreamTable = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState<"add" | "edit" | null>(null);
   const [selectedStream, setSelectedStream] = useState<any>(null);
@@ -153,15 +153,6 @@ const StreamTable = () => {
     <>
 
       <div className="p-6">
-        {/* <div className="flex justify-between mb-4">
-          <h1 className="text-2xl font-bold">Stream</h1>
-          <button
-            onClick={handleAdd}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Add New Stream
-          </button>
-        </div> */}
 
         <TableHeader
           title="Streams"
@@ -179,18 +170,7 @@ const StreamTable = () => {
           pagination
         />
 
-        {/* {showModal && (
-          <Modal
-            title={showModal === "add" ? "Add New Stream" : "Edit Stream"}
-            onClose={() => setShowModal(null)}
-            onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-            streams={newStream}
-            onChange={handleChange}
-            setStream={setNewStream}
-          />
-        )} */}
-
-{showModal && (
+        {showModal && (
           <Modal
             title={showModal === "add" ? "Add City" : "Edit City"}
             onClose={() => setShowModal(null)}
@@ -210,42 +190,5 @@ const StreamTable = () => {
   );
 };
 
-// const Modal = ({ title, onClose, onSubmit, streams, onChange }: any) => {
-//   return (
-//     <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
-//       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
-//         <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
-
-//         <div className="grid grid-cols-1 gap-4">
-//           <div>
-//             <label className="block text-sm font-medium">Stream Name</label>
-//             <input
-//               type="text"
-//               name="STREAM_NAME"
-//               value={streams.STREAM_NAME}
-//               onChange={onChange}
-//               className="w-full p-2 border rounded"
-//             />
-//           </div>
-
-//           <div className="flex w-full justify-end mt-4 gap-2">
-//             <button
-//               onClick={onClose}
-//               className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-//             >
-//               Cancel
-//             </button>
-//             <button
-//               onClick={onSubmit}
-//               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-//             >
-//               Save
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 export default StreamTable;
