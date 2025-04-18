@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 
-export default function RegisterForm() {
+const RegisterForm = () => {
   const [formData, setFormData] = useState({
     uniqueId: "",
     fullName: "",
@@ -14,79 +14,218 @@ export default function RegisterForm() {
     education: "",
     address: "",
     pincode: "",
-    areaName: "",
     state: "",
     district: "",
     fatherName: "",
     motherName: "",
     spouseName: "",
     photo: null,
-    business: "",
+    business1: "",
+    business2: "",
     hobby: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, files } = e.target as HTMLInputElement & HTMLSelectElement;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, files } = e.target;
+    if (files) {
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    console.log("Form submitted:", formData);
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white border-2 border-gray-300 border-dashed rounded-lg p-8 mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Add User</h2>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="text" name="uniqueId" placeholder="Unique ID" className="input" onChange={handleChange} />
-        <input type="text" name="fullName" placeholder="Full Name" className="input" onChange={handleChange} />
+    <div className="max-w-4xl mx-auto mt-10 bg-white border border-dashed p-8 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6">Register</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-5"
+      >
+        {/* Left Column */}
+        <div>
+          <label className="block text-sm font-medium">Unique ID</label>
+          <input
+            name="uniqueId"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
 
-        <input type="date" name="dob" className="input" onChange={handleChange} />
-        <select name="gender" className="input" onChange={handleChange}>
-          <option value="">Select gender</option>
-          <option value="M">Male</option>
-          <option value="F">Female</option>
-        </select>
+          <label className="block text-sm font-medium mt-4">Date of Birth</label>
+          <input name="dob" type="date" onChange={handleChange} className="input" />
 
-        <input type="text" name="mobile" placeholder="Mobile number" className="input" onChange={handleChange} />
-        <input type="text" name="profession" placeholder="Elect profession" className="input" onChange={handleChange} />
+          <label className="block text-sm font-medium mt-4">
+            Mobile Number
+          </label>
+          <input
+            name="mobile"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
 
-        <input type="text" name="professionDetails" placeholder="Profession Details" className="input" onChange={handleChange} />
-        <input type="text" name="education" placeholder="Education" className="input" onChange={handleChange} />
+          <label className="block text-sm font-medium mt-4">
+            Profession Details
+          </label>
+          <input
+            name="professionDetails"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
 
-        <input type="text" name="address" placeholder="Address" className="input" onChange={handleChange} />
-        <input type="text" name="pincode" placeholder="Pincode" className="input" onChange={handleChange} />
+          <label className="block text-sm font-medium mt-4">Address</label>
+          <input
+            name="address"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
 
-        <select name="state" className="input" onChange={handleChange}>
-          <option value="">Select state</option>
-          <option value="GJ">Gujarat</option>
-          <option value="MH">Maharashtra</option>
-        </select>
-        <select name="district" className="input" onChange={handleChange}>
-          <option value="">Select district</option>
-          <option value="01">Ahmedabad</option>
-          <option value="02">Surat</option>
-        </select>
+          <label className="block text-sm font-medium mt-4">State</label>
+          <select name="state" onChange={handleChange} className="input">
+            <option>Select state</option>
+            <option>State 1</option>
+            <option>State 2</option>
+          </select>
 
-        <input type="text" name="fatherName" placeholder="Father’s Name" className="input" onChange={handleChange} />
-        <input type="text" name="motherName" placeholder="Mother’s Name" className="input" onChange={handleChange} />
+          <label className="block text-sm font-medium mt-4">
+            Father’s Name
+          </label>
+          <input
+            name="fatherName"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
 
-        <input type="file" name="photo" className="input" onChange={handleChange} />
-        <input type="text" name="spouseName" placeholder="Spouse Name" className="input" onChange={handleChange} />
+          {/* <label className="block text-sm font-medium mt-4">Photo</label>
+          <input name="photo" type="file" onChange={handleChange} className="input" /> */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">Photo</label>
+            <div className="flex items-center">
+              <label
+                htmlFor="photo"
+                className="cursor-pointer bg-gray-100 border border-gray-300 rounded-lg px-2 py-1 text-sm font-medium text-gray-700 hover:bg-gray-200"
+              >
+                Choose File
+              </label>
+              <span className="ml-3 text-gray-500 text-sm">
+                {formData.photo ? formData.photo.name : "No file chosen"}
+              </span>
+              <input
+                id="photo"
+                name="photo"
+                type="file"
+                onChange={handleChange}
+                className="hidden"
+              />
+            </div>
+          </div>
 
-        <input type="text" name="business" placeholder="Business" className="input" onChange={handleChange} />
-        <input type="text" name="hobby" placeholder="Hobby" className="input" onChange={handleChange} />
+          <label className="block text-sm font-medium mt-4">Business</label>
+          <input
+            name="business1"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
 
-        <div className="md:col-span-2 text-right">
-          <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 cursor-pointer">
+        {/* Right Column */}
+        <div>
+          <label className="block text-sm font-medium">Full Name</label>
+          <input
+            name="fullName"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
+
+          <label className="block text-sm font-medium mt-4">Gender</label>
+          <select name="gender" onChange={handleChange} className="input">
+            <option>Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+
+          <label className="block text-sm font-medium mt-4">Profession</label>
+          <input
+            name="profession"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
+
+          <label className="block text-sm font-medium mt-4">Education</label>
+          <input
+            name="education"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
+
+          <label className="block text-sm font-medium mt-4">Pincode</label>
+          <input
+            name="pincode"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
+
+          <label className="block text-sm font-medium mt-4">District</label>
+          <select name="district" onChange={handleChange} className="input">
+            <option>Select district</option>
+            <option>District 1</option>
+            <option>District 2</option>
+          </select>
+
+          <label className="block text-sm font-medium mt-4">
+            Mother’s Name
+          </label>
+          <input
+            name="motherName"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
+
+          <label className="block text-sm font-medium mt-4">Business</label>
+          <input
+            name="business2"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
+
+          <label className="block text-sm font-medium mt-4">Hobby</label>
+          <input
+            name="hobby"
+            type="text"
+            onChange={handleChange}
+            className="input"
+          />
+        </div>
+
+        <div className="col-span-1 md:col-span-2 mt-4">
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+          >
             Register
           </button>
         </div>
       </form>
     </div>
   );
-}
+};
+
+export default RegisterForm;
