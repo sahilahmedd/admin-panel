@@ -41,15 +41,15 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    fetchTableCounts();
+  // useEffect(() => {
+  //   fetchTableCounts();
 
-    const fetchInterval = setInterval(()=>{
-      fetchTableCounts();
-    }, 1000) 
+  //   const fetchInterval = setInterval(()=>{
+  //     fetchTableCounts();
+  //   }, 1000) 
 
-    return () => clearInterval(fetchInterval);
-  }, []);
+  //   return () => clearInterval(fetchInterval);
+  // }, []);
 
   
   const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500", "bg-sky-500"];

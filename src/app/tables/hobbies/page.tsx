@@ -21,6 +21,7 @@ const HobbiesTable = () => {
   const defaultHobby = {
     HOBBY_NAME: "",
     HOBBY_IMAGE_URL: "",
+    HOBBY_CREATED_BY: 1
   };
 
   const [newHobby, setNewHobby] = useState(defaultHobby);
@@ -105,11 +106,14 @@ const HobbiesTable = () => {
   
         if (result.status) {
           const imageUrl = `https://rangrezsamaj.kunxite.com/${result.url}`;
-  
+          console.log("Image: ", imageUrl);
+          
           setNewHobby((prev) => ({
             ...prev,
             [name]: imageUrl,
           }));
+          console.log("Hobby: ", name);
+          
         } else {
           toast.error("Image upload failed");
         }
@@ -151,6 +155,7 @@ const HobbiesTable = () => {
     setNewHobby({
       HOBBY_NAME: hobby.HOBBY_NAME,
       HOBBY_IMAGE_URL: hobby.HOBBY_IMAGE_URL,
+      HOBBY_CREATED_BY: hobby.HOBBY_CREATED_BY
     });
     setShowModal("edit");
   };
@@ -259,7 +264,7 @@ const HobbiesTable = () => {
             <Input
               type="file"
               label="Upload Icon"
-              name="CITY_ICON"
+              name="HOBBY_IMAGE_URL"
               value={newHobby.HOBBY_IMAGE_URL}
               onChange={handleChange}
             />

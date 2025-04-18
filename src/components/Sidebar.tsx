@@ -11,6 +11,7 @@ import {
   Briefcase,
   Book,
   LayoutGrid,
+  User,
 } from "lucide-react";
 
 
@@ -64,8 +65,8 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
         </li>
         
         <li className="mb-4 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
-          <Settings className="w-5 h-5" />
-          <Link href="/settings">Settings</Link>
+          <User className="w-5 h-5" />
+          <Link href="/user">User</Link>
         </li>
       </ul>
     </div>
