@@ -4,19 +4,21 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   Table,
-  Settings,
   Building2,
   Heart,
   Calendar,
   Briefcase,
   Book,
   LayoutGrid,
-  User,
+  Users,
+  Text,
 } from "lucide-react";
 
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const [tablesOpen, setTablesOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+
 
   const tableLinks = [
     { name: "Cities", path: "cities", icon: <Building2 className="w-5 h-5" /> },
@@ -27,6 +29,9 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     { name: "Stream", path: "stream", icon: <LayoutGrid className="w-5 h-5" /> },
   ];
 
+  const userLinks = [
+    {name: "Register", path: "register", icon: <Text className="w-5 h-5" />}
+  ]
   // console.log("Path: ", tableLinks[0].path);
   
 
@@ -64,9 +69,29 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
           )}
         </li>
         
-        <li className="mb-4 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
-          <User className="w-5 h-5" />
+        {/* <li className="mb-4 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
+          <User className="w-5 h-5" />text
           <Link href="/user">User</Link>
+        </li> */}
+
+      <li className="mb-4">
+          <button
+            className="flex items-center gap-2 w-full text-left hover:bg-gray-800 p-2 rounded-md transition"
+            onClick={() => setUserOpen(!userOpen)}
+          >
+          <Users className="w-5 h-5" /> Family
+          </button>
+          {userOpen && (
+            <ul className="ml-6 mt-2">
+              {userLinks.map((item) => (
+                <li key={item.path} className="mb-3 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
+                  {item.icon}
+                  
+                  <Link href={`/family/${item.path}`}>{item.name}</Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </li>
       </ul>
     </div>

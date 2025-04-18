@@ -4,36 +4,32 @@ import { useState } from "react";
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
+    uniqueId: "",
     fullName: "",
     dob: "",
-    mobile: "",
     gender: "",
+    mobile: "",
     profession: "",
-    professionDetail: "",
+    professionDetails: "",
     education: "",
-    educationDesc: "",
     address: "",
+    pincode: "",
     areaName: "",
-    pinCode: "",
-    cityCode: "",
-    stateCode: "",
-    districtCode: "",
+    state: "",
+    district: "",
     fatherName: "",
     motherName: "",
     spouseName: "",
-    married: "",
-    photoUrl: "",
-    businessInterest: "",
-    businessStream: "",
-    businessType: "",
+    photo: null,
+    business: "",
     hobby: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, files } = e.target as HTMLInputElement & HTMLSelectElement;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: files ? files[0] : value,
     }));
   };
 
@@ -43,50 +39,50 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-8 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Register</h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name" className="input" />
-          <input name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile Number" className="input" />
-          <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="input" />
-          <select name="gender" value={formData.gender} onChange={handleChange} className="input">
-            <option value="">Select Gender</option>
-            <option value="M">Male</option>
-            <option value="F">Female</option>
-          </select>
-          <input name="profession" value={formData.profession} onChange={handleChange} placeholder="Profession" className="input" />
-          <input name="professionDetail" value={formData.professionDetail} onChange={handleChange} placeholder="Profession Details" className="input" />
-        </div>
+    <div className="max-w-3xl mx-auto bg-white border-2 border-gray-300 border-dashed rounded-lg p-8 mt-10">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Add User</h2>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" name="uniqueId" placeholder="Unique ID" className="input" onChange={handleChange} />
+        <input type="text" name="fullName" placeholder="Full Name" className="input" onChange={handleChange} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input name="education" value={formData.education} onChange={handleChange} placeholder="Education" className="input" />
-          <input name="educationDesc" value={formData.educationDesc} onChange={handleChange} placeholder="Education Description" className="input" />
-          <input name="cityCode" value={formData.cityCode} onChange={handleChange} placeholder="City Code" className="input" />
-          <input name="stateCode" value={formData.stateCode} onChange={handleChange} placeholder="State Code" className="input" />
-          <input name="districtCode" value={formData.districtCode} onChange={handleChange} placeholder="District Code" className="input" />
-          <input name="pinCode" value={formData.pinCode} onChange={handleChange} placeholder="PIN Code" className="input" />
-        </div>
+        <input type="date" name="dob" className="input" onChange={handleChange} />
+        <select name="gender" className="input" onChange={handleChange}>
+          <option value="">Select gender</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+        </select>
 
-        <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Address" className="input h-20" />
-        <input name="areaName" value={formData.areaName} onChange={handleChange} placeholder="Area Name" className="input" />
+        <input type="text" name="mobile" placeholder="Mobile number" className="input" onChange={handleChange} />
+        <input type="text" name="profession" placeholder="Elect profession" className="input" onChange={handleChange} />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input name="fatherName" value={formData.fatherName} onChange={handleChange} placeholder="Father's Name" className="input" />
-          <input name="motherName" value={formData.motherName} onChange={handleChange} placeholder="Mother's Name" className="input" />
-          <input name="spouseName" value={formData.spouseName} onChange={handleChange} placeholder="Spouse Name" className="input" />
-        </div>
+        <input type="text" name="professionDetails" placeholder="Profession Details" className="input" onChange={handleChange} />
+        <input type="text" name="education" placeholder="Education" className="input" onChange={handleChange} />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input name="businessInterest" value={formData.businessInterest} onChange={handleChange} placeholder="Business Interest" className="input" />
-          <input name="businessStream" value={formData.businessStream} onChange={handleChange} placeholder="Business Stream" className="input" />
-          <input name="businessType" value={formData.businessType} onChange={handleChange} placeholder="Business Type" className="input" />
-        </div>
+        <input type="text" name="address" placeholder="Address" className="input" onChange={handleChange} />
+        <input type="text" name="pincode" placeholder="Pincode" className="input" onChange={handleChange} />
 
-        <input name="hobby" value={formData.hobby} onChange={handleChange} placeholder="Hobbies" className="input" />
+        <select name="state" className="input" onChange={handleChange}>
+          <option value="">Select state</option>
+          <option value="GJ">Gujarat</option>
+          <option value="MH">Maharashtra</option>
+        </select>
+        <select name="district" className="input" onChange={handleChange}>
+          <option value="">Select district</option>
+          <option value="01">Ahmedabad</option>
+          <option value="02">Surat</option>
+        </select>
 
-        <div className="flex items-center justify-between mt-6">
-          <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded">
+        <input type="text" name="fatherName" placeholder="Father’s Name" className="input" onChange={handleChange} />
+        <input type="text" name="motherName" placeholder="Mother’s Name" className="input" onChange={handleChange} />
+
+        <input type="file" name="photo" className="input" onChange={handleChange} />
+        <input type="text" name="spouseName" placeholder="Spouse Name" className="input" onChange={handleChange} />
+
+        <input type="text" name="business" placeholder="Business" className="input" onChange={handleChange} />
+        <input type="text" name="hobby" placeholder="Hobby" className="input" onChange={handleChange} />
+
+        <div className="md:col-span-2 text-right">
+          <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 cursor-pointer">
             Register
           </button>
         </div>
