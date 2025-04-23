@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   Users,
   Text,
+  Database,
 } from "lucide-react";
 
 
@@ -30,7 +31,9 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
   ];
 
   const userLinks = [
-    {name: "Register", path: "register", icon: <Text className="w-5 h-5" />}
+    {name: "View", path: "userview  ", icon: <Database className="w-5 h-5" />},
+    {name: "Register", path: "register", icon: <Text className="w-5 h-5" />},
+
   ]
   // console.log("Path: ", tableLinks[0].path);
   
@@ -79,14 +82,13 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
             className="flex items-center gap-2 w-full text-left hover:bg-gray-800 p-2 rounded-md transition"
             onClick={() => setUserOpen(!userOpen)}
           >
-          <Users className="w-5 h-5" /> Family
+          <Users className="w-5 h-5" /> Users
           </button>
           {userOpen && (
             <ul className="ml-6 mt-2">
               {userLinks.map((item) => (
                 <li key={item.path} className="mb-3 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
                   {item.icon}
-                  
                   <Link href={`/family/${item.path}`}>{item.name}</Link>
                 </li>
               ))}

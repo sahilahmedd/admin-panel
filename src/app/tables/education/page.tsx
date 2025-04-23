@@ -51,14 +51,6 @@ const EducationTable = () => {
     item.EDUCATION_NAME.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   setNewEdu((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-  // };
-
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, files } = e.target;
   
