@@ -2,15 +2,16 @@
 // export default RegisterForm;
 "use client";
 import React, { useEffect, useState } from "react";
-import { fetchData, postData } from "@/utils/api";
+import { fetchData } from "@/utils/api";
 import Select from "../Select";
 import Input from "../Input";
 import ImageUpload from "../ImageUpload";
 import toast, { Toaster } from "react-hot-toast";
-import { X } from 'lucide-react'
+// import { X } from 'lucide-react'
 
 const AddUserForm = () => {
   const [formData, setFormData] = useState({
+    PR_ROLE: "",
     PR_FULL_NAME: "",
     PR_PHOTO_URL: "",
     PR_FATHER_NAME: "",
@@ -45,11 +46,12 @@ const AddUserForm = () => {
   const [edu, setEdu] = useState<any[]>([]);
   const [professions, setProfessions] = useState<any[]>([]);
   const [otpSent, setOtpSent] = useState(false);
+  const [otpError, setOtpError] = useState<string>("");
   const [mobileNo, setMobileNo] = useState({
     PR_MOBILE_NO: "",
   });
   const [otp, setOtp] = useState("");
-  const [isCorrect, setIsCorrect] = useState("");
+  // const [isCorrect, setIsCorrect] = useState("");
   const [verify, setVerify] = useState({
     PR_MOBILE_NO: "",
     PR_FULL_NAME: "",
@@ -70,13 +72,13 @@ const AddUserForm = () => {
   // console.log("Hobby: ", hobby);
 
   // Get Pincode, city, state list
-  const getCiy = async () => {
+  const getCity = async () => {
     const res = await fetchData("cities");
     setCity(res.cities);
   };
 
   useEffect(() => {
-    getCiy();
+    getCity();
   }, []);
 
   // console.log("Cities: ", city);
@@ -150,18 +152,18 @@ const AddUserForm = () => {
 
     const data = await res.json();
 
+    console.log("OTP data: ", data);
+    
     // const res = await postData("generate-otp", mobileNo)
 
     if (data.success) {
+      setOtpSent(true);
+      setOtpError("");
       console.log("OTP generate successfully!!");
       toast.success('OTP generated successfully!!')
     } else if (!data.success) {
       console.log("Error generating OTP");
-      toast((t) => (
-        <span >
-          <X size={15}/> {data.message}
-        </span>
-      ));
+      setOtpError(data.message);
     } else {
       console.log("Failed to generate OTP");
     }
@@ -173,6 +175,7 @@ const AddUserForm = () => {
   const verifyOTP = async () => {
     if (formData.PR_FULL_NAME === "" && formData.PR_DOB === "") {
       console.log("Error: Check your name or DOB");
+      setOtpError("Please enter your name and date of birth");
     } else {
       const res = await fetch(
         "https://node2-plum.vercel.app/api/user/verify-otp",
@@ -189,9 +192,14 @@ const AddUserForm = () => {
 
       if (data.success) {
         console.log("Success: ", data.message);
-        
-      } else {
+        toast.success("OTP verified successfully!!");
+        setOtpError("");
+        setOtpSent(false);
+      }    
+      else {
         console.log("Error: ", data.message);
+        setOtpError(data.message);
+        toast.error("Error verifying OTP");
       }
     }
   };
@@ -348,6 +356,13 @@ const AddUserForm = () => {
             Personal Details
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Select
+              label="Role"
+              name="PR_ROLE"
+              value={formData.PR_ROLE}
+              onChange={handleChange}
+              options={["Admin", "End User", "Master"]}
+            />
             <Input
               label="Full Name"
               name="PR_FULL_NAME"
@@ -398,48 +413,7 @@ const AddUserForm = () => {
               onChange={handleChange}
               options={["Male", "Female", "Other"]}
             />
-            {/* <Input
-            label="Mobile Number"
-            name="PR_MOBILE_NO"
-            type="tel"
-            value={formData.PR_MOBILE_NO}
-            onChange={handleChange}
-          />
-          {
-            formData.PR_MOBILE_NO && <button
-            onClick={getOTP}
-            className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow hover:bg-blue-700 transition-all duration-200"
-          >
-            Generate OTP
-          </button>
-          } */}
-
-            {/* Mobile Number with OTP Button */}
-            {/* <div className="flex flex-col md:flex-row items-start gap-2">
-            <div className="flex-1 w-full">
-              <Input
-                label="Mobile Number"
-                name="PR_MOBILE_NO"
-                type="tel"
-                value={formData.PR_MOBILE_NO}
-                onChange={handleChange}
-              />
-            </div>
-
-           <div className="relative  md:top-6 ">
-           {formData.PR_MOBILE_NO && (
-              <button
-                type="button"
-                onClick={getOTP}
-                className="bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-md shadow hover:bg-blue-700 transition-all duration-200"
-              >
-                OTP
-              </button>
-            )}
-           </div>
-          </div> */}
-            {/* Mobile Number with OTP and Verification */}
-            <div className="flex flex-col md:flex-row md:items-end gap-4 w-full">
+            <div className="flex flex-col md:flex-row md:items-end gap-4 w-full relative">
               <div className="flex-1">
                 <Input
                   label="Mobile Number"
@@ -450,39 +424,36 @@ const AddUserForm = () => {
                 />
               </div>
 
-              {formData.PR_MOBILE_NO && !otpSent && (
+              {!otpSent && formData.PR_MOBILE_NO && (
                 <button
                   type="button"
-                  onClick={() => {
-                    getOTP();
-                    setOtpSent(!otpSent);
-                  }}
+                  onClick={getOTP}
                   className="bg-gray-600 text-white text-sm font-medium px-3 py-2 rounded-md shadow hover:bg-blue-700 transition-all duration-200"
                 >
-                  OTP
+                  Generate OTP
                 </button>
               )}
-
+              {/* Show OTP error if any */}
               {otpSent && (
-                <div className="flex flex-col md:flex-row md:items-end gap-2">
-                  <input
-                    type="text"
-                    name="otp"
-                    placeholder="Enter OTP"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="border border-gray-300 rounded px-3 py-2 text-sm w-36"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      verifyOTP();
-                      setOtpSent(!otpSent);
-                    }}
-                    className="bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-md shadow hover:bg-green-700 transition-all duration-200"
-                  >
-                    Verify
-                  </button>
+                <div className="flex border flex-col items-start justify-between gap-1 w-auto absolute top-20 left-0 bg-white p-2 rounded-md shadow-lg">
+                <input
+                  type="text"
+                  name="otp"
+                  placeholder="Enter OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-1 text-sm w-[50%]"
+                />
+                {otpError?.trim() && (
+                  <p className="text-red-500 text-sm mt-1">{otpError}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={verifyOTP}
+                  className="bg-green-600 text-white text-sm font-medium px-3 py-2 w-50 rounded-md shadow hover:bg-green-700 transition-all duration-200"
+                >
+                  Verify
+                </button>
                 </div>
               )}
             </div>

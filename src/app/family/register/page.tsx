@@ -1,12 +1,10 @@
-// import RegisterForm from '@/components/userRegister/RegisterFrom'
-import StepRegister from '@/components/userRegister/StepRegister'
+import RegisterForm from '@/components/userRegister/RegisterFrom'   
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      {/* <RegisterForm /> */}
-      <StepRegister />
+      <RegisterForm />
     </div>
   )
 }
