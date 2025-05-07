@@ -153,14 +153,14 @@ const AddUserForm = () => {
     const data = await res.json();
 
     console.log("OTP data: ", data);
-    
+
     // const res = await postData("generate-otp", mobileNo)
 
     if (data.success) {
       setOtpSent(true);
       setOtpError("");
       console.log("OTP generate successfully!!");
-      toast.success('OTP generated successfully!!')
+      toast.success("OTP generated successfully!!");
     } else if (!data.success) {
       console.log("Error generating OTP");
       setOtpError(data.message);
@@ -195,8 +195,7 @@ const AddUserForm = () => {
         toast.success("OTP verified successfully!!");
         setOtpError("");
         setOtpSent(false);
-      }    
-      else {
+      } else {
         console.log("Error: ", data.message);
         setOtpError(data.message);
         toast.error("Error verifying OTP");
@@ -206,14 +205,63 @@ const AddUserForm = () => {
   console.log("Verify: ", verify);
 
   // Handle Change functions
+  // const handleChange = async (
+  //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  // ) => {
+  //   const target = e.target;
+  //   const name = target.name;
+  //   const value = target.value;
+
+  //   // 👇 Only access `.files` if it's a file input
+  //   if (name === "PR_PHOTO_URL" && target instanceof HTMLInputElement && target.files) {
+  //     const file = target.files[0];
+  //     if (!file) return;
+
+  //     const formDataImage = new FormData();
+  //     formDataImage.append("image", file);
+
+  //     try {
+  //       const res = await fetch("/api/uploadImage", {
+  //         method: "POST",
+  //         body: formDataImage,
+  //       });
+
+  //       const data = await res.json();
+  //       console.log("DATAAAAA: ", data);
+
+  //       if (data.status === "success") {
+  //         const imageUrl = `https://rangrezsamaj.kunxite.com/${data.url}`;
+  //         console.log("Img url: ", imageUrl);
+
+  //         setFormData((prev) => ({
+  //           ...prev,
+  //           PR_PHOTO_URL: imageUrl,
+  //         }));
+  //       } else {
+  //         console.error("Image upload failed: ", data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error uploading image: ", error);
+  //     }
+  //     return;
+  //   }
+
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value, files } = e.target;
+    const target = e.target;
+    const name = target.name;
+    const value = target.value;
 
-    // Handle Image upload
-    if (name === "PR_PHOTO_URL" && files && files[0]) {
-      const file = files[0];
+    // 👇 Only access `.files` if it's a file input
+    if (
+      name === "PR_PHOTO_URL" &&
+      target instanceof HTMLInputElement &&
+      target.files
+    ) {
+      const file = target.files[0];
+      if (!file) return;
+
       const formDataImage = new FormData();
       formDataImage.append("image", file);
 
@@ -242,7 +290,6 @@ const AddUserForm = () => {
       }
       return;
     }
-
     // Autofill city, district, state from PIN
     if (name === "PR_PIN_CODE") {
       const selectedCity = city.find((c) => c.CITY_PIN_CODE === value);
@@ -356,7 +403,7 @@ const AddUserForm = () => {
             Personal Details
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
+            <Select
               label="Role"
               name="PR_ROLE"
               value={formData.PR_ROLE}
@@ -436,24 +483,24 @@ const AddUserForm = () => {
               {/* Show OTP error if any */}
               {otpSent && (
                 <div className="flex border flex-col items-start justify-between gap-1 w-auto absolute top-20 left-0 bg-white p-2 rounded-md shadow-lg">
-                <input
-                  type="text"
-                  name="otp"
-                  placeholder="Enter OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="border border-gray-300 rounded px-3 py-1 text-sm w-[50%]"
-                />
-                {otpError?.trim() && (
-                  <p className="text-red-500 text-sm mt-1">{otpError}</p>
-                )}
-                <button
-                  type="button"
-                  onClick={verifyOTP}
-                  className="bg-green-600 text-white text-sm font-medium px-3 py-2 w-50 rounded-md shadow hover:bg-green-700 transition-all duration-200"
-                >
-                  Verify
-                </button>
+                  <input
+                    type="text"
+                    name="otp"
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="border border-gray-300 rounded px-3 py-1 text-sm w-[50%]"
+                  />
+                  {otpError?.trim() && (
+                    <p className="text-red-500 text-sm mt-1">{otpError}</p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={verifyOTP}
+                    className="bg-green-600 text-white text-sm font-medium px-3 py-2 w-50 rounded-md shadow hover:bg-green-700 transition-all duration-200"
+                  >
+                    Verify
+                  </button>
                 </div>
               )}
             </div>
