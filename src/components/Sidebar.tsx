@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   Users,
   Text,
+  BadgeDollarSign,
   Database,
 } from "lucide-react";
 
@@ -37,6 +38,12 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
   ]
   // console.log("Path: ", tableLinks[0].path);
   
+
+  // const paymentLinks = [
+  //   {name: "Logs", path: "userview  ", icon: <Database className="w-5 h-5" />},
+  //   {name: "Register", path: "register", icon: <Text className="w-5 h-5" />},
+
+  // ]
 
   return (
     <div
@@ -94,6 +101,11 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
               ))}
             </ul>
           )}
+        </li>
+
+        <li className="mb-4 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
+          <BadgeDollarSign className="w-5 h-5" />
+          <Link href="/payment">Payment</Link>
         </li>
       </ul>
     </div>
