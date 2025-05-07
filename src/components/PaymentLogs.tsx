@@ -82,32 +82,40 @@ const PaymentLogs = () => {
   // };
 
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "ENVIT_ID", selector: (row) => row.ENVIT_ID, sortable: true },
+    { name: "ID", selector: (row) => row.id, sortable: true, width: "70px" },
+    { name: "Event", selector: (row) => row.ENVIT_ID, sortable: true, width: "90px" },
     {
       name: "Full Name",
       selector: (row) => row.PR_FULL_NAME || "N/A",
       sortable: true,
     },
-    {
-      name: "Currency",
-      selector: (row) => row.currency || "N/A",
-      sortable: true,
-    },
-    { name: "Amount", selector: (row) => row.amount || "N/A", sortable: true },
-    {
-      name: "Amount in RS",
-      selector: (row) => row.amountInRupees || "N/A",
-      sortable: true,
-    },
+    // {
+    //   name: "Currency",
+    //   selector: (row) => row.currency || "N/A",
+    //   sortable: true,
+    // },
+    // { name: "Amount", selector: (row) => row.amount || "N/A", sortable: true },
+    // {
+    //   name: "Amount in RS",
+    //   selector: (row) => row.amountInRupees || "N/A",
+    //   sortable: true,
+    // },
+    { 
+        name: "Amount", 
+        selector: (row) =>
+          new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+          }).format(row.amount || 0)
+      },
     {
       name: "Description",
       selector: (row) => row.description || "N/A",
       sortable: true,
     },
     { name: "Mobile", selector: (row) => row.contact || "N/A", sortable: true },
-    { name: "Email", selector: (row) => row.email || "N/A", sortable: true },
-    { name: "Entity", selector: (row) => row.entity || "N/A", sortable: true },
+    // { name: "Email", selector: (row) => row.email || "N/A", sortable: true },    
+    // { name: "Entity", selector: (row) => row.entity || "N/A", sortable: true },
     {
       name: "Payment ID",
       selector: (row) => row.paymentId || "N/A",
@@ -118,11 +126,11 @@ const PaymentLogs = () => {
       selector: (row) => row.method || "N/A",
       sortable: true,
     },
-    {
-      name: "International",
-      selector: (row) => (row.international == 0 ? "N" : "Y"),
-      sortable: true,
-    },
+    // {
+    //   name: "International",
+    //   selector: (row) => (row.international == 0 ? "N" : "Y"),
+    //   sortable: true,
+    // },
     {
       name: "Payment Status",
       selector: (row) => row.status || "N/A",
@@ -132,32 +140,35 @@ const PaymentLogs = () => {
       name: "TAX",
       selector: (row) => (row.tax == 0 ? "N/A" : row.tax),
       sortable: true,
+      width: "70px"
     },
     {
       name: "VPA",
       selector: (row) => (row.vpa == 0 ? "N/A" : row.vpa),
       sortable: true,
+      width: "70px"
     },
     {
       name: "Captured",
       selector: (row) => (row.captured == false ? "N" : "Y"),
       sortable: true,
+      width: "100px"
     },
-    {
-      name: "Refund Status",
-      selector: (row) => (row.refund_status == 0 ? "N" : "Y"),
-      sortable: true,
-    },
-    {
-      name: "Amount Refunded",
-      selector: (row) => (row.amount_refunded == 0 ? "N" : "Y"),
-      sortable: true,
-    },
-    {
-      name: "Invoice ID",
-      selector: (row) => row.invoice_id || "N/A",
-      sortable: true,
-    },
+    // {
+    //   name: "Refund Status",
+    //   selector: (row) => (row.refund_status == 0 ? "N" : "Y"),
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Amount Refunded",
+    //   selector: (row) => (row.amount_refunded == 0 ? "N" : "Y"),
+    //   sortable: true,
+    // },
+    // {
+    //   name: "Invoice ID",
+    //   selector: (row) => row.invoice_id || "N/A",
+    //   sortable: true,
+    // },
     {
       name: "Actions",
       cell: (row) => (
@@ -184,7 +195,7 @@ const PaymentLogs = () => {
           setSearchText={setSearchText}
           handleAdd={handleAdd}
         /> */}
-
+     <h1 className="text-2xl font-semibold mb-5">Payment Logs</h1>
       <DataTable
         columns={columns}
         data={filteredData}
