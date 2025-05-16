@@ -24,7 +24,7 @@ export async function postData(endpoint: string, payload: any) {
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok || json?.success === false) throw new Error(`Failed to POST to ${endpoint}`);
+    if (!res.ok) throw new Error(`Failed to POST to ${endpoint}`);
     return await res.json();
   } catch (error) {
     console.error("API POST Error:", error);
