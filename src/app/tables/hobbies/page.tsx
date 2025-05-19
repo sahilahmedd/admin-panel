@@ -128,8 +128,7 @@ const HobbiesTable = () => {
       }));
     }
   };
-  
-  
+
   const handleAdd = () => {
     setNewHobby(defaultHobby);
     setShowModal("add");
