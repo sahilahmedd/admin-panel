@@ -9,7 +9,7 @@ type Props = {
   onClose: () => void;
   onSubmit: () => void;
   newEvent: any;
-  categories?: [];
+  categories?: any[];
   setNewEvent: React.Dispatch<React.SetStateAction<any>>;
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -231,7 +231,7 @@ const EventModal = ({
             onChange={(e) =>
               setNewEvent((prev) => ({
                 ...prev,
-                ENVT_CATE_ID: e.target.value,
+                ENVT_CATE_ID: parseInt(e.target.value, 10),
               }))
             }
             className="py-2 px-4 border border-black shadow-sm rounded"
@@ -269,7 +269,7 @@ const EventModal = ({
             onChange={(e) =>
               setNewEvent((prev) => ({
                 ...prev,
-                ENVT_CATE_CATE_ID: e.target.value,
+                ENVT_CATE_CATE_ID: parseInt(e.target.value, 10),
               }))
             }
             className="py-2 px-4 border border-black shadow-sm rounded"

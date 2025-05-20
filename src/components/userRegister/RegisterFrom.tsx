@@ -206,30 +206,130 @@ const AddUserForm = () => {
   console.log("Verify: ", verify);
 
   // Handle Change functions
+  // const handleChange = async (
+  //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  // ) => {
+  //   const { name, value, files } = e.target;
+
+  //   // Handle Image upload
+  //   if (name === "PR_PHOTO_URL" && files && files[0]) {
+  //     const file = files[0];
+  //     const formDataImage = new FormData();
+  //     formDataImage.append("image", file);
+
+  //     try {
+  //       const res = await fetch("/api/uploadImage", {
+  //         method: "POST",
+  //         body: formDataImage,
+  //       });
+
+  //       const data = await res.json();
+  //       console.log("DATAAAAA: ", data);
+
+  //       if (data.status === "success") {
+  //         const imageUrl = `https://rangrezsamaj.kunxite.com/${data.url}`;
+  //         console.log("Img url: ", imageUrl);
+
+  //         setFormData((prev) => ({
+  //           ...prev,
+  //           PR_PHOTO_URL: imageUrl,
+  //         }));
+  //       } else {
+  //         console.error("Image upload failed: ", data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error uploading image: ", error);
+  //     }
+  //     return;
+  //   }
+
+  //   // Autofill city, district, state from PIN
+  //   if (name === "PR_PIN_CODE") {
+  //     const selectedCity = city.find((c) => c.CITY_PIN_CODE === value);
+  //     if (selectedCity) {
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         [name]: value,
+  //         PR_CITY_CODE: selectedCity.CITY_ID,
+  //         PR_DISTRICT_CODE: selectedCity.CITY_DS_CODE,
+  //         PR_STATE_CODE: selectedCity.CITY_ST_CODE,
+  //       }));
+  //     } else {
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         [name]: value,
+  //       }));
+  //     }
+  //   }
+
+  //   // Autofill profession ID from name
+  //   else if (name === "PR_PROFESSION") {
+  //     const selectedProfession = professions.find((p) => p.PROF_NAME === value);
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       [name]: value,
+  //       PR_PROFESSION_ID: selectedProfession?.PROF_ID || "",
+  //       PR_PROFESSION_DETA: selectedProfession?.PROF_DESC,
+  //     }));
+  //   }
+
+  //   // Default case
+  //   else {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       [name]: value,
+  //     }));
+
+  //     // Update mobileNo separately when the user types mobile number
+  //     if (name === "PR_MOBILE_NO") {
+  //       setMobileNo({ PR_MOBILE_NO: value });
+
+  //       // Also update verify object with mobile number
+  //       setVerify((prev) => ({
+  //         ...prev,
+  //         PR_MOBILE_NO: value,
+  //       }));
+  //     }
+
+  //     // Update verify object only for needed fields
+  //     if (name === "PR_FULL_NAME" || name === "PR_DOB") {
+  //       setVerify((prev) => ({
+  //         ...prev,
+  //         [name]: value,
+  //       }));
+  //     }
+  //   }
+  // };
+
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value, files } = e.target;
-
-    // Handle Image upload
-    if (name === "PR_PHOTO_URL" && files && files[0]) {
-      const file = files[0];
+    const { name, value } = e.target;
+  
+    // Narrow target to HTMLInputElement to safely access files property
+    if (
+      name === "PR_PHOTO_URL" &&
+      e.target instanceof HTMLInputElement && 
+      e.target.files && 
+      e.target.files[0]
+    ) {
+      const file = e.target.files[0];
       const formDataImage = new FormData();
       formDataImage.append("image", file);
-
+  
       try {
         const res = await fetch("/api/uploadImage", {
           method: "POST",
           body: formDataImage,
         });
-
+  
         const data = await res.json();
         console.log("DATAAAAA: ", data);
-
+  
         if (data.status === "success") {
           const imageUrl = `https://rangrezsamaj.kunxite.com/${data.url}`;
           console.log("Img url: ", imageUrl);
-
+  
           setFormData((prev) => ({
             ...prev,
             PR_PHOTO_URL: imageUrl,
@@ -242,8 +342,8 @@ const AddUserForm = () => {
       }
       return;
     }
-
-    // Autofill city, district, state from PIN
+  
+    // The rest of your logic remains unchanged
     if (name === "PR_PIN_CODE") {
       const selectedCity = city.find((c) => c.CITY_PIN_CODE === value);
       if (selectedCity) {
@@ -260,10 +360,7 @@ const AddUserForm = () => {
           [name]: value,
         }));
       }
-    }
-
-    // Autofill profession ID from name
-    else if (name === "PR_PROFESSION") {
+    } else if (name === "PR_PROFESSION") {
       const selectedProfession = professions.find((p) => p.PROF_NAME === value);
       setFormData((prev) => ({
         ...prev,
@@ -271,27 +368,21 @@ const AddUserForm = () => {
         PR_PROFESSION_ID: selectedProfession?.PROF_ID || "",
         PR_PROFESSION_DETA: selectedProfession?.PROF_DESC,
       }));
-    }
-
-    // Default case
-    else {
+    } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
       }));
-
-      // Update mobileNo separately when the user types mobile number
+  
       if (name === "PR_MOBILE_NO") {
         setMobileNo({ PR_MOBILE_NO: value });
-
-        // Also update verify object with mobile number
+  
         setVerify((prev) => ({
           ...prev,
           PR_MOBILE_NO: value,
         }));
       }
-
-      // Update verify object only for needed fields
+  
       if (name === "PR_FULL_NAME" || name === "PR_DOB") {
         setVerify((prev) => ({
           ...prev,
@@ -300,6 +391,7 @@ const AddUserForm = () => {
       }
     }
   };
+  
 
   // Registering User
   const handleSubmit = async (e: React.FormEvent) => {

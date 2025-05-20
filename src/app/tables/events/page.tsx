@@ -12,6 +12,11 @@ import { CircleX, Pencil } from "lucide-react";
 // import Select from "@/components/Select";
 import EventModal from "@/components/events/EventModal";
 
+type Category = {
+  id: number;
+  name: string;
+};
+
 type EventDataType = {
   ENVT_DESC: string;
   ENVT_EXCERPT: string;
@@ -35,7 +40,7 @@ const EventsTable = () => {
   const [searchText, setSearchText] = useState("");
   const [showModal, setShowModal] = useState<"add" | "edit" | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const defaultEvent = {
     ENVT_DESC: "",
@@ -75,41 +80,99 @@ const EventsTable = () => {
       item.ENVT_ADDRESS.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, type, files, value } = e.target;
+  // const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  //   const { name, type, files, value } = e.target;
 
-    if (type === "file" && files?.length) {
+  //   if (type === "file" && files?.length) {
+  //     try {
+  //       const uploadFile = async (file: File) => {
+  //         const formData = new FormData();
+  //         formData.append("image", file);
+  //         const response = await fetch("/api/uploadImage", {
+  //           method: "POST",
+  //           body: formData,
+  //         });
+  //         const result = await response.json();
+  //         if (!result.status) throw new Error("Image upload failed");
+  //         return `https://rangrezsamaj.kunxite.com/${result.url}`;
+  //       };
+
+  //       // Handle single banner image
+  //       if (name === "ENVT_BANNER_IMAGE") {
+  //         const url = await uploadFile(files[0]);
+  //         setNewEvent((prev) => ({ ...prev, [name]: url }));
+  //       }
+
+  //       // Handle multiple gallery images
+  //       if (name === "ENVT_GALLERY_IMAGES") {
+  //         const uploadedUrls = await Promise.all(
+  //           Array.from(files).map((file) => uploadFile(file))
+  //         );
+
+  //         const existing = newEvent.ENVT_GALLERY_IMAGES || "";
+  //         const newUrlsString = uploadedUrls.join(", ");
+  //         const combined = existing
+  //           ? `${existing}, ${newUrlsString}`
+  //           : newUrlsString;
+
+  //         setNewEvent((prev) => ({
+  //           ...prev,
+  //           [name]: combined,
+  //         }));
+  //       }
+  //     } catch (error) {
+  //       console.error("Upload error:", error);
+  //       toast.error("Image upload failed");
+  //     }
+  //   } else {
+  //     setNewEvent((prev) => ({
+  //       ...prev,
+  //       [name]: type === "number" ? Number(value) || 0 : value,
+  //     }));
+  //   }
+  // };
+
+  const handleChange = async (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, type, value } = e.target;
+  
+    // Safely handle file input
+    if (type === "file" && e.target instanceof HTMLInputElement && e.target.files?.length) {
+      const files = e.target.files;
+  
       try {
         const uploadFile = async (file: File) => {
           const formData = new FormData();
           formData.append("image", file);
+  
           const response = await fetch("/api/uploadImage", {
             method: "POST",
             body: formData,
           });
+  
           const result = await response.json();
           if (!result.status) throw new Error("Image upload failed");
+  
           return `https://rangrezsamaj.kunxite.com/${result.url}`;
         };
-
-        // Handle single banner image
+  
         if (name === "ENVT_BANNER_IMAGE") {
           const url = await uploadFile(files[0]);
           setNewEvent((prev) => ({ ...prev, [name]: url }));
         }
-
-        // Handle multiple gallery images
+  
         if (name === "ENVT_GALLERY_IMAGES") {
           const uploadedUrls = await Promise.all(
-            Array.from(files).map((file) => uploadFile(file))
+            Array.from(files).map(uploadFile)
           );
-
+  
           const existing = newEvent.ENVT_GALLERY_IMAGES || "";
           const newUrlsString = uploadedUrls.join(", ");
           const combined = existing
             ? `${existing}, ${newUrlsString}`
             : newUrlsString;
-
+  
           setNewEvent((prev) => ({
             ...prev,
             [name]: combined,
@@ -120,13 +183,14 @@ const EventsTable = () => {
         toast.error("Image upload failed");
       }
     } else {
+      // Handle non-file inputs
       setNewEvent((prev) => ({
         ...prev,
         [name]: type === "number" ? Number(value) || 0 : value,
       }));
     }
   };
-
+  
   const handleAdd = () => {
     setNewEvent(defaultEvent);
     setShowModal("add");
@@ -170,20 +234,21 @@ const EventsTable = () => {
     }
   };
 
-  const getCategories = async() =>{
-    const res = await fetch("https://node2-plum.vercel.app/api/admin/categories");
+  const getCategories = async () => {
+    const res = await fetch(
+      "https://node2-plum.vercel.app/api/admin/categories"
+    );
     const data = await res.json();
 
     console.log("Categories: ", data.categories);
-    setCategories(data.categories)
-  }
+    setCategories(data.categories);
+  };
 
-  useEffect(()=>{
-    getCategories()
-  }, [])
+  useEffect(() => {
+    getCategories();
+  }, []);
 
   console.log("Categories out: ", categories);
-  
 
   const handleEdit = (event: any) => {
     setSelectedEvent(event);
@@ -210,13 +275,26 @@ const EventsTable = () => {
     try {
       const payload = {
         ...newEvent,
-        ENVT_GALLERY_IMAGES: newEvent.ENVT_GALLERY_IMAGES || "",
+        ENVT_GALLERY_IMAGES: Array.isArray(newEvent.ENVT_GALLERY_IMAGES)
+          ? newEvent.ENVT_GALLERY_IMAGES.join(",")
+          : newEvent.ENVT_GALLERY_IMAGES,
       };
 
       console.log("Updating with payload:", payload);
 
-      const res = await updateData("events", selectedEvent.ENVT_ID, payload);
-      console.log("Update response:", res);
+      // const res = await updateData("events", selectedEvent.ENVT_ID, payload);
+      // console.log("Update response:", res);
+
+      const res = await fetch(
+        `https://node2-plum.vercel.app/api/user/events/${selectedEvent.ENVT_ID}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (res) {
         getEvents();
