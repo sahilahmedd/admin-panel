@@ -75,7 +75,7 @@ const EventsTable = () => {
       item.ENVT_ADDRESS.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, type, files, value } = e.target;
 
     if (type === "file" && files?.length) {

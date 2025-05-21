@@ -9,7 +9,7 @@ type Props = {
   onClose: () => void;
   onSubmit: () => void;
   newEvent: any;
-  categories?: [];
+  categories?: any[];
   setNewEvent: React.Dispatch<React.SetStateAction<any>>;
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
