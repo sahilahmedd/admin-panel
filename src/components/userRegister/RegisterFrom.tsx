@@ -11,21 +11,20 @@ import toast, { Toaster } from "react-hot-toast";
 
 const AddUserForm = () => {
   const [formData, setFormData] = useState({
-    PR_ID: "",
     PR_ROLE: "",
     PR_FULL_NAME: "",
     PR_PHOTO_URL: "",
     PR_FATHER_NAME: "",
     PR_MOTHER_NAME: "",
-    PR_FATHER_ID: "",
-    PR_MOTHER_ID: "",
+    PR_FATHER_ID: null,
+    PR_MOTHER_ID: null,
     PR_DOB: "",
     PR_GENDER: "",
     PR_MOBILE_NO: "",
     PR_HOBBY: "",
     PR_MARRIED_YN: "",
     PR_SPOUSE_NAME: "",
-    PR_SPOUSE_ID: "",
+    PR_SPOUSE_ID: null,
     PR_ADDRESS: "",
     PR_AREA_NAME: "",
     PR_PIN_CODE: "",
@@ -34,7 +33,7 @@ const AddUserForm = () => {
     PR_STATE_CODE: "",
     PR_EDUCATION: "",
     PR_EDUCATION_DESC: "",
-    PR_PROFESSION_ID: "",
+    PR_PROFESSION_ID: null,
     PR_PROFESSION: "",
     PR_PROFESSION_DETA: "",
     PR_BUSS_CODE: "",
@@ -58,6 +57,7 @@ const AddUserForm = () => {
     PR_FULL_NAME: "",
     PR_DOB: "",
   });
+  const [prId, setPrId] = useState()
 
   // FETCHING DATA FROM APIs
   // Get hobbies
@@ -192,12 +192,9 @@ const AddUserForm = () => {
       const data = await res.json();
       console.log("Verify resposne: ", data);
 
-      setFormData((prev)=> ({
-        ...prev,
-        PR_ID: data.user.PR_ID
-      }))
+      setPrId(data.PR_ID)
       
-      console.log("PR_ID: ", typeof(data.user.PR_ID));
+      console.log("PR_ID: ", data.PR_ID);
       
       if (data.success) {
         console.log("Success: ", data.message);
@@ -214,102 +211,7 @@ const AddUserForm = () => {
   };
   console.log("Verify: ", verify);
 
-  // Handle Change functions
-  // const handleChange = async (
-  //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  // ) => {
-  //   const { name, value, files } = e.target;
-
-  //   // Handle Image upload
-  //   if (name === "PR_PHOTO_URL" && files && files[0]) {
-  //     const file = files[0];
-  //     const formDataImage = new FormData();
-  //     formDataImage.append("image", file);
-
-  //     try {
-  //       const res = await fetch("/api/uploadImage", {
-  //         method: "POST",
-  //         body: formDataImage,
-  //       });
-
-  //       const data = await res.json();
-  //       console.log("DATAAAAA: ", data);
-
-  //       if (data.status === "success") {
-  //         const imageUrl = `https://rangrezsamaj.kunxite.com/${data.url}`;
-  //         console.log("Img url: ", imageUrl);
-
-  //         setFormData((prev) => ({
-  //           ...prev,
-  //           PR_PHOTO_URL: imageUrl,
-  //         }));
-  //       } else {
-  //         console.error("Image upload failed: ", data.message);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error uploading image: ", error);
-  //     }
-  //     return;
-  //   }
-
-  //   // Autofill city, district, state from PIN
-  //   if (name === "PR_PIN_CODE") {
-  //     const selectedCity = city.find((c) => c.CITY_PIN_CODE === value);
-  //     if (selectedCity) {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         [name]: value,
-  //         PR_CITY_CODE: selectedCity.CITY_ID,
-  //         PR_DISTRICT_CODE: selectedCity.CITY_DS_CODE,
-  //         PR_STATE_CODE: selectedCity.CITY_ST_CODE,
-  //       }));
-  //     } else {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         [name]: value,
-  //       }));
-  //     }
-  //   }
-
-  //   // Autofill profession ID from name
-  //   else if (name === "PR_PROFESSION") {
-  //     const selectedProfession = professions.find((p) => p.PROF_NAME === value);
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value,
-  //       PR_PROFESSION_ID: selectedProfession?.PROF_ID || "",
-  //       PR_PROFESSION_DETA: selectedProfession?.PROF_DESC,
-  //     }));
-  //   }
-
-  //   // Default case
-  //   else {
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value,
-  //     }));
-
-  //     // Update mobileNo separately when the user types mobile number
-  //     if (name === "PR_MOBILE_NO") {
-  //       setMobileNo({ PR_MOBILE_NO: value });
-
-  //       // Also update verify object with mobile number
-  //       setVerify((prev) => ({
-  //         ...prev,
-  //         PR_MOBILE_NO: value,
-  //       }));
-  //     }
-
-  //     // Update verify object only for needed fields
-  //     if (name === "PR_FULL_NAME" || name === "PR_DOB") {
-  //       setVerify((prev) => ({
-  //         ...prev,
-  //         [name]: value,
-  //       }));
-  //     }
-  //   }
-  // };
-
+ 
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -412,6 +314,7 @@ const AddUserForm = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json", // REQUIRED
+        "pr_id": String(prId)
       },
       body: JSON.stringify(formData),
     });
@@ -491,18 +394,20 @@ const AddUserForm = () => {
               value={formData.PR_MOTHER_NAME}
               onChange={handleChange}
             />
-            <Input
+           {/* <Input
               label="Father ID"
+              type="number"
               name="PR_FATHER_ID"
               value={formData.PR_FATHER_ID}
               onChange={handleChange}
             />
             <Input
               label="Mother ID"
+              type="number"
               name="PR_MOTHER_ID"
               value={formData.PR_MOTHER_ID}
               onChange={handleChange}
-            />
+            />*/}
             <Input
               label="Date of Birth"
               name="PR_DOB"
@@ -595,12 +500,12 @@ const AddUserForm = () => {
               value={formData.PR_SPOUSE_NAME}
               onChange={handleChange}
             />
-            <Input
+            {/* <Input
               label="Spouse ID"
               name="PR_SPOUSE_ID"
               value={formData.PR_SPOUSE_ID}
               onChange={handleChange}
-            />
+            /> */}
           </div>
         </div>
 
@@ -718,13 +623,13 @@ const AddUserForm = () => {
                 value: item.PROF_NAME,
               }))}
             />
-            <Input
+            {/* <Input
               label="Profession ID"
               name="PR_PROFESSION_ID"
               value={formData.PR_PROFESSION_ID}
               onChange={handleChange}
               disabled={true}
-            />
+            /> */}
             <Input
               type="text  "
               label="Profession Description"
