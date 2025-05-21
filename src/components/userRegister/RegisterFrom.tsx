@@ -11,6 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 const AddUserForm = () => {
   const [formData, setFormData] = useState({
+    PR_ID: "",
     PR_ROLE: "",
     PR_FULL_NAME: "",
     PR_PHOTO_URL: "",
@@ -189,7 +190,15 @@ const AddUserForm = () => {
       );
 
       const data = await res.json();
+      console.log("Verify resposne: ", data);
 
+      setFormData((prev)=> ({
+        ...prev,
+        PR_ID: data.user.PR_ID
+      }))
+      
+      console.log("PR_ID: ", typeof(data.user.PR_ID));
+      
       if (data.success) {
         console.log("Success: ", data.message);
         toast.success("OTP verified successfully!!");
@@ -399,7 +408,7 @@ const AddUserForm = () => {
     console.log("Submitting form", formData);
     // integrate API call here
 
-    const res = await fetch("https://node2-plum.vercel.app/api/user/register", {
+    const res = await fetch("https://node2-plum.vercel.app/api/user/edit-profile", {
       method: "POST",
       headers: {
         "Content-Type": "application/json", // REQUIRED
@@ -408,6 +417,9 @@ const AddUserForm = () => {
     });
 
     const data = await res.json();
+
+    console.log("Register user: ", data);
+    
 
     if (data.success) {
       console.log("Data added successfully!!!");
