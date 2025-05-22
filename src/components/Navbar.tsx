@@ -42,6 +42,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { UserCircle, LogOut, KeyRound, Menu } from "lucide-react";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 
 const Navbar = ({ toggleSidebar, userName }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -87,7 +88,7 @@ const Navbar = ({ toggleSidebar, userName }) => {
             className="absolute right-0 top-5 mt-2 w-48 bg-white text-black rounded-md shadow-lg py-2"
           >
             <button className="flex items-center gap-2 px-4 py-2 w-full hover:bg-gray-200">
-              <KeyRound className="w-5 h-5" /> Change Password
+            <KeyRound className="w-5 h-5" /><Link href="/changepassword">Change Password</Link>
             </button>
             <button
               onClick={() =>
