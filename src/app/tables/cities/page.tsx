@@ -44,12 +44,6 @@ const CitiesTable = () => {
   }, []);
 
   // handle search
-  // const filteredData = data.filter(
-  //   (item) =>
-  //     item.CITY_NAME.toLowerCase().includes(searchText.toLowerCase()) ||
-  //     item.CITY_ST_NAME.toLowerCase().includes(searchText.toLowerCase()) ||
-  //     item.CITY_DS_NAME.toLowerCase().includes(searchText.toLowerCase())
-  // );
   const filteredData = data.filter((item) =>
     (item.CITY_NAME ?? "").toLowerCase().includes(searchText.toLowerCase()) ||
     (item.CITY_ST_NAME ?? "").toLowerCase().includes(searchText.toLowerCase()) ||

@@ -14,6 +14,7 @@ import {
   Text,
   BadgeDollarSign,
   Database,
+  Package
 } from "lucide-react";
 
 
@@ -29,6 +30,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     { name: "Events", path: "events", icon: <Calendar className="w-5 h-5" /> },
     { name: "Education", path: "education", icon: <Book className="w-5 h-5" /> },
     { name: "Stream", path: "stream", icon: <LayoutGrid className="w-5 h-5" /> },
+    { name: "Business", path: "business", icon: <Package className="w-5 h-5" /> },
   ];
 
   const userLinks = [
@@ -78,11 +80,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
             </ul>
           )}
         </li>
-        
-        {/* <li className="mb-4 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
-          <User className="w-5 h-5" />text
-          <Link href="/user">User</Link>
-        </li> */}
+      
 
       <li className="mb-4">
           <button

@@ -56,6 +56,7 @@ const AddUserForm = () => {
     PR_MOBILE_NO: "",
     PR_FULL_NAME: "",
     PR_DOB: "",
+    PR_ROLE: "",
   });
   const [prId, setPrId] = useState()
 
@@ -293,7 +294,7 @@ const AddUserForm = () => {
         }));
       }
   
-      if (name === "PR_FULL_NAME" || name === "PR_DOB") {
+      if (name === "PR_FULL_NAME" || name === "PR_DOB" || name === "PR_ROLE") {
         setVerify((prev) => ({
           ...prev,
           [name]: value,
