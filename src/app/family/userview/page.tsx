@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // /* eslint-disable @typescript-eslint/no-explicit-any */
 // "use client";
 
@@ -245,9 +246,9 @@ import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import toast from "react-hot-toast";
 import TableHeader from "@/components/TableHeader";
-import Modal from "@/components/AddEdit";
+// import Modal from "@/components/AddEdit";
 
-const HobbiesTable = () => {
+const UserView = () => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
@@ -262,8 +263,8 @@ const HobbiesTable = () => {
       );
       const json = await response.json();
       setData(json.data || []);
-    } catch (error) {
-      toast.error("Failed to fetch users");
+    } catch ({error}: any) {
+      toast.error("Failed to fetch users", error.message);
     } finally {
       setLoading(false);
     }
@@ -303,7 +304,7 @@ const HobbiesTable = () => {
       name: "View",
       cell: (row) => (
         <button
-          className="px-2 py-2 bg-sky-600 duration-200 ease-in hover:bg-sky-700 rounded-lg text-white cursor-pointer"
+          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm cursor-pointer"
           onClick={() => handleViewDetails(row)}
         >
           View
@@ -366,7 +367,7 @@ const HobbiesTable = () => {
               <h2 className="text-2xl font-bold">User Details</h2>
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="text-red-500 font-bold text-xl"
+                className="hover:text-red-500 py-1 px-2 rounded hover:bg-gray-200 font-bold text-xl"
               >
                 ✕
               </button>
@@ -375,8 +376,8 @@ const HobbiesTable = () => {
             <table className="w-full border border-gray-300 rounded-md">
               <thead>
                 <tr className="bg-gray-100 text-left">
-                  <th className="px-4 py-2 border-b">Field</th>
-                  <th className="px-4 py-2 border-b">Value</th>
+                  <th className="px-4 py-2 border-b">KEY</th>
+                  <th className="px-4 py-2 border-b">VALUE</th>
                 </tr>
               </thead>
               <tbody>
@@ -403,4 +404,4 @@ const HobbiesTable = () => {
   );
 };
 
-export default HobbiesTable;
+export default UserView;

@@ -6,7 +6,7 @@ import DataTable from "react-data-table-component";
 // import { fetchData, postData, updateData, deleteData } from "@/utils/api";
 // import { Pencil, CircleX } from "lucide-react";
 // import Image from "next/image";
-import TableHeader from "@/components/TableHeader";
+// import TableHeader from "@/components/TableHeader";
 // import Modal from "@/components/AddEdit";
 // import Input from "@/components/FormInput";
 
@@ -82,12 +82,18 @@ const PaymentLogs = () => {
   // };
 
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true, width: "70px" },
-    { name: "Event", selector: (row) => row.ENVIT_ID, sortable: true, width: "90px" },
+    { name: "ID", selector: (row) => row.id, sortable: true, width: "60px" },
+    {
+      name: "Event",
+      selector: (row) => row.ENVIT_ID,
+      sortable: true,
+      width: "80px",
+    },
     {
       name: "Full Name",
       selector: (row) => row.PR_FULL_NAME || "N/A",
       sortable: true,
+      width: "120px",
     },
     // {
     //   name: "Currency",
@@ -100,21 +106,21 @@ const PaymentLogs = () => {
     //   selector: (row) => row.amountInRupees || "N/A",
     //   sortable: true,
     // },
-    { 
-        name: "Amount", 
-        selector: (row) =>
-          new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-          }).format(row.amount || 0)
-      },
+    {
+      name: "Amount",
+      selector: (row) =>
+        new Intl.NumberFormat("en-IN", {
+          style: "currency",
+          currency: "INR",
+        }).format(row.amount || 0),
+    },
     {
       name: "Description",
       selector: (row) => row.description || "N/A",
       sortable: true,
     },
     { name: "Mobile", selector: (row) => row.contact || "N/A", sortable: true },
-    // { name: "Email", selector: (row) => row.email || "N/A", sortable: true },    
+    // { name: "Email", selector: (row) => row.email || "N/A", sortable: true },
     // { name: "Entity", selector: (row) => row.entity || "N/A", sortable: true },
     {
       name: "Payment ID",
@@ -122,9 +128,10 @@ const PaymentLogs = () => {
       sortable: true,
     },
     {
-      name: "Payment Method",
+      name: "Method",
       selector: (row) => row.method || "N/A",
       sortable: true,
+      width: "100px",
     },
     // {
     //   name: "International",
@@ -140,19 +147,19 @@ const PaymentLogs = () => {
       name: "TAX",
       selector: (row) => (row.tax == 0 ? "N/A" : row.tax),
       sortable: true,
-      width: "70px"
+      width: "80px",
     },
     {
       name: "VPA",
       selector: (row) => (row.vpa == 0 ? "N/A" : row.vpa),
       sortable: true,
-      width: "70px"
+      width: "80px",
     },
     {
       name: "Captured",
       selector: (row) => (row.captured == false ? "N" : "Y"),
       sortable: true,
-      width: "100px"
+      width: "100px",
     },
     // {
     //   name: "Refund Status",
@@ -195,7 +202,7 @@ const PaymentLogs = () => {
           setSearchText={setSearchText}
           handleAdd={handleAdd}
         /> */}
-     <h1 className="text-2xl font-semibold mb-5">Payment Logs</h1>
+      <h1 className="text-2xl font-semibold mb-5">Payment Logs</h1>
       <DataTable
         columns={columns}
         data={filteredData}
