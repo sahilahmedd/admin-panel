@@ -238,7 +238,7 @@ const Modal = ({ title, onClose, onSubmit, business, onChange }: any) => (
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Description</label>
+          <label className="block text-sm font-medium">Type</label>
           <input
             type="text"
             name="BUSS_TYPE"

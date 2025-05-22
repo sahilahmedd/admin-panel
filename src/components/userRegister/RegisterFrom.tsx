@@ -16,15 +16,15 @@ const AddUserForm = () => {
     PR_PHOTO_URL: "",
     PR_FATHER_NAME: "",
     PR_MOTHER_NAME: "",
-    PR_FATHER_ID: null,
-    PR_MOTHER_ID: null,
+    PR_FATHER_ID: "",
+    PR_MOTHER_ID: "",
     PR_DOB: "",
     PR_GENDER: "",
     PR_MOBILE_NO: "",
     PR_HOBBY: "",
     PR_MARRIED_YN: "",
     PR_SPOUSE_NAME: "",
-    PR_SPOUSE_ID: null,
+    PR_SPOUSE_ID: "",
     PR_ADDRESS: "",
     PR_AREA_NAME: "",
     PR_PIN_CODE: "",
@@ -45,6 +45,7 @@ const AddUserForm = () => {
   const [city, setCity] = useState<any[]>([]);
   const [edu, setEdu] = useState<any[]>([]);
   const [professions, setProfessions] = useState<any[]>([]);
+  const [business, setBusiness] = useState<any[]>([]);
   const [otpSent, setOtpSent] = useState(false);
   const [otpError, setOtpError] = useState<string>("");
   const [mobileNo, setMobileNo] = useState({
@@ -58,7 +59,7 @@ const AddUserForm = () => {
     PR_DOB: "",
     PR_ROLE: "",
   });
-  const [prId, setPrId] = useState()
+  const [prId, setPrId] = useState();
 
   // FETCHING DATA FROM APIs
   // Get hobbies
@@ -139,10 +140,19 @@ const AddUserForm = () => {
     ).values()
   );
 
+  const getBusiness = async () => {
+    const res = await fetchData("business");
+    setBusiness(res.Business);
+  };
+
+  useEffect(() => {
+    getBusiness();
+  }, []);
+
   // Generate OTP Function
   const getOTP = async () => {
     const res = await fetch(
-      "https://node2-plum.vercel.app/api/user/generate-otp",
+      "https://node2-plum.vercel.app/api/admin/generate-otp",
       {
         method: "POST",
         headers: {
@@ -180,7 +190,7 @@ const AddUserForm = () => {
       setOtpError("Please enter your name and date of birth");
     } else {
       const res = await fetch(
-        "https://node2-plum.vercel.app/api/user/verify-otp",
+        "https://node2-plum.vercel.app/api/admin/verify-otp",
         {
           method: "POST",
           headers: {
@@ -193,10 +203,10 @@ const AddUserForm = () => {
       const data = await res.json();
       console.log("Verify resposne: ", data);
 
-      setPrId(data.PR_ID)
-      
+      setPrId(data.PR_ID);
+
       console.log("PR_ID: ", data.PR_ID);
-      
+
       if (data.success) {
         console.log("Success: ", data.message);
         toast.success("OTP verified successfully!!");
@@ -211,36 +221,35 @@ const AddUserForm = () => {
   };
   console.log("Verify: ", verify);
 
- 
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-  
+
     // Narrow target to HTMLInputElement to safely access files property
     if (
       name === "PR_PHOTO_URL" &&
-      e.target instanceof HTMLInputElement && 
-      e.target.files && 
+      e.target instanceof HTMLInputElement &&
+      e.target.files &&
       e.target.files[0]
     ) {
       const file = e.target.files[0];
       const formDataImage = new FormData();
       formDataImage.append("image", file);
-  
+
       try {
         const res = await fetch("/api/uploadImage", {
           method: "POST",
           body: formDataImage,
         });
-  
+
         const data = await res.json();
         console.log("DATAAAAA: ", data);
-  
+
         if (data.status === "success") {
           const imageUrl = `https://rangrezsamaj.kunxite.com/${data.url}`;
           console.log("Img url: ", imageUrl);
-  
+
           setFormData((prev) => ({
             ...prev,
             PR_PHOTO_URL: imageUrl,
@@ -253,7 +262,7 @@ const AddUserForm = () => {
       }
       return;
     }
-  
+
     // The rest of your logic remains unchanged
     if (name === "PR_PIN_CODE") {
       const selectedCity = city.find((c) => c.CITY_PIN_CODE === value);
@@ -279,21 +288,29 @@ const AddUserForm = () => {
         PR_PROFESSION_ID: selectedProfession?.PROF_ID || "",
         PR_PROFESSION_DETA: selectedProfession?.PROF_DESC,
       }));
+    } else if (name === "PR_BUSS_STREAM") {
+      const selectedBusiness = business.find((b) => b.BUSS_STREM === value);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        PR_BUSS_CODE: selectedBusiness?.BUSS_ID,
+        PR_BUSS_TYPE: selectedBusiness?.BUSS_TYPE,
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
       }));
-  
+
       if (name === "PR_MOBILE_NO") {
         setMobileNo({ PR_MOBILE_NO: value });
-  
+
         setVerify((prev) => ({
           ...prev,
           PR_MOBILE_NO: value,
         }));
       }
-  
+
       if (name === "PR_FULL_NAME" || name === "PR_DOB" || name === "PR_ROLE") {
         setVerify((prev) => ({
           ...prev,
@@ -302,7 +319,6 @@ const AddUserForm = () => {
       }
     }
   };
-  
 
   // Registering User
   const handleSubmit = async (e: React.FormEvent) => {
@@ -310,19 +326,21 @@ const AddUserForm = () => {
     console.log("Submitting form", formData);
     // integrate API call here
 
-    const res = await fetch("https://node2-plum.vercel.app/api/user/edit-profile", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json", // REQUIRED
-        "pr_id": String(prId)
-      },
-      body: JSON.stringify(formData),
-    });
+    const res = await fetch(
+      "https://node2-plum.vercel.app/api/user/edit-profile",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // REQUIRED
+          pr_id: String(prId),
+        },
+        body: JSON.stringify(formData),
+      }
+    );
 
     const data = await res.json();
 
     console.log("Register user: ", data);
-    
 
     if (data.success) {
       console.log("Data added successfully!!!");
@@ -394,7 +412,7 @@ const AddUserForm = () => {
               value={formData.PR_MOTHER_NAME}
               onChange={handleChange}
             />
-           {/* <Input
+            {/* <Input
               label="Father ID"
               type="number"
               name="PR_FATHER_ID"
@@ -407,7 +425,7 @@ const AddUserForm = () => {
               name="PR_MOTHER_ID"
               value={formData.PR_MOTHER_ID}
               onChange={handleChange}
-            />*/}
+            /> */}
             <Input
               label="Date of Birth"
               name="PR_DOB"
@@ -646,17 +664,27 @@ const AddUserForm = () => {
             Business Details
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
+            {/* <Input
               label="Business Code"
               name="PR_BUSS_CODE"
               value={formData.PR_BUSS_CODE}
               onChange={handleChange}
-            />
-            <Input
+            /> */}
+            {/* <Input
               label="Business Stream"
               name="PR_BUSS_STREAM"
               value={formData.PR_BUSS_STREAM}
               onChange={handleChange}
+            /> */}
+            <Select
+              label="Business"
+              name="PR_BUSS_STREAM"
+              value={formData.PR_BUSS_STREAM}
+              onChange={handleChange}
+              options={business.map((item) => ({
+                label: item.BUSS_STREM,
+                value: item.BUSS_STREM,
+              }))}
             />
             <Input
               label="Business Type"
@@ -665,7 +693,7 @@ const AddUserForm = () => {
               onChange={handleChange}
             />
             <Input
-              label="Business Inter"
+              label="Business Intrest"
               name="PR_BUSS_INTER"
               value={formData.PR_BUSS_INTER}
               onChange={handleChange}
