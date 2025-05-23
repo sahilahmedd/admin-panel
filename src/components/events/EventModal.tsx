@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+import { useEffect } from "react";
+import ClientSideCustomEditor from "../clientside-editor";
 
 type Props = {
   title: string;
@@ -25,6 +28,14 @@ const EventModal = ({
   categories,
   handleChange,
 }: Props) => {
+  const [editorLoaded, setEditorLoaded] = useState(false);
+  const [editorData, setEditorData] = useState("");
+
+  useEffect(() => {
+    setEditorLoaded(true);
+    setEditorData(newEvent.ENVT_DETAIL || "");
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 relative">
@@ -54,7 +65,7 @@ const EventModal = ({
         </div>
 
         {/* Details */}
-        <div className="mb-3">
+        {/* <div className="mb-3">
           <label className="block font-medium mb-1">Details</label>
           <textarea
             name="ENVT_DETAIL"
@@ -62,6 +73,17 @@ const EventModal = ({
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded"
           />
+        </div> */}
+        <div className="mb-3">
+          <label className="block font-medium mb-2">Details</label>
+          {editorLoaded && (
+            <ClientSideCustomEditor
+              data={editorData}
+              onChange={(html: string) =>
+                setNewEvent((prev) => ({ ...prev, ENVT_DETAIL: html }))
+              }
+            />
+          )}
         </div>
 
         {/* Banner Image Upload */}
@@ -260,9 +282,9 @@ const EventModal = ({
           />
         </div> */}
         <div className="mb-3">
-        <label htmlFor="ENVT_CATE_CATE_ID" className="block font-medium mb-1">
-           Sub Category
-        </label>
+          <label htmlFor="ENVT_CATE_CATE_ID" className="block font-medium mb-1">
+            Sub Category
+          </label>
           <select
             name="ENVT_CATE_CATE_ID"
             value={newEvent.ENVT_CATE_CATE_ID}

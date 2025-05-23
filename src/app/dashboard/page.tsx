@@ -12,6 +12,8 @@ import {
   LayoutGrid,
   RefreshCw,
 } from "lucide-react";
+import CustomEditor from "@/components/custom-editor";
+import ClientSideCustomEditor from "@/components/clientside-editor";
 
 const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
@@ -104,6 +106,7 @@ const Dashboard = () => {
           ))}
         </div>
       )}
+
     </div>
   );
 };

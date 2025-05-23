@@ -80,58 +80,7 @@ const EventsTable = () => {
       item.ENVT_ADDRESS.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  // const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  //   const { name, type, files, value } = e.target;
-
-  //   if (type === "file" && files?.length) {
-  //     try {
-  //       const uploadFile = async (file: File) => {
-  //         const formData = new FormData();
-  //         formData.append("image", file);
-  //         const response = await fetch("/api/uploadImage", {
-  //           method: "POST",
-  //           body: formData,
-  //         });
-  //         const result = await response.json();
-  //         if (!result.status) throw new Error("Image upload failed");
-  //         return `https://rangrezsamaj.kunxite.com/${result.url}`;
-  //       };
-
-  //       // Handle single banner image
-  //       if (name === "ENVT_BANNER_IMAGE") {
-  //         const url = await uploadFile(files[0]);
-  //         setNewEvent((prev) => ({ ...prev, [name]: url }));
-  //       }
-
-  //       // Handle multiple gallery images
-  //       if (name === "ENVT_GALLERY_IMAGES") {
-  //         const uploadedUrls = await Promise.all(
-  //           Array.from(files).map((file) => uploadFile(file))
-  //         );
-
-  //         const existing = newEvent.ENVT_GALLERY_IMAGES || "";
-  //         const newUrlsString = uploadedUrls.join(", ");
-  //         const combined = existing
-  //           ? `${existing}, ${newUrlsString}`
-  //           : newUrlsString;
-
-  //         setNewEvent((prev) => ({
-  //           ...prev,
-  //           [name]: combined,
-  //         }));
-  //       }
-  //     } catch (error) {
-  //       console.error("Upload error:", error);
-  //       toast.error("Image upload failed");
-  //     }
-  //   } else {
-  //     setNewEvent((prev) => ({
-  //       ...prev,
-  //       [name]: type === "number" ? Number(value) || 0 : value,
-  //     }));
-  //   }
-  // };
-
+ 
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
