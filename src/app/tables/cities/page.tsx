@@ -44,12 +44,14 @@ const CitiesTable = () => {
   }, []);
 
   // handle search
-  const filteredData = data.filter((item) =>
-    (item.CITY_NAME ?? "").toLowerCase().includes(searchText.toLowerCase()) ||
-    (item.CITY_ST_NAME ?? "").toLowerCase().includes(searchText.toLowerCase()) ||
-    (item.CITY_DS_NAME ?? "").toLowerCase().includes(searchText.toLowerCase())
+  const filteredData = data.filter(
+    (item) =>
+      (item.CITY_NAME ?? "").toLowerCase().includes(searchText.toLowerCase()) ||
+      (item.CITY_ST_NAME ?? "")
+        .toLowerCase()
+        .includes(searchText.toLowerCase()) ||
+      (item.CITY_DS_NAME ?? "").toLowerCase().includes(searchText.toLowerCase())
   );
-  
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,9 +63,14 @@ const CitiesTable = () => {
   };
 
   // Open Add Modal
+  // const handleAdd = () => {
+  //   setNewCity(defaultCity);
+  //   setShowModal("add");
+  // };
+
   const handleAdd = () => {
+    setSelectedCity(null); // 🛠️ Important for switching to "Add" mode
     setNewCity(defaultCity);
-    setShowModal("add");
   };
 
   // Submit New City
@@ -170,85 +177,114 @@ const CitiesTable = () => {
           handleAdd={handleAdd}
         />
 
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          progressPending={loading}
-          pagination
-          progressComponent={
-            <div className="flex justify-center items-center h-32 w-full">
-              <ColorRing
-                visible={true}
-                height="80"
-                width="80"
-                ariaLabel="color-ring-loading"
-                colors={["#60a5fa", "#34d399", "#fbbf24", "#f87171", "#a78bfa"]}
+        <div className="flex flex-col lg:flex-row gap-6 mt-4">
+          {/* Left - Table */}
+          <div className="w-full lg:w-2/3">
+            <DataTable
+              columns={columns}
+              data={filteredData}
+              progressPending={loading}
+              pagination
+              progressComponent={
+                <div className="flex justify-center items-center h-32 w-full">
+                  <ColorRing
+                    visible={true}
+                    height="80"
+                    width="80"
+                    ariaLabel="color-ring-loading"
+                    colors={[
+                      "#60a5fa",
+                      "#34d399",
+                      "#fbbf24",
+                      "#f87171",
+                      "#a78bfa",
+                    ]}
+                  />
+                </div>
+              }
+            />
+          </div>
+
+          {/* Right - Always visible form */}
+          <div className="w-full lg:w-1/3 bg-white border border-gray-200 rounded-lg shadow p-6 max-h-[80vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              {selectedCity ? "Edit City" : "Add New City"}
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                type="text"
+                label="City Name"
+                name="CITY_NAME"
+                value={newCity.CITY_NAME}
+                onChange={handleChange}
+              />
+              <Input
+                type="number"
+                label="City Code"
+                name="CITY_CODE"
+                value={newCity.CITY_CODE}
+                onChange={handleChange}
+              />
+              <Input
+                type="number"
+                label="Pincode"
+                name="CITY_PIN_CODE"
+                value={newCity.CITY_PIN_CODE}
+                onChange={handleChange}
+              />
+              <Input
+                type="text"
+                label="District Name"
+                name="CITY_DS_NAME"
+                value={newCity.CITY_DS_NAME}
+                onChange={handleChange}
+              />
+              <Input
+                type="number"
+                label="District Code"
+                name="CITY_DS_CODE"
+                value={newCity.CITY_DS_CODE}
+                onChange={handleChange}
+              />
+              <Input
+                type="text"
+                label="State Name"
+                name="CITY_ST_NAME"
+                value={newCity.CITY_ST_NAME}
+                onChange={handleChange}
+              />
+              <Input
+                type="number"
+                label="State Code"
+                name="CITY_ST_CODE"
+                value={newCity.CITY_ST_CODE}
+                onChange={handleChange}
               />
             </div>
-          }
-        />
 
-        {showModal && (
-          <Modal
-            title={showModal === "add" ? "Add City" : "Edit City"}
-            onClose={() => setShowModal(null)}
-            onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-            >
-            <Input
-              type="text"
-              label="City Name"
-              name="CITY_NAME"
-              value={newCity.CITY_NAME}
-              onChange={handleChange}
-            />
-            <Input
-              type="number"
-              label="City Code"
-              name="CITY_CODE"
-              value={newCity.CITY_CODE}
-              onChange={handleChange}
-            />
-            <Input
-              type="number"
-              label="Pincode"
-              name="CITY_PIN_CODE"
-              value={newCity.CITY_PIN_CODE}
-              onChange={handleChange}
-            />
-            <Input
-              type="text"
-              label="District Name"
-              name="CITY_DS_NAME"
-              value={newCity.CITY_DS_NAME}
-              onChange={handleChange}
-            />
-            <Input
-              type="number"
-              label="District Code"
-              name="CITY_DS_CODE"
-              value={newCity.CITY_DS_CODE}
-              onChange={handleChange}
-            />
-            <Input
-              type="text"
-              label="State Name"
-              name="CITY_ST_NAME"
-              value={newCity.CITY_ST_NAME}
-              onChange={handleChange}
-            />
-            <Input
-              type="number"
-              label="State Code"
-              name="CITY_ST_CODE"
-              value={newCity.CITY_ST_CODE}
-              onChange={handleChange}
-            />
-          </Modal>
-        )}
+            <div className="flex justify-end gap-2 pt-6">
+              <button
+                onClick={() => {
+                  setSelectedCity(null);
+                  setNewCity(defaultCity);
+                }}
+                className="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500"
+              >
+                Reset
+              </button>
+              <button
+                onClick={selectedCity ? handleUpdate : handleSubmit}
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+              >
+                {selectedCity ? "Update" : "Add"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
 };
-
 
 export default CitiesTable;

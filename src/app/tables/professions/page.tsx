@@ -7,6 +7,7 @@ import { Pencil, CircleX } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { ColorRing } from "react-loader-spinner";
 import TableHeader from "@/components/TableHeader";
+// import Modal from "@/components/AddEdit";
 
 const ProfessionsTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -51,10 +52,10 @@ const ProfessionsTable = () => {
     }));
   };
 
-  const handleAdd = () => {
-    setNewProf(defaultProf);
-    setShowModal("add");
-  };
+const handleAdd = () => {
+  setSelectedProf(null); // ✅ clear selection
+  setNewProf(defaultProf); // reset form
+};
 
   // Add new Profession
   const handleSubmit = async () => {
@@ -147,120 +148,188 @@ const ProfessionsTable = () => {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <div className="p-6">
 
+      <div className="p-6">
         <TableHeader
           title="Professions"
-          text="Profession"          placeholder="Search for professions..."
+          text="Profession"
+          placeholder="Search for professions..."
           handleAdd={handleAdd}
           searchText={searchText}
           setSearchText={setSearchText}
         />
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          progressPending={loading}
-          progressComponent={
-            <div className="flex justify-center items-center h-32">
-              <ColorRing
-                visible={true}
-                height="80"
-                width="80"
-                ariaLabel="color-ring-loading"
-                colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
-              />
+
+        <div className="flex flex-col lg:flex-row gap-6 mt-4">
+          {/* Left - Table */}
+          <div className="w-full lg:w-2/3">
+            <DataTable
+              columns={columns}
+              data={filteredData}
+              progressPending={loading}
+              progressComponent={
+                <div className="flex justify-center items-center h-32">
+                  <ColorRing
+                    visible={true}
+                    height="80"
+                    width="80"
+                    ariaLabel="color-ring-loading"
+                    colors={[
+                      "#e15b64",
+                      "#f47e60",
+                      "#f8b26a",
+                      "#abbd81",
+                      "#849b87",
+                    ]}
+                  />
+                </div>
+              }
+              pagination
+            />
+          </div>
+
+          {/* Right - Always visible side panel */}
+          <div className="w-full lg:w-1/3 bg-white border border-gray-200 h-1/2 rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              {selectedProf ? "Edit Profession" : "Add New Profession"}
+            </h2> 
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium">Profession</label>
+                <input
+                  type="text"
+                  name="PROF_NAME"
+                  value={newProf.PROF_NAME}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Description</label>
+                <input
+                  type="text"
+                  name="PROF_DESC"
+                  value={newProf.PROF_DESC}
+                  onChange={handleChange}
+                  className="w-full border px-3 py-2 rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Active</label>
+                <input
+                  type="checkbox"
+                  name="PROF_ACTIVE_YN"
+                  checked={newProf.PROF_ACTIVE_YN === "Y"}
+                  onChange={(e) =>
+                    handleChange({
+                      target: {
+                        name: "PROF_ACTIVE_YN",
+                        value: e.target.checked ? "Y" : "N",
+                      },
+                    } as any)
+                  }
+                  className="w-5 h-5"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => {
+                    setSelectedProf(null);
+                    setNewProf(defaultProf);
+                  }}
+                  className="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={selectedProf ? handleUpdate : handleSubmit}
+                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  {selectedProf ? "Update" : "Add"}
+                </button>
+              </div>
             </div>
-          }
-          pagination
-        />
-        {/* Add/Edit City Modal */}
-        {showModal && (
-          <Modal
-            title={
-              showModal === "add" ? "Add New Profession" : "Edit Profession"
-            }
-            onClose={() => setShowModal(null)}
-            onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-            prof={newProf}
-            onChange={handleChange}
-          />
-        )}
+          </div>
+        </div>
       </div>
     </>
   );
 };
 
-const Modal = ({ title, onClose, onSubmit, prof, onChange }: any) => (
-  <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
-      <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
+// const Modal = ({ title, onClose, onSubmit, prof, onChange }: any) => (
+//   <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
+//     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
+//       <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
 
-      <div className="grid grid-cols-1 gap-4">
-        <div>
-          <label className="block text-sm font-medium">Profession</label>
-          <input
-            type="text"
-            name="PROF_NAME"
-            value={prof.PROF_NAME}
-            onChange={onChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Description</label>
-          <input
-            type="text"
-            name="PROF_DESC"
-            value={prof.PROF_DESC}
-            onChange={onChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        {/* <div>
-          <label className="block text-sm font-medium">Active</label>
-          <input
-            type="checkbox"
-            name="PROF_ACTIVE_YN"
-            value={prof.PROF_ACTIVE_YN}
-            onChange={onChange}
-            className="w-full p-2 border rounded"
-          />
-        </div> */}
-        <div>
-          <label className="block text-sm font-medium">Active</label>
-          <input
-            type="checkbox"
-            name="PROF_ACTIVE_YN"
-            checked={prof.PROF_ACTIVE_YN === "Y"} // Check if value is "Y"
-            onChange={(e) =>
-              onChange({
-                target: {
-                  name: "PROF_ACTIVE_YN",
-                  value: e.target.checked ? "Y" : "N", // "Y" when checked, "N" when unchecked
-                },
-              })
-            }
-            className="w-5 h-5 border rounded"
-          />
-        </div>
+//       <div className="grid grid-cols-1 gap-4">
+//         <div>
+//           <label className="block text-sm font-medium">Profession</label>
+//           <input
+//             type="text"
+//             name="PROF_NAME"
+//             value={prof.PROF_NAME}
+//             onChange={onChange}
+//             className="w-full p-2 border rounded"
+//           />
+//         </div>
+//         <div>
+//           <label className="block text-sm font-medium">Description</label>
+//           <input
+//             type="text"
+//             name="PROF_DESC"
+//             value={prof.PROF_DESC}
+//             onChange={onChange}
+//             className="w-full p-2 border rounded"
+//           />
+//         </div>
+//         {/* <div>
+//           <label className="block text-sm font-medium">Active</label>
+//           <input
+//             type="checkbox"
+//             name="PROF_ACTIVE_YN"
+//             value={prof.PROF_ACTIVE_YN}
+//             onChange={onChange}
+//             className="w-full p-2 border rounded"
+//           />
+//         </div> */}
+//         <div>
+//           <label className="block text-sm font-medium">Active</label>
+//           <input
+//             type="checkbox"
+//             name="PROF_ACTIVE_YN"
+//             checked={prof.PROF_ACTIVE_YN === "Y"} // Check if value is "Y"
+//             onChange={(e) =>
+//               onChange({
+//                 target: {
+//                   name: "PROF_ACTIVE_YN",
+//                   value: e.target.checked ? "Y" : "N", // "Y" when checked, "N" when unchecked
+//                 },
+//               })
+//             }
+//             className="w-5 h-5 border rounded"
+//           />
+//         </div>
 
-        <div className="flex w-full justify-end mt-4 gap-2">
-          <button
-            onClick={onClose}
-            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onSubmit}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+//         <div className="flex w-full justify-end mt-4 gap-2">
+//           <button
+//             onClick={onClose}
+//             className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+//           >
+//             Cancel
+//           </button>
+//           <button
+//             onClick={onSubmit}
+//             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+//           >
+//             Save
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   </div>
+// );
 
 export default ProfessionsTable;

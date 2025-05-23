@@ -58,7 +58,7 @@ const StreamTable = () => {
 
   const handleAdd = () => {
     setNewStream(defaultStream);
-    setShowModal("add");
+    setSelectedStream(null);
   };
 
   const handleSubmit = async () => {
@@ -151,9 +151,7 @@ const StreamTable = () => {
 
   return (
     <>
-
       <div className="p-6">
-
         <TableHeader
           title="Streams"
           text="Stream"
@@ -163,32 +161,55 @@ const StreamTable = () => {
           setSearchText={setSearchText}
         />
 
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          progressPending={loading}
-          pagination
-        />
-
-        {showModal && (
-          <Modal
-            title={showModal === "add" ? "Add City" : "Edit City"}
-            onClose={() => setShowModal(null)}
-            onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-            >
-            <Input
-              type="text"
-              label="Stream Name"
-              name="STREAM_NAME"
-              value={newStream.STREAM_NAME}
-              onChange={handleChange}
+        <div className="flex flex-col lg:flex-row gap-6 mt-4">
+          {/* Left - Table */}
+          <div className="w-full lg:w-2/3">
+            <DataTable
+              columns={columns}
+              data={filteredData}
+              progressPending={loading}
+              pagination
             />
-          </Modal>
-        )}
+          </div>
+
+          {/* Right - Side form */}
+          <div className="w-full lg:w-1/3 bg-white border border-gray-200 rounded-lg shadow p-6 h-1/2 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              {selectedStream ? "Edit Stream" : "Add New Stream"}
+            </h2>
+
+            <div className="grid grid-cols-1 gap-4">
+              <Input
+                type="text"
+                label="Stream Name"
+                name="STREAM_NAME"
+                value={newStream.STREAM_NAME}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-6">
+              <button
+                onClick={() => {
+                  setSelectedStream(null);
+                  setNewStream(defaultStream);
+                }}
+                className="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500"
+              >
+                Reset
+              </button>
+              <button
+                onClick={selectedStream ? handleUpdate : handleSubmit}
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+              >
+                {selectedStream ? "Update" : "Add"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
 };
-
 
 export default StreamTable;

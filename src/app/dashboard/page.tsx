@@ -78,7 +78,19 @@ const Dashboard = () => {
       .then((res) => setStats(res.data));
   }, []);
 
-  if (!stats) return <p className="p-6">Loading charts...</p>;
+  if (!stats)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ColorRing
+          visible={true}
+          height="80"
+          width="80"
+          ariaLabel="color-ring-loading"
+          colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+        />
+      </div>
+    );
+
   return (
     <div className="p-6">
       <div className="flex justify-between">
@@ -130,7 +142,12 @@ const Dashboard = () => {
           <DoughnutChart
             title="Gender Distribution"
             labels={["Male", "Female", "Child"]}
-            data={[stats.totalPopulation, stats.count.male, stats.count.female, stats.count.child]}
+            data={[
+              stats.totalPopulation,
+              stats.count.male,
+              stats.count.female,
+              stats.count.child,
+            ]}
           />
 
           {/* Children Distribution */}

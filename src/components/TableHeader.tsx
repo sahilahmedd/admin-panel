@@ -27,7 +27,6 @@ const TableHeader = ({
         className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-3 py-2 rounded-full shadow-sm transition"
       >
         Add New {text}
-        {/* <PlusIcon strokeWidth={3} /> */}
       </button>
     </div>    
     </>

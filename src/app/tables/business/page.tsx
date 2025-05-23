@@ -28,7 +28,6 @@ const BusinessTable = () => {
 
   const [newBusiness, setNewBusiness] = useState(defaultBusiness);
 
-
   // Get Business
   const getBusiness = async () => {
     setLoading(true);
@@ -60,7 +59,7 @@ const BusinessTable = () => {
 
   const handleAdd = () => {
     setNewBusiness(defaultBusiness);
-    setShowModal("add");
+    setSelectedBusiness(null);
   };
 
   // Add new Business
@@ -125,11 +124,14 @@ const BusinessTable = () => {
   // Delete a business
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this business?")) {
-    //   const res = await deleteData("business", id);
+      //   const res = await deleteData("business", id);
 
-    const res = await fetch(`https://node2-plum.vercel.app/api/admin/business/${id}`, {
-        method: "DELETE"
-    })
+      const res = await fetch(
+        `https://node2-plum.vercel.app/api/admin/business/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (res) {
         getBusiness();
         toast.success("Successfully deleted!!!");
@@ -180,6 +182,7 @@ const BusinessTable = () => {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
+
       <div className="p-6">
         <TableHeader
           title="Business"
@@ -189,82 +192,88 @@ const BusinessTable = () => {
           searchText={searchText}
           setSearchText={setSearchText}
         />
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          progressPending={loading}
-          progressComponent={
-            <div className="flex justify-center items-center h-32">
-              <ColorRing
-                visible={true}
-                height="80"
-                width="80"
-                ariaLabel="color-ring-loading"
-                colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
-              />
+
+        <div className="flex flex-col lg:flex-row gap-6 mt-4">
+          {/* Left - Table */}
+          <div className="w-full lg:w-2/3">
+            <DataTable
+              columns={columns}
+              data={filteredData}
+              progressPending={loading}
+              pagination
+              progressComponent={
+                <div className="flex justify-center items-center h-32">
+                  <ColorRing
+                    visible={true}
+                    height="80"
+                    width="80"
+                    ariaLabel="color-ring-loading"
+                    colors={[
+                      "#e15b64",
+                      "#f47e60",
+                      "#f8b26a",
+                      "#abbd81",
+                      "#849b87",
+                    ]}
+                  />
+                </div>
+              }
+            />
+          </div>
+
+          {/* Right - Form Panel */}
+          <div className="w-full lg:w-1/3 bg-white border border-gray-200 h-1/2 rounded-lg shadow p-6 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              {selectedBusiness ? "Edit Business" : "Add New Business"}
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium">Business</label>
+                <input
+                  type="text"
+                  name="BUSS_STREM"
+                  value={newBusiness.BUSS_STREM}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Type</label>
+                <input
+                  type="text"
+                  name="BUSS_TYPE"
+                  value={newBusiness.BUSS_TYPE}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <button
+                  onClick={() => {
+                    setSelectedBusiness(null);
+                    setNewBusiness(defaultBusiness);
+                  }}
+                  className="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={selectedBusiness ? handleUpdate : handleSubmit}
+                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  {selectedBusiness ? "Update" : "Add"}
+                </button>
+              </div>
             </div>
-          }
-          pagination
-        />
-        {/* Add/Edit City Modal */}
-        {showModal && (
-          <Modal
-            title={showModal === "add" ? "Add New Business" : "Edit Business"}
-            onClose={() => setShowModal(null)}
-            onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-            business={newBusiness}
-            onChange={handleChange}
-          />
-        )}
+          </div>
+        </div>
       </div>
     </>
   );
 };
 
-const Modal = ({ title, onClose, onSubmit, business, onChange }: any) => (
-  <div className="fixed inset-0 bg-gray-300/25 flex items-center justify-center">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-4 md:mx-auto">
-      <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
-
-      <div className="grid grid-cols-1 gap-4">
-        <div>
-          <label className="block text-sm font-medium">Business</label>
-          <input
-            type="text"
-            name="BUSS_STREM"
-            value={business.BUSS_STREM}
-            onChange={onChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Type</label>
-          <input
-            type="text"
-            name="BUSS_TYPE"
-            value={business.BUSS_TYPE}
-            onChange={onChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div className="flex w-full justify-end mt-4 gap-2">
-          <button
-            onClick={onClose}
-            className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onSubmit}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
 export default BusinessTable;
