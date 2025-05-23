@@ -12,12 +12,13 @@ import {
   LayoutGrid,
   RefreshCw,
 } from "lucide-react";
-import CustomEditor from "@/components/custom-editor";
-import ClientSideCustomEditor from "@/components/clientside-editor";
+import DoughnutChart from "@/components/chart";
+import axios from "axios";
 
 const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>(null);
 
   const tables = [
     "cities",
@@ -71,6 +72,13 @@ const Dashboard = () => {
     streams: <LayoutGrid strokeWidth={1} className="w-20 h-20 text-white" />,
   };
 
+  useEffect(() => {
+    axios
+      .get("https://node2-plum.vercel.app/api/user/getStats")
+      .then((res) => setStats(res.data));
+  }, []);
+
+  if (!stats) return <p className="p-6">Loading charts...</p>;
   return (
     <div className="p-6">
       <div className="flex justify-between">
@@ -107,6 +115,61 @@ const Dashboard = () => {
         </div>
       )}
 
+      <div className="mt-10 border border-gray-300 shadow-md">
+        <h2 className="text-xl font-bold text-center my-4">Statics</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
+          {/* Total Population */}
+          {/* <DoughnutChart
+            title="Total Population"
+            labels={["Population"]}
+            data={[stats.totalPopulation]}
+            colors={["#3B82F6"]}
+          /> */}
+
+          {/* Percentage Distribution */}
+          <DoughnutChart
+            title="Gender Distribution"
+            labels={["Male", "Female", "Child"]}
+            data={[stats.totalPopulation, stats.count.male, stats.count.female, stats.count.child]}
+          />
+
+          {/* Children Distribution */}
+          <DoughnutChart
+            title="Children Distribution"
+            labels={["2 Children", "> 2 Children"]}
+            data={[
+              parseFloat(
+                stats.childrenDistribution.fromChildTable.familiesWith2Children
+              ),
+              parseFloat(
+                stats.childrenDistribution.fromChildTable
+                  .familiesWithMoreThan2Children
+              ),
+            ]}
+          />
+
+          {/* Donation Stats */}
+          <DoughnutChart
+            title="Donation Stats"
+            labels={["Total Donations", "Remaining"]}
+            data={[
+              stats.donationStats.totalDonations,
+              stats.totalPopulation - stats.donationStats.totalDonations,
+            ]}
+          />
+
+          {/* Business Interest Stats */}
+          <DoughnutChart
+            title="Business Interest"
+            labels={["Interested", "Not Interested"]}
+            data={[
+              stats.businessInterestStats.interestedCount,
+              stats.totalPopulation -
+                stats.businessInterestStats.interestedCount,
+            ]}
+          />
+        </div>
+      </div>
     </div>
   );
 };
