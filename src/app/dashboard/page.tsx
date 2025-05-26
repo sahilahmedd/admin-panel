@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
 import DashboardCard from "@/components/Card";
@@ -11,6 +12,7 @@ import {
   Book,
   LayoutGrid,
   RefreshCw,
+  Users,
 } from "lucide-react";
 import DoughnutChart from "@/components/chart";
 import axios from "axios";
@@ -19,6 +21,7 @@ const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
+  const [userCount, setUserCount] = useState();
 
   const tables = [
     "cities",
@@ -53,6 +56,18 @@ const Dashboard = () => {
   // 🔁 Fetch only once on mount
   useEffect(() => {
     fetchTableCounts();
+  }, []);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      const res = await fetch("https://node2-plum.vercel.app/api/admin/users");
+
+      const data = await res.json();
+      // console.log("Users: ", data.data.length);
+      setUserCount(data.data.length)
+    };
+
+    getUsers();
   }, []);
 
   const colors = [
@@ -124,6 +139,16 @@ const Dashboard = () => {
               icon={iconMap[table]}
             />
           ))}
+
+          <div
+            className={`p-4 rounded-lg shadow-md transform-3d md:transform-flat text-white flex items-start justify-around bg-amber-500`}
+          >
+            <div className=""><Users strokeWidth={1} className="w-20 h-20 text-white" /></div>
+            <div className="flex flex-col justify-end relative top-1">
+              <h3 className="text-lg font-bold uppercase">Users</h3>
+              <p className="text-2xl font-semibold">Entires: {userCount}</p>
+            </div>
+          </div>
         </div>
       )}
 

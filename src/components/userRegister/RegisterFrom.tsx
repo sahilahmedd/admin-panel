@@ -16,15 +16,15 @@ const AddUserForm = () => {
     PR_PHOTO_URL: "",
     PR_FATHER_NAME: "",
     PR_MOTHER_NAME: "",
-    PR_FATHER_ID: "",
-    PR_MOTHER_ID: "",
+    // PR_FATHER_ID: null,
+    // PR_MOTHER_ID: null,
     PR_DOB: "",
     PR_GENDER: "",
     PR_MOBILE_NO: "",
     PR_HOBBY: "",
     PR_MARRIED_YN: "",
     PR_SPOUSE_NAME: "",
-    PR_SPOUSE_ID: "",
+    // PR_SPOUSE_ID: null,
     PR_ADDRESS: "",
     PR_AREA_NAME: "",
     PR_PIN_CODE: "",
@@ -60,6 +60,7 @@ const AddUserForm = () => {
     PR_ROLE: "",
   });
   const [prId, setPrId] = useState();
+  const [children, setChildren] = useState([{ name: "", dob: "" }]);
 
   // FETCHING DATA FROM APIs
   // Get hobbies
@@ -334,7 +335,7 @@ const AddUserForm = () => {
           "Content-Type": "application/json", // REQUIRED
           pr_id: String(prId),
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, Children: children }),
       }
     );
 
@@ -386,7 +387,7 @@ const AddUserForm = () => {
               name="PR_ROLE"
               value={formData.PR_ROLE}
               onChange={handleChange}
-              options={["Admin", "End User", "Master"]}
+              options={["Admin", "End_User", "Master"]}
             />
             <Input
               label="Full Name"
@@ -524,6 +525,74 @@ const AddUserForm = () => {
               value={formData.PR_SPOUSE_ID}
               onChange={handleChange}
             /> */}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-xl p-2 bg-gray-200 rounded font-medium mb-3">
+            Children Details
+          </h3>
+
+          {children.map((child, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 border p-4 rounded-md"
+            >
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Child Name
+                </label>
+                <input
+                  type="text"
+                  value={child.name}
+                  onChange={(e) => {
+                    const newChildren = [...children];
+                    newChildren[index].name = e.target.value;
+                    setChildren(newChildren);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 shadow-sm rounded-lg"
+                  placeholder="Enter child name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  value={child.dob}
+                  onChange={(e) => {
+                    const newChildren = [...children];
+                    newChildren[index].dob = e.target.value;
+                    setChildren(newChildren);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 shadow-sm rounded-lg"
+                />
+              </div>
+
+              <div className="col-span-2 text-right">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setChildren((prev) => prev.filter((_, i) => i !== index))
+                  }
+                  className="text-red-500 hover:text-red-700 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ))}
+
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={() => setChildren([...children, { name: "", dob: "" }])}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              + Add Child
+            </button>
           </div>
         </div>
 
