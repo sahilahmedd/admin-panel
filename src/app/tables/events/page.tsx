@@ -30,8 +30,8 @@ type EventDataType = {
   EVNT_UPTO_DT: string;
   EVET_ACTIVE_YN: string;
   EVET_CREATED_BY: number;
-  ENVT_CATE_ID: number;
-  ENVT_CATE_CATE_ID: number;
+  ENVT_CATE_ID: any;
+  ENVT_CATE_CATE_ID: any;
 };
 
 const EventsTable = () => {
@@ -135,7 +135,7 @@ const EventsTable = () => {
       // Handle non-file inputs
       setNewEvent((prev) => ({
         ...prev,
-        [name]: type === "number" ? Number(value) || 0 : value,
+        [name]: type === "number" ? Number(value) || null : value,
       }));
     }
   };

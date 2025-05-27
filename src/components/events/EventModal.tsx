@@ -278,7 +278,7 @@ const EventModal = ({
             >
               Sub Category
             </label>
-            <select
+            {/* <select
               name="ENVT_CATE_CATE_ID"
               value={newEvent.ENVT_CATE_CATE_ID}
               onChange={(e) =>
@@ -295,6 +295,26 @@ const EventModal = ({
               </option>
               {categories?.map((cat) => (
                 <option key={cat.CATE_ID} value={cat.CATE_CATE_ID}>
+                  {cat.CATE_DESC}
+                </option>
+              ))}
+            </select> */}
+            <select
+              name="ENVT_CATE_CATE_ID"
+              value={newEvent.ENVT_CATE_CATE_ID ?? ""}
+              onChange={(e) =>
+                setNewEvent((prev) => ({
+                  ...prev,
+                  ENVT_CATE_CATE_ID: parseInt(e.target.value, 10),
+                }))
+              }
+              className="py-2 px-4 border border-black shadow-sm rounded"
+            >
+              <option value="" disabled>
+                Select a sub-category
+              </option>
+              {categories?.map((cat) => (
+                <option key={cat.CATE_ID} value={cat.CATE_ID}>
                   {cat.CATE_DESC}
                 </option>
               ))}
