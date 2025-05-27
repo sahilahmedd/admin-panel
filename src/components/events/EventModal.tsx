@@ -243,31 +243,63 @@ const EventModal = ({
           />
         </div> */}
 
-        <div className="mb-3">
-          <label htmlFor="ENVT_CATE_ID" className="block font-medium mb-1">
-            Category
-          </label>
-          <select
-            name="ENVT_CATE_ID"
-            value={newEvent.ENVT_CATE_ID}
-            onChange={(e) =>
-              setNewEvent((prev) => ({
-                ...prev,
-                ENVT_CATE_ID: parseInt(e.target.value, 10),
-              }))
-            }
-            className="py-2 px-4 border border-black shadow-sm rounded"
-            title="Category"
-          >
-            <option value="#" disabled selected>
-              Select a category
-            </option>
-            {categories?.map((cat) => (
-              <option key={cat.CATE_ID} value={cat.CATE_ID}>
-                {cat.CATE_DESC}
+        <div className="flex gap-10">
+          <div className="mb-3">
+            <label htmlFor="ENVT_CATE_ID" className="block font-medium mb-1">
+              Category
+            </label>
+            <select
+              name="ENVT_CATE_ID"
+              value={newEvent.ENVT_CATE_ID}
+              onChange={(e) =>
+                setNewEvent((prev) => ({
+                  ...prev,
+                  ENVT_CATE_ID: parseInt(e.target.value, 10),
+                }))
+              }
+              className="py-2 px-4 border border-black shadow-sm rounded"
+              title="Category"
+            >
+              <option value="#" disabled selected>
+                Select a category
               </option>
-            ))}
-          </select>
+              {categories?.map((cat) => (
+                <option key={cat.CATE_ID} value={cat.CATE_ID}>
+                  {cat.CATE_DESC}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-3">
+            <label
+              htmlFor="ENVT_CATE_CATE_ID"
+              className="block font-medium mb-1"
+            >
+              Sub Category
+            </label>
+            <select
+              name="ENVT_CATE_CATE_ID"
+              value={newEvent.ENVT_CATE_CATE_ID}
+              onChange={(e) =>
+                setNewEvent((prev) => ({
+                  ...prev,
+                  ENVT_CATE_CATE_ID: parseInt(e.target.value, 10),
+                }))
+              }
+              className="py-2 px-4 border border-black shadow-sm rounded"
+              title="Category"
+            >
+              <option value="#" disabled selected>
+                Select a category
+              </option>
+              {categories?.map((cat) => (
+                <option key={cat.CATE_ID} value={cat.CATE_CATE_ID}>
+                  {cat.CATE_DESC}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* ENVT_CATE_CATE_ID */}
@@ -281,32 +313,6 @@ const EventModal = ({
             className="w-full border px-3 py-2 rounded"
           />
         </div> */}
-        <div className="mb-3">
-          <label htmlFor="ENVT_CATE_CATE_ID" className="block font-medium mb-1">
-            Sub Category
-          </label>
-          <select
-            name="ENVT_CATE_CATE_ID"
-            value={newEvent.ENVT_CATE_CATE_ID}
-            onChange={(e) =>
-              setNewEvent((prev) => ({
-                ...prev,
-                ENVT_CATE_CATE_ID: parseInt(e.target.value, 10),
-              }))
-            }
-            className="py-2 px-4 border border-black shadow-sm rounded"
-            title="Category"
-          >
-            <option value="#" disabled selected>
-              Select a category
-            </option>
-            {categories?.map((cat) => (
-              <option key={cat.CATE_ID} value={cat.CATE_CATE_ID}>
-                {cat.CATE_DESC}
-              </option>
-            ))}
-          </select>
-        </div>
 
         {/* Buttons */}
         <div className="flex justify-end gap-3 mt-6">

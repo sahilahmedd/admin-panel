@@ -14,7 +14,8 @@ import {
   Text,
   BadgeDollarSign,
   Database,
-  Package
+  Package,
+  Contact
 } from "lucide-react";
 
 
@@ -31,6 +32,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     { name: "Education", path: "education", icon: <Book className="w-5 h-5" /> },
     { name: "Stream", path: "stream", icon: <LayoutGrid className="w-5 h-5" /> },
     { name: "Business", path: "business", icon: <Package className="w-5 h-5" /> },
+    { name: "Contact", path: "contact", icon: <Contact className="w-5 h-5" /> },
   ];
 
   const userLinks = [

@@ -55,8 +55,8 @@ const EventsTable = () => {
     EVNT_UPTO_DT: "",
     EVET_ACTIVE_YN: "Y",
     EVET_CREATED_BY: 1,
-    ENVT_CATE_ID: 0,
-    ENVT_CATE_CATE_ID: 0,
+    ENVT_CATE_ID: null,
+    ENVT_CATE_CATE_ID: null,
   };
 
   const [newEvent, setNewEvent] = useState<EventDataType>(defaultEvent);
