@@ -30,10 +30,12 @@ const EventModal = ({
 }: Props) => {
   const [editorLoaded, setEditorLoaded] = useState(false);
   const [editorData, setEditorData] = useState("");
+  const [eventID, setEventID] = useState();
 
   useEffect(() => {
     setEditorLoaded(true);
     setEditorData(newEvent.ENVT_DETAIL || "");
+    // console.log("Change: ", setNewEvent);
   }, []);
 
   return (
@@ -271,55 +273,37 @@ const EventModal = ({
             </select>
           </div>
 
-          <div className="mb-3">
-            <label
-              htmlFor="ENVT_CATE_CATE_ID"
-              className="block font-medium mb-1"
-            >
-              Sub Category
-            </label>
-            {/* <select
-              name="ENVT_CATE_CATE_ID"
-              value={newEvent.ENVT_CATE_CATE_ID}
-              onChange={(e) =>
-                setNewEvent((prev) => ({
-                  ...prev,
-                  ENVT_CATE_CATE_ID: parseInt(e.target.value, 10),
-                }))
-              }
-              className="py-2 px-4 border border-black shadow-sm rounded"
-              title="Category"
-            >
-              <option value="#" disabled selected>
-                Select a category
-              </option>
-              {categories?.map((cat) => (
-                <option key={cat.CATE_ID} value={cat.CATE_CATE_ID}>
-                  {cat.CATE_DESC}
+          {newEvent.ENVT_CATE_ID == 1 && (
+            <div className="mb-3">
+              <label
+                htmlFor="ENVT_CATE_CATE_ID"
+                className="block font-medium mb-1"
+              >
+                Sub Category
+              </label>
+              <select
+                name="ENVT_CATE_CATE_ID"
+                value={newEvent.ENVT_CATE_CATE_ID}
+                onChange={(e) =>
+                  setNewEvent((prev) => ({
+                    ...prev,
+                    ENVT_CATE_CATE_ID: parseInt(e.target.value, 10),
+                  }))
+                }
+                className="py-2 px-4 border border-black shadow-sm rounded"
+                title="Category"
+              >
+                <option value="#" disabled selected>
+                  Select a category
                 </option>
-              ))}
-            </select> */}
-            <select
-              name="ENVT_CATE_CATE_ID"
-              value={newEvent.ENVT_CATE_CATE_ID ?? ""}
-              onChange={(e) =>
-                setNewEvent((prev) => ({
-                  ...prev,
-                  ENVT_CATE_CATE_ID: parseInt(e.target.value, 10),
-                }))
-              }
-              className="py-2 px-4 border border-black shadow-sm rounded"
-            >
-              <option value="" disabled>
-                Select a sub-category
-              </option>
-              {categories?.map((cat) => (
-                <option key={cat.CATE_ID} value={cat.CATE_ID}>
-                  {cat.CATE_DESC}
-                </option>
-              ))}
-            </select>
-          </div>
+                {categories?.map((cat) => (
+                  <option key={cat.CATE_ID} value={cat.CATE_ID}>
+                    {cat.CATE_DESC}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {/* ENVT_CATE_CATE_ID */}

@@ -61,6 +61,10 @@ const EventsTable = () => {
 
   const [newEvent, setNewEvent] = useState<EventDataType>(defaultEvent);
 
+  useEffect(() => {
+  console.log("newEvent changed:", newEvent);
+}, [newEvent]);
+
   const getEvents = async () => {
     const result = await fetchData("events");
     if (result && result.events) {
@@ -84,6 +88,8 @@ const EventsTable = () => {
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    console.log("Inside handleChange:", newEvent); // may show old state
+
     const { name, type, value } = e.target;
   
     // Safely handle file input
@@ -138,14 +144,21 @@ const EventsTable = () => {
         [name]: type === "number" ? Number(value) || null : value,
       }));
     }
+
+    // console.log("Change: ", newEvent); 
+    
   };
   
   const handleAdd = () => {
+     console.log("Submitting form", newEvent);
     setNewEvent(defaultEvent);
+    console.log("New Event: ", defaultEvent);
+    
     setShowModal("add");
   };
 
   const handleSubmit = async () => {
+    console.log("Submitting form", newEvent);
     if (!newEvent.ENVT_DESC || !newEvent.ENVT_CITY) {
       return toast.error("Please fill in all required fields");
     }
@@ -197,8 +210,9 @@ const EventsTable = () => {
     getCategories();
   }, []);
 
-  console.log("Categories out: ", categories);
-
+  // console.log("Categories out: ", categories);
+  // console.log("Event: ", defaultEvent);
+  
   const handleEdit = (event: any) => {
     setSelectedEvent(event);
     setNewEvent({
@@ -219,6 +233,7 @@ const EventsTable = () => {
     });
     setShowModal("edit");
   };
+
 
   const handleUpdate = async () => {
     try {
