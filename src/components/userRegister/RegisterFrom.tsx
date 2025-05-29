@@ -92,6 +92,23 @@ const AddUserForm = () => {
   const [prId, setPrId] = useState();
   const [children, setChildren] = useState([{ name: "", dob: "" }]);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [cooldown, setCooldown] = useState(60);
+  const [isLoadingOTP, setIsLoadingOTP] = useState(false);
+  const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
+
+  useEffect(() => {
+    if (cooldown > 0 && otpSent) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown, otpSent]);
+
+  useEffect(() => {
+    setOtpSent(false); // hide OTP input
+    setOtpVerified(false); // reset verification
+    setOtp(""); // clear old otp
+    setOtpError(""); // clear old errors
+  }, [formData.PR_MOBILE_NO]);
 
   // FETCHING DATA FROM APIs
   // Get hobbies
@@ -225,47 +242,61 @@ const AddUserForm = () => {
     if (!formData.PR_BUSS_TYPE)
       errors.PR_BUSS_TYPE = "Business type is required";
 
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   // Generate OTP Function
   const getOTP = async () => {
-    const res = await fetch(
-      "https://node2-plum.vercel.app/api/admin/generate-otp",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(mobileNo),
+    setIsLoadingOTP(true);
+    setOtp(""); // reset OTP field value
+    setOtpError(""); // reset error message
+    setOtpSent(false); // reset to avoid flicker
+
+    try {
+      const res = await fetch(
+        "https://node2-plum.vercel.app/api/admin/generate-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(mobileNo),
+        }
+      );
+
+      const data = await res.json();
+
+      console.log("OTP data: ", data);
+
+      // const res = await postData("generate-otp", mobileNo)
+
+      if (data.success) {
+        setOtpSent(true);
+        setOtpError("");
+        console.log("OTP generate successfully!!");
+        toast.success("OTP generated successfully!!");
+      } else if (!data.success) {
+        console.log("Error generating OTP");
+        setOtpError(data.message);
+      } else {
+        console.log("Failed to generate OTP");
       }
-    );
-
-    const data = await res.json();
-
-    console.log("OTP data: ", data);
-
-    // const res = await postData("generate-otp", mobileNo)
-
-    if (data.success) {
-      setOtpSent(true);
-      setOtpError("");
-      console.log("OTP generate successfully!!");
-      toast.success("OTP generated successfully!!");
-    } else if (!data.success) {
-      console.log("Error generating OTP");
-      setOtpError(data.message);
-    } else {
-      console.log("Failed to generate OTP");
+    } catch (error) {
+      setOtpError("Failed to send OTP");
     }
+    setIsLoadingOTP(false);
   };
 
   console.log("Mobile no:", mobileNo);
 
   // Verify OTP
   const verifyOTP = async () => {
+    if (otp.length !== 4) {
+      setOtpError("Please enter a valid 4-digit OTP.");
+      return;
+    }
+
     if (formData.PR_FULL_NAME === "" && formData.PR_DOB === "") {
       console.log("Error: Check your name or DOB");
       setOtpError("Please enter your name and date of birth");
@@ -477,7 +508,9 @@ const AddUserForm = () => {
                 options={["Admin", "End_User", "Master"]}
               />
               {formErrors.PR_ROLE && (
-                <p className="text-sm relative -top-3 text-red-500">{formErrors.PR_ROLE}</p>
+                <p className="text-sm relative -top-3 text-red-500">
+                  {formErrors.PR_ROLE}
+                </p>
               )}
             </div>
             <div>
@@ -570,6 +603,8 @@ const AddUserForm = () => {
                 <p className="text-sm text-red-500">{formErrors.PR_GENDER}</p>
               )}
             </div>
+
+            {/* OTP UI */}
             <div className="flex flex-col md:flex-row md:items-end gap-4 w-full relative -top-4">
               <div className="flex-1">
                 <Input
@@ -586,7 +621,7 @@ const AddUserForm = () => {
                 )}
               </div>
 
-              {!otpSent && formData.PR_MOBILE_NO && (
+              {!otpSent && /^\d{10}$/.test(formData.PR_MOBILE_NO) && (
                 <button
                   type="button"
                   onClick={getOTP}
@@ -616,6 +651,9 @@ const AddUserForm = () => {
                   >
                     Verify
                   </button>
+                  <p className="text-xs text-gray-500">
+                    You can resend OTP in {cooldown}s
+                  </p>
                 </div>
               )}
             </div>
@@ -926,13 +964,13 @@ const AddUserForm = () => {
             /> */}
             <div>
               <Input
-              type="text  "
-              label="Profession Description"
-              name="PR_PROFESSION_DETA"
-              value={formData.PR_PROFESSION_DETA}
-              onChange={handleChange}
-            />
-            {formErrors.PR_PROFESSION_DETA && (
+                type="text  "
+                label="Profession Description"
+                name="PR_PROFESSION_DETA"
+                value={formData.PR_PROFESSION_DETA}
+                onChange={handleChange}
+              />
+              {formErrors.PR_PROFESSION_DETA && (
                 <p className="text-sm text-red-500">
                   {formErrors.PR_PROFESSION_DETA}
                 </p>
@@ -961,16 +999,16 @@ const AddUserForm = () => {
             /> */}
             <div>
               <Select
-              label="Business"
-              name="PR_BUSS_STREAM"
-              value={formData.PR_BUSS_STREAM}
-              onChange={handleChange}
-              options={business.map((item) => ({
-                label: item.BUSS_STREM,
-                value: item.BUSS_STREM,
-              }))}
-            />
-            {formErrors.PR_BUSS_STREAM && (
+                label="Business"
+                name="PR_BUSS_STREAM"
+                value={formData.PR_BUSS_STREAM}
+                onChange={handleChange}
+                options={business.map((item) => ({
+                  label: item.BUSS_STREM,
+                  value: item.BUSS_STREM,
+                }))}
+              />
+              {formErrors.PR_BUSS_STREAM && (
                 <p className="text-sm relative -top-4 text-red-500">
                   {formErrors.PR_BUSS_STREAM}
                 </p>
@@ -978,12 +1016,12 @@ const AddUserForm = () => {
             </div>
             <div>
               <Input
-              label="Business Type"
-              name="PR_BUSS_TYPE"
-              value={formData.PR_BUSS_TYPE}
-              onChange={handleChange}
-            />
-            {formErrors.PR_BUSS_TYPE && (
+                label="Business Type"
+                name="PR_BUSS_TYPE"
+                value={formData.PR_BUSS_TYPE}
+                onChange={handleChange}
+              />
+              {formErrors.PR_BUSS_TYPE && (
                 <p className="text-sm text-red-500">
                   {formErrors.PR_BUSS_TYPE}
                 </p>
