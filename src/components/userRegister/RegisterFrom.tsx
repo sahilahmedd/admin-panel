@@ -9,6 +9,35 @@ import ImageUpload from "../ImageUpload";
 import toast, { Toaster } from "react-hot-toast";
 // import { X } from 'lucide-react'
 
+type UserFormData = {
+  PR_ROLE: string;
+  PR_FULL_NAME: string;
+  PR_PHOTO_URL: string;
+  PR_FATHER_NAME: string;
+  PR_MOTHER_NAME: string;
+  PR_DOB: string;
+  PR_GENDER: string;
+  PR_MOBILE_NO: string;
+  PR_HOBBY: string;
+  PR_MARRIED_YN: string;
+  PR_SPOUSE_NAME: string;
+  PR_ADDRESS: string;
+  PR_AREA_NAME: string;
+  PR_PIN_CODE: string;
+  PR_CITY_CODE: string;
+  PR_DISTRICT_CODE: string;
+  PR_STATE_CODE: string;
+  PR_EDUCATION: string;
+  PR_EDUCATION_DESC: string;
+  PR_PROFESSION: string;
+  PR_PROFESSION_DETA: string;
+  PR_BUSS_STREAM: string;
+  PR_BUSS_TYPE: string;
+  PR_BUSS_INTER: string;
+};
+
+type FormErrors = Partial<Record<keyof UserFormData | "otp", string>>;
+
 const AddUserForm = () => {
   const [formData, setFormData] = useState({
     PR_ROLE: "",
@@ -47,6 +76,7 @@ const AddUserForm = () => {
   const [professions, setProfessions] = useState<any[]>([]);
   const [business, setBusiness] = useState<any[]>([]);
   const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
   const [otpError, setOtpError] = useState<string>("");
   const [mobileNo, setMobileNo] = useState({
     PR_MOBILE_NO: "",
@@ -61,6 +91,7 @@ const AddUserForm = () => {
   });
   const [prId, setPrId] = useState();
   const [children, setChildren] = useState([{ name: "", dob: "" }]);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   // FETCHING DATA FROM APIs
   // Get hobbies
@@ -150,6 +181,55 @@ const AddUserForm = () => {
     getBusiness();
   }, []);
 
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {};
+
+    if (!formData.PR_ROLE) errors.PR_ROLE = "Role is required";
+    if (!formData.PR_FULL_NAME.trim())
+      errors.PR_FULL_NAME = "Full name is required";
+    if (!formData.PR_PHOTO_URL) errors.PR_PHOTO_URL = "Photo is required";
+    if (!formData.PR_FATHER_NAME.trim())
+      errors.PR_FATHER_NAME = "Father's name is required";
+    if (!formData.PR_MOTHER_NAME.trim())
+      errors.PR_MOTHER_NAME = "Mother's name is required";
+    if (!formData.PR_DOB) errors.PR_DOB = "Date of Birth is required";
+    if (!formData.PR_GENDER) errors.PR_GENDER = "Gender is required";
+    if (!formData.PR_MOBILE_NO || !/^\d{10}$/.test(formData.PR_MOBILE_NO)) {
+      errors.PR_MOBILE_NO = "Valid 10-digit Mobile number is required";
+    }
+    if (!otpVerified) errors.otp = "OTP verification is required";
+    if (!formData.PR_HOBBY) errors.PR_HOBBY = "Hobby is required";
+
+    if (!formData.PR_MARRIED_YN)
+      errors.PR_MARRIED_YN = "Married status is required";
+    if (formData.PR_MARRIED_YN === "Yes" && !formData.PR_SPOUSE_NAME.trim()) {
+      errors.PR_SPOUSE_NAME = "Spouse name is required";
+    }
+
+    if (!formData.PR_ADDRESS.trim()) errors.PR_ADDRESS = "Address is required";
+    if (!formData.PR_AREA_NAME.trim()) errors.PR_AREA_NAME = "Area is required";
+    if (!formData.PR_PIN_CODE) errors.PR_PIN_CODE = "Pincode is required";
+    if (!formData.PR_CITY_CODE) errors.PR_CITY_CODE = "City is required";
+    if (!formData.PR_DISTRICT_CODE)
+      errors.PR_DISTRICT_CODE = "District is required";
+    if (!formData.PR_STATE_CODE) errors.PR_STATE_CODE = "State is required";
+    if (!formData.PR_EDUCATION) errors.PR_EDUCATION = "Education is required";
+    if (!formData.PR_EDUCATION_DESC.trim())
+      errors.PR_EDUCATION_DESC = "Education Description is required";
+    if (!formData.PR_PROFESSION)
+      errors.PR_PROFESSION = "Profession is required";
+    if (!formData.PR_PROFESSION_DETA.trim())
+      errors.PR_PROFESSION_DETA = "Profession Description is required";
+    if (!formData.PR_BUSS_STREAM)
+      errors.PR_BUSS_STREAM = "Business stream is required";
+    if (!formData.PR_BUSS_TYPE)
+      errors.PR_BUSS_TYPE = "Business type is required";
+
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   // Generate OTP Function
   const getOTP = async () => {
     const res = await fetch(
@@ -213,6 +293,7 @@ const AddUserForm = () => {
         toast.success("OTP verified successfully!!");
         setOtpError("");
         setOtpSent(false);
+        setOtpVerified(true);
       } else {
         console.log("Error: ", data.message);
         setOtpError(data.message);
@@ -325,6 +406,11 @@ const AddUserForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Submitting form", formData);
+
+    if (!validateForm()) {
+      toast.error("Please correct the errors before submitting");
+      return;
+    }
     // integrate API call here
 
     const res = await fetch(
@@ -382,37 +468,70 @@ const AddUserForm = () => {
             Personal Details
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Select
-              label="Role"
-              name="PR_ROLE"
-              value={formData.PR_ROLE}
-              onChange={handleChange}
-              options={["Admin", "End_User", "Master"]}
-            />
-            <Input
-              label="Full Name"
-              name="PR_FULL_NAME"
-              value={formData.PR_FULL_NAME}
-              onChange={handleChange}
-            />
-            <ImageUpload
-              name="PR_PHOTO_URL"
-              imageUrl={formData.PR_PHOTO_URL}
-              onChange={handleChange}
-            />
+            <div>
+              <Select
+                label="Role"
+                name="PR_ROLE"
+                value={formData.PR_ROLE}
+                onChange={handleChange}
+                options={["Admin", "End_User", "Master"]}
+              />
+              {formErrors.PR_ROLE && (
+                <p className="text-sm relative -top-3 text-red-500">{formErrors.PR_ROLE}</p>
+              )}
+            </div>
+            <div>
+              <Input
+                label="Full Name"
+                name="PR_FULL_NAME"
+                value={formData.PR_FULL_NAME}
+                onChange={handleChange}
+              />
+              {formErrors.PR_FULL_NAME && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_FULL_NAME}
+                </p>
+              )}
+            </div>
+            <div>
+              <ImageUpload
+                name="PR_PHOTO_URL"
+                imageUrl={formData.PR_PHOTO_URL}
+                onChange={handleChange}
+              />
+              {formErrors.PR_PHOTO_URL && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_PHOTO_URL}
+                </p>
+              )}
+            </div>
 
-            <Input
-              label="Father's Name"
-              name="PR_FATHER_NAME"
-              value={formData.PR_FATHER_NAME}
-              onChange={handleChange}
-            />
-            <Input
-              label="Mother's Name"
-              name="PR_MOTHER_NAME"
-              value={formData.PR_MOTHER_NAME}
-              onChange={handleChange}
-            />
+            <div>
+              <Input
+                label="Father's Name"
+                name="PR_FATHER_NAME"
+                value={formData.PR_FATHER_NAME}
+                onChange={handleChange}
+              />
+              {formErrors.PR_FATHER_NAME && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_FATHER_NAME}
+                </p>
+              )}
+            </div>
+            <div>
+              <Input
+                label="Mother's Name"
+                name="PR_MOTHER_NAME"
+                value={formData.PR_MOTHER_NAME}
+                onChange={handleChange}
+              />
+              {formErrors.PR_MOTHER_NAME && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_MOTHER_NAME}
+                </p>
+              )}
+            </div>
             {/* <Input
               label="Father ID"
               type="number"
@@ -427,21 +546,31 @@ const AddUserForm = () => {
               value={formData.PR_MOTHER_ID}
               onChange={handleChange}
             /> */}
-            <Input
-              label="Date of Birth"
-              name="PR_DOB"
-              type="date"
-              value={formData.PR_DOB}
-              onChange={handleChange}
-            />
-            <Select
-              label="Gender"
-              name="PR_GENDER"
-              value={formData.PR_GENDER}
-              onChange={handleChange}
-              options={["Male", "Female", "Other"]}
-            />
-            <div className="flex flex-col md:flex-row md:items-end gap-4 w-full relative">
+            <div>
+              <Input
+                label="Date of Birth"
+                name="PR_DOB"
+                type="date"
+                value={formData.PR_DOB}
+                onChange={handleChange}
+              />
+              {formErrors.PR_DOB && (
+                <p className="text-sm text-red-500">{formErrors.PR_DOB}</p>
+              )}
+            </div>
+            <div>
+              <Select
+                label="Gender"
+                name="PR_GENDER"
+                value={formData.PR_GENDER}
+                onChange={handleChange}
+                options={["Male", "Female", "Other"]}
+              />
+              {formErrors.PR_GENDER && (
+                <p className="text-sm text-red-500">{formErrors.PR_GENDER}</p>
+              )}
+            </div>
+            <div className="flex flex-col md:flex-row md:items-end gap-4 w-full relative -top-4">
               <div className="flex-1">
                 <Input
                   label="Mobile Number"
@@ -450,6 +579,11 @@ const AddUserForm = () => {
                   value={formData.PR_MOBILE_NO}
                   onChange={handleChange}
                 />
+                {formErrors.PR_MOBILE_NO && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.PR_MOBILE_NO}
+                  </p>
+                )}
               </div>
 
               {!otpSent && formData.PR_MOBILE_NO && (
@@ -487,16 +621,21 @@ const AddUserForm = () => {
             </div>
 
             {/* <Input label="Hobby" name="PR_HOBBY" value={formData.PR_HOBBY} onChange={handleChange} /> */}
-            <Select
-              label="Hobby"
-              name="PR_HOBBY"
-              value={formData.PR_HOBBY}
-              onChange={handleChange}
-              options={hobby.map((item) => ({
-                label: item.HOBBY_NAME,
-                value: item.HOBBY_NAME,
-              }))}
-            />
+            <div>
+              <Select
+                label="Hobby"
+                name="PR_HOBBY"
+                value={formData.PR_HOBBY}
+                onChange={handleChange}
+                options={hobby.map((item) => ({
+                  label: item.HOBBY_NAME,
+                  value: item.HOBBY_NAME,
+                }))}
+              />
+              {formErrors.PR_HOBBY && (
+                <p className="text-sm text-red-500">{formErrors.PR_HOBBY}</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -506,13 +645,20 @@ const AddUserForm = () => {
             Married Status
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Select
-              label="Married?"
-              name="PR_MARRIED_YN"
-              value={formData.PR_MARRIED_YN}
-              onChange={handleChange}
-              options={["Yes", "No"]}
-            />
+            <div>
+              <Select
+                label="Married?"
+                name="PR_MARRIED_YN"
+                value={formData.PR_MARRIED_YN}
+                onChange={handleChange}
+                options={["Yes", "No"]}
+              />
+              {formErrors.PR_MARRIED_YN && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_MARRIED_YN}
+                </p>
+              )}
+            </div>
             <Input
               label="Spouse Name"
               name="PR_SPOUSE_NAME"
@@ -602,58 +748,98 @@ const AddUserForm = () => {
             Address Details
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Address"
-              name="PR_ADDRESS"
-              value={formData.PR_ADDRESS}
-              onChange={handleChange}
-            />
-            <Input
-              label="Area"
-              name="PR_AREA_NAME"
-              value={formData.PR_AREA_NAME}
-              onChange={handleChange}
-            />
+            <div>
+              <Input
+                label="Address"
+                name="PR_ADDRESS"
+                value={formData.PR_ADDRESS}
+                onChange={handleChange}
+              />
+              {formErrors.PR_ADDRESS && (
+                <p className="text-sm text-red-500">{formErrors.PR_ADDRESS}</p>
+              )}
+            </div>
+            <div>
+              <Input
+                label="Area"
+                name="PR_AREA_NAME"
+                value={formData.PR_AREA_NAME}
+                onChange={handleChange}
+              />
+              {formErrors.PR_AREA_NAME && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_AREA_NAME}
+                </p>
+              )}
+            </div>
             {/* <Input
             label="Pincode"
             name="PR_PIN_CODE"
             value={formData.PR_PIN_CODE}
             onChange={handleChange}
           /> */}
-            <Select
-              label="Pincode"
-              name="PR_PIN_CODE"
-              value={formData.PR_PIN_CODE}
-              onChange={handleChange}
-              options={uniquePincodes}
-            />
+            <div>
+              <Select
+                label="Pincode"
+                name="PR_PIN_CODE"
+                value={formData.PR_PIN_CODE}
+                onChange={handleChange}
+                options={uniquePincodes}
+              />
+              {formErrors.PR_PIN_CODE && (
+                <p className="text-sm relative -top-4 text-red-500">
+                  {formErrors.PR_PIN_CODE}
+                </p>
+              )}
+            </div>
             {/* <Input label="City" name="PR_CITY_CODE" value={formData.PR_CITY_CODE} onChange={handleChange} /> */}
-            <Select
-              label="City"
-              name="PR_CITY_CODE"
-              value={formData.PR_CITY_CODE}
-              onChange={handleChange}
-              options={city.map((item) => ({
-                label: item.CITY_NAME,
-                value: item.CITY_ID,
-              }))}
-            />
+            <div>
+              <Select
+                label="City"
+                name="PR_CITY_CODE"
+                value={formData.PR_CITY_CODE}
+                onChange={handleChange}
+                options={city.map((item) => ({
+                  label: item.CITY_NAME,
+                  value: item.CITY_ID,
+                }))}
+              />
+              {formErrors.PR_CITY_CODE && (
+                <p className="text-sm relative -top-4 text-red-500">
+                  {formErrors.PR_CITY_CODE}
+                </p>
+              )}
+            </div>
             {/* <Input label="District" name="PR_DISTRICT_CODE" value={formData.PR_DISTRICT_CODE} onChange={handleChange} /> */}
-            <Select
-              label="District"
-              name="PR_DISTRICT_CODE"
-              value={formData.PR_DISTRICT_CODE}
-              onChange={handleChange}
-              options={uniqueDistricts}
-            />
+            <div>
+              <Select
+                label="District"
+                name="PR_DISTRICT_CODE"
+                value={formData.PR_DISTRICT_CODE}
+                onChange={handleChange}
+                options={uniqueDistricts}
+              />
+              {formErrors.PR_DISTRICT_CODE && (
+                <p className="text-sm relative -top-4 text-red-500">
+                  {formErrors.PR_DISTRICT_CODE}
+                </p>
+              )}
+            </div>
             {/* <Input label="State" name="PR_STATE_CODE" value={formData.PR_STATE_CODE} onChange={handleChange} /> */}
-            <Select
-              label="State"
-              name="PR_STATE_CODE"
-              value={formData.PR_STATE_CODE}
-              onChange={handleChange}
-              options={uniqueStates}
-            />
+            <div>
+              <Select
+                label="State"
+                name="PR_STATE_CODE"
+                value={formData.PR_STATE_CODE}
+                onChange={handleChange}
+                options={uniqueStates}
+              />
+              {formErrors.PR_STATE_CODE && (
+                <p className="text-sm relative -top-4 text-red-500">
+                  {formErrors.PR_STATE_CODE}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -669,22 +855,36 @@ const AddUserForm = () => {
             value={formData.PR_EDUCATION}
             onChange={handleChange}
           /> */}
-            <Select
-              label="Education"
-              name="PR_EDUCATION"
-              value={formData.PR_EDUCATION}
-              onChange={handleChange}
-              options={edu.map((item) => ({
-                label: item.EDUCATION_NAME,
-                value: item.EDUCATION_NAME,
-              }))}
-            />
-            <Input
-              label="Education Description"
-              name="PR_EDUCATION_DESC"
-              value={formData.PR_EDUCATION_DESC}
-              onChange={handleChange}
-            />
+            <div>
+              <Select
+                label="Education"
+                name="PR_EDUCATION"
+                value={formData.PR_EDUCATION}
+                onChange={handleChange}
+                options={edu.map((item) => ({
+                  label: item.EDUCATION_NAME,
+                  value: item.EDUCATION_NAME,
+                }))}
+              />
+              {formErrors.PR_EDUCATION && (
+                <p className="text-sm relative -top-4 text-red-500">
+                  {formErrors.PR_EDUCATION}
+                </p>
+              )}
+            </div>
+            <div>
+              <Input
+                label="Education Description"
+                name="PR_EDUCATION_DESC"
+                value={formData.PR_EDUCATION_DESC}
+                onChange={handleChange}
+              />
+              {formErrors.PR_EDUCATION_DESC && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_EDUCATION_DESC}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -700,16 +900,23 @@ const AddUserForm = () => {
             value={formData.PR_PROFESSION}
             onChange={handleChange}
           /> */}
-            <Select
-              label="Profession"
-              name="PR_PROFESSION"
-              value={formData.PR_PROFESSION}
-              onChange={handleChange}
-              options={professions.map((item) => ({
-                label: item.PROF_NAME,
-                value: item.PROF_NAME,
-              }))}
-            />
+            <div>
+              <Select
+                label="Profession"
+                name="PR_PROFESSION"
+                value={formData.PR_PROFESSION}
+                onChange={handleChange}
+                options={professions.map((item) => ({
+                  label: item.PROF_NAME,
+                  value: item.PROF_NAME,
+                }))}
+              />
+              {formErrors.PR_PROFESSION && (
+                <p className="text-sm relative -top-4 text-red-500">
+                  {formErrors.PR_PROFESSION}
+                </p>
+              )}
+            </div>
             {/* <Input
               label="Profession ID"
               name="PR_PROFESSION_ID"
@@ -717,13 +924,20 @@ const AddUserForm = () => {
               onChange={handleChange}
               disabled={true}
             /> */}
-            <Input
+            <div>
+              <Input
               type="text  "
               label="Profession Description"
               name="PR_PROFESSION_DETA"
               value={formData.PR_PROFESSION_DETA}
               onChange={handleChange}
             />
+            {formErrors.PR_PROFESSION_DETA && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_PROFESSION_DETA}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -745,7 +959,8 @@ const AddUserForm = () => {
               value={formData.PR_BUSS_STREAM}
               onChange={handleChange}
             /> */}
-            <Select
+            <div>
+              <Select
               label="Business"
               name="PR_BUSS_STREAM"
               value={formData.PR_BUSS_STREAM}
@@ -755,12 +970,25 @@ const AddUserForm = () => {
                 value: item.BUSS_STREM,
               }))}
             />
-            <Input
+            {formErrors.PR_BUSS_STREAM && (
+                <p className="text-sm relative -top-4 text-red-500">
+                  {formErrors.PR_BUSS_STREAM}
+                </p>
+              )}
+            </div>
+            <div>
+              <Input
               label="Business Type"
               name="PR_BUSS_TYPE"
               value={formData.PR_BUSS_TYPE}
               onChange={handleChange}
             />
+            {formErrors.PR_BUSS_TYPE && (
+                <p className="text-sm text-red-500">
+                  {formErrors.PR_BUSS_TYPE}
+                </p>
+              )}
+            </div>
             <Input
               label="Business Intrest"
               name="PR_BUSS_INTER"
