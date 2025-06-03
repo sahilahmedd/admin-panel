@@ -316,7 +316,7 @@ const AddUserForm = () => {
     } else if (dobDate > today) {
       errors.PR_DOB = "Date of Birth cannot be in the future";
     } else {
-      const age = today.getFullYear() - dobDate.getFullYear();
+      let age = today.getFullYear() - dobDate.getFullYear();
       const monthDiff = today.getMonth() - dobDate.getMonth();
       if (
         monthDiff < 0 ||
@@ -442,12 +442,12 @@ const AddUserForm = () => {
     // Check if any child has errors
     const hasChildErrors = newChildNameErrors.some((error) => error !== "");
     if (hasChildErrors) {
-      errors.children = "Please correct child information";
+      // errors.children = "Please correct child information";
     }
 
     // Limit number of children
     if (children.length > 10) {
-      errors.children = "Maximum of 10 children allowed";
+      // errors.children = "Maximum of 10 children allowed";
     }
 
     setFormErrors(errors);
