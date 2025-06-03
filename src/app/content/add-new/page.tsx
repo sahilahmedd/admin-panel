@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, PlusCircle, Trash2 } from "lucide-react";
 import axios from "axios";
@@ -38,7 +33,7 @@ export default function AdminPages() {
     active_yn: 1,
   });
 
-  const api = "https://node2-plum.vercel.app/api/admin"
+  const api = "https://node2-plum.vercel.app/api/admin";
 
   const fetchPages = async () => {
     try {
@@ -105,7 +100,7 @@ export default function AdminPages() {
                   setEditingPage(null);
                   setFormData({ title: "", link_url: "", active_yn: 1 });
                 }}
-                className="bg-primary text-white hover:bg-blue-700"
+                className="border-2 border-gray-500 cursor-pointer"
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Page
@@ -155,7 +150,7 @@ export default function AdminPages() {
                   </select>
                 </div>
                 <Button
-                  className="w-full mt-2 bg-primary text-white hover:bg-blue-700"
+                  className="w-full mt-2 border-2 border-gray-500"
                   onClick={handleSubmit}
                 >
                   {editingPage ? "Update Page" : "Create Page"}
