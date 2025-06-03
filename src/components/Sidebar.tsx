@@ -15,33 +15,60 @@ import {
   BadgeDollarSign,
   Database,
   Package,
-  Contact
+  Contact,
+  TextCursorIcon,
 } from "lucide-react";
-
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const [tablesOpen, setTablesOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-
+  const [contentOpen, setContentOpen] = useState(false)
 
   const tableLinks = [
     { name: "Cities", path: "cities", icon: <Building2 className="w-5 h-5" /> },
     { name: "Hobbies", path: "hobbies", icon: <Heart className="w-5 h-5" /> },
-    { name: "Professions", path: "professions", icon: <Briefcase className="w-5 h-5" /> },
+    {
+      name: "Professions",
+      path: "professions",
+      icon: <Briefcase className="w-5 h-5" />,
+    },
     { name: "Events", path: "events", icon: <Calendar className="w-5 h-5" /> },
-    { name: "Education", path: "education", icon: <Book className="w-5 h-5" /> },
-    { name: "Stream", path: "stream", icon: <LayoutGrid className="w-5 h-5" /> },
-    { name: "Business", path: "business", icon: <Package className="w-5 h-5" /> },
+    {
+      name: "Education",
+      path: "education",
+      icon: <Book className="w-5 h-5" />,
+    },
+    {
+      name: "Stream",
+      path: "stream",
+      icon: <LayoutGrid className="w-5 h-5" />,
+    },
+    {
+      name: "Business",
+      path: "business",
+      icon: <Package className="w-5 h-5" />,
+    },
     { name: "Contact", path: "contact", icon: <Contact className="w-5 h-5" /> },
   ];
 
   const userLinks = [
-    {name: "View", path: "userview  ", icon: <Database className="w-5 h-5" />},
-    {name: "Register", path: "register", icon: <Text className="w-5 h-5" />},
+    {
+      name: "View",
+      path: "userview",
+      icon: <Database className="w-5 h-5" />,
+    },
+    { name: "Register", path: "register", icon: <Text className="w-5 h-5" /> },
+  ];
 
-  ]
+  const contentSection = [
+    {
+      name: "View",
+      path: "view-content",
+      icon: <Database className="w-5 h-5" />,
+    },
+    { name: "Add new", path: "add-new", icon: <Text className="w-5 h-5" /> },
+  ];
   // console.log("Path: ", tableLinks[0].path);
-  
 
   // const paymentLinks = [
   //   {name: "Logs", path: "userview  ", icon: <Database className="w-5 h-5" />},
@@ -62,7 +89,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
           <LayoutDashboard className="w-5 h-5" />
           <Link href="/dashboard">Dashboard</Link>
         </li>
-        
+
         <li className="mb-4">
           <button
             className="flex items-center gap-2 w-full text-left hover:bg-gray-800 p-2 rounded-md transition"
@@ -73,28 +100,33 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
           {tablesOpen && (
             <ul className="ml-6 mt-2">
               {tableLinks.map((item) => (
-                <li key={item.path} className="mb-3 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
+                <li
+                  key={item.path}
+                  className="mb-3 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition"
+                >
                   {item.icon}
-                  
+
                   <Link href={`/tables/${item.path}`}>{item.name}</Link>
                 </li>
               ))}
             </ul>
           )}
         </li>
-      
 
-      <li className="mb-4">
+        <li className="mb-4">
           <button
             className="flex items-center gap-2 w-full text-left hover:bg-gray-800 p-2 rounded-md transition"
             onClick={() => setUserOpen(!userOpen)}
           >
-          <Users className="w-5 h-5" /> Users
+            <Users className="w-5 h-5" /> Users
           </button>
           {userOpen && (
             <ul className="ml-6 mt-2">
               {userLinks.map((item) => (
-                <li key={item.path} className="mb-3 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
+                <li
+                  key={item.path}
+                  className="mb-3 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition"
+                >
                   {item.icon}
                   <Link href={`/family/${item.path}`}>{item.name}</Link>
                 </li>
@@ -106,6 +138,28 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
         <li className="mb-4 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition">
           <BadgeDollarSign className="w-5 h-5" />
           <Link href="/payment">Payment</Link>
+        </li>
+
+        <li className="mb-4">
+          <button
+            className="flex items-center gap-2 w-full text-left hover:bg-gray-800 p-2 rounded-md transition"
+            onClick={() => setContentOpen(!contentOpen)}
+          >
+            <TextCursorIcon className="w-5 h-5" /> Content Section
+          </button>
+          {contentOpen && (
+            <ul className="ml-6 mt-2">
+              {contentSection.map((item) => (
+                <li
+                  key={item.path}
+                  className="mb-3 flex items-center gap-2 hover:bg-gray-800 p-2 rounded-md transition"
+                >
+                  {item.icon}
+                  <Link href={`/content/${item.path}`}>{item.name}</Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </li>
       </ul>
     </div>
