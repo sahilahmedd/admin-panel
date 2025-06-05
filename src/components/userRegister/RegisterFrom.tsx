@@ -15,14 +15,15 @@ type UserFormData = {
   PR_PHOTO_URL: string;
   PR_FATHER_NAME: string;
   PR_MOTHER_NAME: string;
-  PR_FATHER_ID: string | null;
-  PR_MOTHER_ID: string | null;
+  PR_FATHER_ID: string | number | null; // Changed from string to string | number | null
+  PR_MOTHER_ID: string | number | null; // Changed from string to string | number | null
   PR_DOB: string;
   PR_GENDER: string;
   PR_MOBILE_NO: string;
   PR_HOBBY: string;
   PR_MARRIED_YN: string;
   PR_SPOUSE_NAME: string;
+  PR_SPOUSE_ID: string | number | null; // Changed from string to string | number | null
   PR_ADDRESS: string;
   // PR_AREA_NAME: string;
   PR_PIN_CODE: string;
@@ -39,7 +40,6 @@ type UserFormData = {
 };
 
 type FormState = UserFormData & {
-  PR_SPOUSE_ID: string | null;
   PR_PROFESSION_ID: string | null;
   PR_BUSS_CODE: string;
 };
@@ -53,15 +53,15 @@ const AddUserForm = () => {
     PR_PHOTO_URL: "",
     PR_FATHER_NAME: "",
     PR_MOTHER_NAME: "",
-    PR_FATHER_ID: null,
-    PR_MOTHER_ID: null,
+    PR_FATHER_ID: null as string | number | null, // Updated
+    PR_MOTHER_ID: null as string | number | null, // Updated
     PR_DOB: "",
     PR_GENDER: "",
     PR_MOBILE_NO: "",
     PR_HOBBY: "",
     PR_MARRIED_YN: "",
     PR_SPOUSE_NAME: "",
-    PR_SPOUSE_ID: null,
+    PR_SPOUSE_ID: null as string | number | null, // Updated
     PR_ADDRESS: "",
     // PR_AREA_NAME: "",
     PR_PIN_CODE: "",
@@ -70,7 +70,7 @@ const AddUserForm = () => {
     PR_STATE_CODE: "",
     PR_EDUCATION: "",
     PR_EDUCATION_DESC: "",
-    PR_PROFESSION_ID: null,
+    PR_PROFESSION_ID: "",
     PR_PROFESSION: "",
     PR_PROFESSION_DETA: "",
     PR_BUSS_CODE: "",
@@ -112,7 +112,10 @@ const AddUserForm = () => {
   const [fatherUniqueId, setFatherUniqueId] = useState("");
   const [motherUniqueId, setMotherUniqueId] = useState("");
   const [spouseUniqueId, setSpouseUniqueId] = useState("");
-  const [allUsers, setAllUsers] = useState<any[]>([]);
+  // Add these state variables after existing useState declarations
+  const [fatherName, setFatherName] = useState("");
+  const [motherName, setMotherName] = useState("");
+  const [spouseName, setSpouseName] = useState("");
 
   useEffect(() => {
     if (cooldown > 0 && otpSent) {
@@ -121,32 +124,85 @@ const AddUserForm = () => {
     }
   }, [cooldown, otpSent]);
 
-  // Fetch all users
-  const getAllUsers = async () => {
-    try {
-      const res = await fetch("https://node2-plum.vercel.app/api/admin/users"); // Adjust endpoint name as needed
+  // Add this function after the getAllUsers function
+  // const getUserByUniqueId = async (uniqueId: string) => {
+  //   if (!uniqueId.trim()) return null;
+  //   console.log("UniqueID: ", uniqueId);
 
+  //   try {
+  //      const encodedUniqueId = encodeURIComponent(uniqueId);
+  //     const res = await fetch(
+  //       `https://node2-plum.vercel.app/api/admin/users/${encodedUniqueId}`
+  //     );
+  //     const data = await res.json();
+  //     console.log("Unique: ", data);
+
+  //     if (data.success && data.data) {
+  //       return data.data;
+  //     } else {
+  //       toast.error(`User not found for Unique ID: ${uniqueId}`);
+  //       return null;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching user:", error);
+  //     toast.error("Error fetching user data");
+  //     return null;
+  //   }
+  // };
+
+  const getUserByUniqueId = async (uniqueId: string) => {
+    if (!uniqueId.trim()) return null;
+    console.log("UniqueID: ", uniqueId);
+
+    try {
+      // URL encode the uniqueId to handle special characters like hyphens
+      const encodedUniqueId = encodeURIComponent(uniqueId);
+      const res = await fetch(
+        `https://node2-plum.vercel.app/api/admin/users/${encodedUniqueId}`
+      );
       const data = await res.json();
-      setAllUsers(data.users || data.data || data); // Adjust based on your API response structure
+      console.log("Unique: ", data);
+
+      if (data.success && data.data) {
+        return data.data;
+      } else {
+        toast.error(`User not found for Unique ID: ${uniqueId}`);
+        return null;
+      }
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching user:", error);
+      toast.error("Error fetching user data");
+      return null;
     }
   };
 
-  useEffect(() => {
-    getAllUsers();
-  }, []);
-
   // Function to map UNIQUE_ID to PR_ID using local data
-  const mapUniqueIdToPrId = (uniqueId: string): string | null => {
-    if (!uniqueId.trim()) return null;
+  const mapUniqueIdToPrId = async (
+    uniqueId: string,
+    fieldType: string
+  ): Promise<number | null> => {
+    if (!uniqueId.trim()) {
+      // Clear the name when input is empty
+      if (fieldType === "father") setFatherName("");
+      if (fieldType === "mother") setMotherName("");
+      if (fieldType === "spouse") setSpouseName("");
+      return null;
+    }
 
-    const user = allUsers.find((user) => user.PR_UNIQUE_ID === uniqueId);
+    const userData = await getUserByUniqueId(uniqueId);
 
-    if (user) {
-      return user.PR_ID;
+    if (userData) {
+      // Set the name for display
+      if (fieldType === "father") setFatherName(userData.PR_FULL_NAME);
+      if (fieldType === "mother") setMotherName(userData.PR_FULL_NAME);
+      if (fieldType === "spouse") setSpouseName(userData.PR_FULL_NAME);
+
+      return userData.PR_ID;
     } else {
-      toast.error(`User not found for Unique ID: ${uniqueId}`);
+      // Clear the name if user not found
+      if (fieldType === "father") setFatherName("");
+      if (fieldType === "mother") setMotherName("");
+      if (fieldType === "spouse") setSpouseName("");
       return null;
     }
   };
@@ -245,56 +301,6 @@ const AddUserForm = () => {
   useEffect(() => {
     getBusiness();
   }, []);
-
-  // const validateForm = (): boolean => {
-  //   const errors: FormErrors = {};
-
-  //   if (!formData.PR_ROLE) errors.PR_ROLE = "Role is required";
-  //   if (!formData.PR_FULL_NAME.trim())
-  //     errors.PR_FULL_NAME = "Full name is required";
-  //   // if (!formData.PR_PHOTO_URL) errors.PR_PHOTO_URL = "Photo is required";
-  //   if (!formData.PR_FATHER_NAME.trim())
-  //     errors.PR_FATHER_NAME = "Father's name is required";
-  //   if (!formData.PR_MOTHER_NAME.trim())
-  //     errors.PR_MOTHER_NAME = "Mother's name is required";
-  //   if (!formData.PR_DOB) errors.PR_DOB = "Date of Birth is required";
-  //   if (!formData.PR_GENDER) errors.PR_GENDER = "Gender is required";
-  //   if (!formData.PR_MOBILE_NO || !/^\d{10}$/.test(formData.PR_MOBILE_NO)) {
-  //     errors.PR_MOBILE_NO = "Valid 10-digit Mobile number is required";
-  //   }
-  //   if (!otpVerified) errors.otp = "OTP verification is required";
-  //   if (!formData.PR_HOBBY) errors.PR_HOBBY = "Hobby is required";
-
-  //   if (!formData.PR_MARRIED_YN)
-  //     errors.PR_MARRIED_YN = "Married status is required";
-  //   if (formData.PR_MARRIED_YN === "Yes" && !formData.PR_SPOUSE_NAME.trim()) {
-  //     errors.PR_SPOUSE_NAME = "Spouse name is required";
-  //   }
-
-  //   if (!formData.PR_ADDRESS.trim()) errors.PR_ADDRESS = "Address is required";
-  //   // if (!formData.PR_AREA_NAME.trim()) errors.PR_AREA_NAME = "Area is required";
-  //   if (!formData.PR_PIN_CODE) errors.PR_PIN_CODE = "Pincode is required";
-  //   if (!formData.PR_CITY_CODE) errors.PR_CITY_CODE = "City is required";
-  //   if (!formData.PR_DISTRICT_CODE)
-  //     errors.PR_DISTRICT_CODE = "District is required";
-  //   if (!formData.PR_STATE_CODE) errors.PR_STATE_CODE = "State is required";
-  //   if (!formData.PR_EDUCATION) errors.PR_EDUCATION = "Education is required";
-  //   if (!formData.PR_EDUCATION_DESC.trim())
-  //     errors.PR_EDUCATION_DESC = "Education Description is required";
-  //   if (!formData.PR_PROFESSION)
-  //     errors.PR_PROFESSION = "Profession is required";
-  //   if (!formData.PR_PROFESSION_DETA.trim())
-  //     errors.PR_PROFESSION_DETA = "Profession Description is required";
-  //   if (!formData.PR_BUSS_STREAM)
-  //     errors.PR_BUSS_STREAM = "Business stream is required";
-  //   if (!formData.PR_BUSS_TYPE)
-  //     errors.PR_BUSS_TYPE = "Business type is required";
-
-  //   setFormErrors(errors);
-  //   return Object.keys(errors).length === 0;
-  // };
-
-  // Generate OTP Function
 
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
@@ -538,7 +544,7 @@ const AddUserForm = () => {
       setFormData((prev) => ({
         ...prev,
         PR_SPOUSE_NAME: "",
-        PR_SPOUSE_ID: null,
+        PR_SPOUSE_ID: "",
       }));
       setChildren([]);
     }
@@ -662,171 +668,6 @@ const AddUserForm = () => {
   };
   console.log("Verify: ", verify);
 
-  // const handleChange = async (
-  //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  // ) => {
-  //   const { name, value } = e.target;
-
-  //   // Narrow target to HTMLInputElement to safely access files property
-  //   if (
-  //     name === "PR_PHOTO_URL" &&
-  //     e.target instanceof HTMLInputElement &&
-  //     e.target.files &&
-  //     e.target.files[0]
-  //   ) {
-  //     const file = e.target.files[0];
-  //     const formDataImage = new FormData();
-  //     formDataImage.append("image", file);
-
-  //     try {
-  //       const res = await fetch("/api/uploadImage", {
-  //         method: "POST",
-  //         body: formDataImage,
-  //       });
-
-  //       const data = await res.json();
-  //       console.log("DATAAAAA: ", data);
-
-  //       if (data.status === "success") {
-  //         const imageUrl = `https://rangrezsamaj.kunxite.com/${data.url}`;
-  //         console.log("Img url: ", imageUrl);
-
-  //         setFormData((prev) => ({
-  //           ...prev,
-  //           PR_PHOTO_URL: imageUrl,
-  //         }));
-  //       } else {
-  //         console.error("Image upload failed: ", data.message);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error uploading image: ", error);
-  //     }
-  //     return;
-  //   }
-
-  //   // The rest of your logic remains unchanged
-  //   if (name === "PR_PIN_CODE") {
-  //     const selectedCity = city.find((c) => c.CITY_PIN_CODE === value);
-  //     if (selectedCity) {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         [name]: value,
-  //         PR_CITY_CODE: selectedCity.CITY_ID,
-  //         PR_DISTRICT_CODE: selectedCity.CITY_DS_CODE,
-  //         PR_STATE_CODE: selectedCity.CITY_ST_CODE,
-  //       }));
-  //     } else {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         [name]: value,
-  //       }));
-  //     }
-  //   } else if (name === "PR_PROFESSION") {
-  //     const selectedProfession = professions.find((p) => p.PROF_NAME === value);
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value,
-  //       PR_PROFESSION_ID: selectedProfession?.PROF_ID || "",
-  //       PR_PROFESSION_DETA: selectedProfession?.PROF_DESC,
-  //     }));
-  //   } else if (name === "PR_BUSS_STREAM") {
-  //     const selectedBusiness = business.find((b) => b.BUSS_STREM === value);
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value,
-  //       PR_BUSS_CODE: selectedBusiness?.BUSS_ID,
-  //       PR_BUSS_TYPE: selectedBusiness?.BUSS_TYPE,
-  //     }));
-  //   } else if (name === "PR_FATHER_ID") {
-  //     setFatherUniqueId(value);
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value, // Keep the unique ID for display
-  //     }));
-  //   } else if (name === "PR_MOTHER_ID") {
-  //     setMotherUniqueId(value);
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value, // Keep the unique ID for display
-  //     }));
-  //   } else if (name === "PR_SPOUSE_ID") {
-  //     setSpouseUniqueId(value);
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value, // Keep the unique ID for display
-  //     }));
-  //   } else {
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value,
-  //     }));
-
-  //     if (name === "PR_MOBILE_NO") {
-  //       setMobileNo({ PR_MOBILE_NO: value });
-
-  //       setVerify((prev) => ({
-  //         ...prev,
-  //         PR_MOBILE_NO: value,
-  //       }));
-  //     }
-
-  //     if (name === "PR_FULL_NAME" || name === "PR_DOB" || name === "PR_ROLE") {
-  //       setVerify((prev) => ({
-  //         ...prev,
-  //         [name]: value,
-  //       }));
-  //     }
-  //   }
-  // };
-
-  // Registering User
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   console.log("Submitting form", formData);
-
-  //   if (!validateForm()) {
-  //     toast.error("Please correct the errors before submitting");
-  //     return;
-  //   }
-  //   // integrate API call here
-
-  //   const res = await fetch(
-  //     "https://node2-plum.vercel.app/api/user/edit-profile",
-  //     {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json", // REQUIRED
-  //         pr_id: String(prId),
-  //       },
-  //       body: JSON.stringify({ ...formData, Children: children }),
-  //     }
-  //   );
-
-  //   const data = await res.json();
-
-  //   console.log("Register user: ", data);
-
-  //   if (data.success) {
-  //     console.log("Data added successfully!!!");
-  //     toast.success("User Added successfully!!!");
-  //   } else if (!data.success) {
-  //     console.log("Error: ", data.message);
-  //     toast.error("Error adding user!!!", data.message);
-  //   } else {
-  //     console.log("Failed!!!");
-  //   }
-
-  //   // const res = await postData("register", formData)
-  //   // if(res.success === true){
-  //   //   console.log("Data updated successfully", res);
-  //   // } else  if(res.success === false) {
-  //   //   console.log("Error: ", res.message)
-  //   // }
-  //   // else {
-  //   //   console.log("error updating data");
-  //   // }
-  // };
-
   // Update the handleSubmit function - replace the existing API call section:
 
   const handleChange = async (
@@ -873,6 +714,7 @@ const AddUserForm = () => {
     }
 
     // Handle fields requiring PR_ID mapping
+    // Replace the existing ID handling section in handleChange with this:
     if (
       name === "PR_FATHER_ID" ||
       name === "PR_MOTHER_ID" ||
@@ -884,12 +726,19 @@ const AddUserForm = () => {
       if (name === "PR_SPOUSE_ID") setSpouseUniqueId(value);
 
       // Map the entered UNIQUE_ID to PR_ID in real time
-      const mappedPrId = mapUniqueIdToPrId(value);
+      const fieldType =
+        name === "PR_FATHER_ID"
+          ? "father"
+          : name === "PR_MOTHER_ID"
+          ? "mother"
+          : "spouse";
 
-      setFormData((prev) => ({
-        ...prev,
-        [name]: mappedPrId, // Store the mapped PR_ID in formData
-      }));
+      mapUniqueIdToPrId(value, fieldType).then((mappedPrId) => {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: mappedPrId,
+        }));
+      });
     }
     // Handle PR_PIN_CODE
     else if (name === "PR_PIN_CODE") {
@@ -952,61 +801,6 @@ const AddUserForm = () => {
       }
     }
   };
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   console.log("Submitting form", formData);
-
-  //   if (!validateForm()) {
-  //     toast.error("Please correct the errors before submitting");
-  //     return;
-  //   }
-
-  //   // Map unique IDs to PR_IDs before submission
-  //   const fatherPrId = mapUniqueIdToPrId(fatherUniqueId);
-  //   const motherPrId = mapUniqueIdToPrId(motherUniqueId);
-  //   const spousePrId =
-  //     formData.PR_MARRIED_YN === "Yes"
-  //       ? mapUniqueIdToPrId(spouseUniqueId)
-  //       : null;
-
-  //   // Create submission data with mapped PR_IDs
-  //   const submissionData = {
-  //     ...formData,
-  //     PR_FATHER_ID: fatherPrId,
-  //     PR_MOTHER_ID: motherPrId,
-  //     PR_SPOUSE_ID: spousePrId,
-  //     Children: children,
-  //   };
-
-  //   console.log("Submission data with mapped IDs:", submissionData);
-
-  //   const res = await fetch(
-  //     "https://node2-plum.vercel.app/api/user/edit-profile",
-  //     {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         pr_id: String(prId),
-  //       },
-  //       body: JSON.stringify(submissionData),
-  //     }
-  //   );
-
-  //   const data = await res.json();
-
-  //   console.log("Register user: ", data);
-
-  //   if (data.success) {
-  //     console.log("Data added successfully!!!");
-  //     toast.success("User Added successfully!!!");
-  //   } else if (!data.success) {
-  //     console.log("Error: ", data.message);
-  //     toast.error("Error adding user!!!");
-  //   } else {
-  //     console.log("Failed!!!");
-  //   }
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1114,7 +908,7 @@ const AddUserForm = () => {
               <Input
                 label="Father's Name"
                 name="PR_FATHER_NAME"
-                value={formData.PR_FATHER_NAME}
+                value={fatherName || formData.PR_FATHER_NAME}
                 onChange={handleChange}
               />
               {formErrors.PR_FATHER_NAME && (
@@ -1127,7 +921,7 @@ const AddUserForm = () => {
               <Input
                 label="Mother's Name"
                 name="PR_MOTHER_NAME"
-                value={formData.PR_MOTHER_NAME}
+                value={motherName || formData.PR_MOTHER_NAME}
                 onChange={handleChange}
               />
               {formErrors.PR_MOTHER_NAME && (
@@ -1136,32 +930,56 @@ const AddUserForm = () => {
                 </p>
               )}
             </div>
-            <Input
-              label="Father ID (Enter Unique ID)"
-              type="text"
-              name="PR_FATHER_ID"
-              value={fatherUniqueId}
-              onChange={(e) => {
-                setFatherUniqueId(e.target.value);
-                setFormData((prev) => ({
-                  ...prev,
-                  PR_FATHER_ID: e.target.value,
-                }));
-              }}
-            />
-            <Input
-              label="Mother ID (Enter Unique ID)"
-              type="text"
-              name="PR_MOTHER_ID"
-              value={motherUniqueId}
-              onChange={(e) => {
-                setMotherUniqueId(e.target.value);
-                setFormData((prev) => ({
-                  ...prev,
-                  PR_MOTHER_ID: e.target.value,
-                }));
-              }}
-            />
+            <div>
+              <Input
+                label="Father ID (Enter Unique ID)"
+                type="text"
+                name="PR_FATHER_ID"
+                value={fatherUniqueId}
+                onChange={(e) => {
+                  setFatherUniqueId(e.target.value);
+                  const fieldType = "father";
+                  mapUniqueIdToPrId(e.target.value, fieldType).then(
+                    (mappedPrId) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        PR_FATHER_ID: mappedPrId,
+                      }));
+                    }
+                  );
+                }}
+              />
+              {/* {fatherName && (
+                <p className="text-sm text-green-600 mt-1">
+                  Found: {fatherName}
+                </p>
+              )} */}
+            </div>
+            <div>
+              <Input
+                label="Mother ID (Enter Unique ID)"
+                type="text"
+                name="PR_MOTHER_ID"
+                value={motherUniqueId}
+                onChange={(e) => {
+                  setMotherUniqueId(e.target.value);
+                  const fieldType = "mother";
+                  mapUniqueIdToPrId(e.target.value, fieldType).then(
+                    (mappedPrId) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        PR_MOTHER_ID: mappedPrId,
+                      }));
+                    }
+                  );
+                }}
+              />
+              {/* {motherName && (
+                <p className="text-sm text-green-600 mt-1">
+                  Found: {motherName}
+                </p>
+              )} */}
+            </div>
             <div>
               <Input
                 label="Date of Birth"
@@ -1297,22 +1115,34 @@ const AddUserForm = () => {
                 <Input
                   label="Spouse Name"
                   name="PR_SPOUSE_NAME"
-                  value={formData.PR_SPOUSE_NAME}
+                  value={spouseName || formData.PR_SPOUSE_NAME}
                   onChange={handleChange}
                 />
-                <Input
-                  label="Spouse ID (Enter Unique ID)"
-                  type="text"
-                  name="PR_SPOUSE_ID"
-                  value={spouseUniqueId}
-                  onChange={(e) => {
-                    setSpouseUniqueId(e.target.value);
-                    setFormData((prev) => ({
-                      ...prev,
-                      PR_SPOUSE_ID: e.target.value,
-                    }));
-                  }}
-                />
+                <div>
+                  <Input
+                    label="Spouse ID (Enter Unique ID)"
+                    type="text"
+                    name="PR_SPOUSE_ID"
+                    value={spouseUniqueId}
+                    onChange={(e) => {
+                      setSpouseUniqueId(e.target.value);
+                      const fieldType = "spouse";
+                      mapUniqueIdToPrId(e.target.value, fieldType).then(
+                        (mappedPrId) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            PR_SPOUSE_ID: mappedPrId,
+                          }));
+                        }
+                      );
+                    }}
+                  />
+                  {/* {spouseName && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Found: {spouseName}
+                    </p>
+                  )} */}
+                </div>
               </>
             )}
           </div>
