@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import DoughnutChart from "@/components/chart";
 import axios from "axios";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
@@ -108,6 +109,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-6">
+      <Breadcrumbs />
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
         <button

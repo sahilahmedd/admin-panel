@@ -11,6 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { CircleX, Pencil } from "lucide-react";
 // import Select from "@/components/Select";
 import EventModal from "@/components/events/EventModal";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 type Category = {
   id: number;
@@ -336,6 +337,7 @@ const EventsTable = () => {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
+      <Breadcrumbs />
       <div className="p-6">
         <TableHeader
           title="Events"

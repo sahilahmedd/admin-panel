@@ -10,6 +10,7 @@ import Image from "next/image";
 import TableHeader from "@/components/TableHeader";
 import Modal from "@/components/AddEdit";
 import Input from "@/components/FormInput";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const HobbiesTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -189,6 +190,7 @@ const HobbiesTable = () => {
 
   return (
     <div className="p-6">
+      <Breadcrumbs />
       <TableHeader
         title="Hobbies"
         text="Hobby"

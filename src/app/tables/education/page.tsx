@@ -10,6 +10,7 @@ import Image from "next/image";
 import Modal from "@/components/AddEdit";
 import Input from "@/components/FormInput";
 import TableHeader from "@/components/TableHeader";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const EducationTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -92,7 +93,7 @@ const EducationTable = () => {
 
   const handleAdd = () => {
     setNewEdu(defaultEdu);
-    setSelectedEdu(null)
+    setSelectedEdu(null);
   };
 
   const handleSubmit = async () => {
@@ -200,119 +201,75 @@ const EducationTable = () => {
   ];
 
   return (
-    // <>
-    //   <Toaster position="top-right" reverseOrder={false} />
-    //   <div className="p-6">
-    //     <TableHeader
-    //       title="Educations"
-    //       text="Education"
-    //       placeholder="Search for educaiton..."
-    //       handleAdd={handleAdd}
-    //       searchText={searchText}
-    //       setSearchText={setSearchText}
-    //     />
-
-    //     <DataTable
-    //       columns={columns}
-    //       data={filteredData}
-    //       progressPending={loading}
-    //       pagination
-    //     />
-
-    //     {showModal && (
-    //       <Modal
-    //         title={showModal === "add" ? "Add Education" : "Edit Education"}
-    //         onClose={() => setShowModal(null)}
-    //         onSubmit={showModal === "add" ? handleSubmit : handleUpdate}
-    //       >
-    //         <Input
-    //           type="text"
-    //           label="Education Name"
-    //           name="EDUCATION_NAME"
-    //           value={newEdu.EDUCATION_NAME}
-    //           onChange={handleChange}
-    //         />
-    //         <Input
-    //           type="file"
-    //           label="Upload Icon"
-    //           name="EDUCATION_IMAGE_URL"
-    //           value={newEdu.EDUCATION_IMAGE_URL}
-    //           onChange={handleChange}
-    //         />
-    //       </Modal>
-    //     )}
-    //   </div>
-    // </>
 
     <>
-  <Toaster position="top-right" reverseOrder={false} />
-
-  <div className="p-6">
-    <TableHeader
-      title="Educations"
-      text="Education"
-      placeholder="Search for education..."
-      handleAdd={handleAdd}
-      searchText={searchText}
-      setSearchText={setSearchText}
-    />
-
-    <div className="flex flex-col lg:flex-row gap-6 mt-4">
-      {/* Left - Table */}
-      <div className="w-full lg:w-2/3">
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          progressPending={loading}
-          pagination
+      <Toaster position="top-right" reverseOrder={false} />
+      <Breadcrumbs />
+      <div className="p-6">
+        <TableHeader
+          title="Educations"
+          text="Education"
+          placeholder="Search for education..."
+          handleAdd={handleAdd}
+          searchText={searchText}
+          setSearchText={setSearchText}
         />
-      </div>
 
-      {/* Right - Always visible form */}
-      <div className="w-full lg:w-1/3 bg-white border border-gray-200 rounded-lg shadow p-6 h-1/2 overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4 text-center">
-          {selectedEdu ? "Edit Education" : "Add New Education"}
-        </h2>
+        <div className="flex flex-col lg:flex-row gap-6 mt-4">
+          {/* Left - Table */}
+          <div className="w-full lg:w-2/3">
+            <DataTable
+              columns={columns}
+              data={filteredData}
+              progressPending={loading}
+              pagination
+            />
+          </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          <Input
-            type="text"
-            label="Education Name"
-            name="EDUCATION_NAME"
-            value={newEdu.EDUCATION_NAME}
-            onChange={handleChange}
-          />
-          <Input
-            type="file"
-            label="Upload Icon"
-            name="EDUCATION_IMAGE_URL"
-            value={newEdu.EDUCATION_IMAGE_URL}
-            onChange={handleChange}
-          />
+          {/* Right - Always visible form */}
+          <div className="w-full lg:w-1/3 bg-white border border-gray-200 rounded-lg shadow p-6 h-1/2 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              {selectedEdu ? "Edit Education" : "Add New Education"}
+            </h2>
+
+            <div className="grid grid-cols-1 gap-4">
+              <Input
+                type="text"
+                label="Education Name"
+                name="EDUCATION_NAME"
+                value={newEdu.EDUCATION_NAME}
+                onChange={handleChange}
+              />
+              <Input
+                type="file"
+                label="Upload Icon"
+                name="EDUCATION_IMAGE_URL"
+                value={newEdu.EDUCATION_IMAGE_URL}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-6">
+              <button
+                onClick={() => {
+                  setSelectedEdu(null);
+                  setNewEdu(defaultEdu);
+                }}
+                className="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500"
+              >
+                Reset
+              </button>
+              <button
+                onClick={selectedEdu ? handleUpdate : handleSubmit}
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+              >
+                {selectedEdu ? "Update" : "Add"}
+              </button>
+            </div>
+          </div>
         </div>
-
-        <div className="flex justify-end gap-2 pt-6">
-          <button
-            onClick={() => {
-              setSelectedEdu(null);
-              setNewEdu(defaultEdu);
-            }}
-            className="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500"
-          >
-            Reset
-          </button>
-          <button
-            onClick={selectedEdu ? handleUpdate : handleSubmit}
-            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-          >
-            {selectedEdu ? "Update" : "Add"}
-          </button>
-        </div>
       </div>
-    </div>
-  </div>
-</>
-
+    </>
   );
 };
 

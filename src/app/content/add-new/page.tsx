@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 interface Page {
   id: number;
@@ -88,6 +89,7 @@ export default function AdminPages() {
 
   return (
     <div className="bg-background min-h-screen py-10 px-6">
+      <Breadcrumbs />
       <Card className="max-w-4xl mx-auto border shadow-lg rounded-xl bg-white">
         <CardHeader className="flex flex-row items-center justify-between border-b">
           <CardTitle className="text-lg font-semibold text-gray-800">

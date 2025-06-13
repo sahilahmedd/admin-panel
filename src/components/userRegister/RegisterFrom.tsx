@@ -25,6 +25,7 @@ type UserFormData = {
   PR_SPOUSE_NAME: string;
   PR_SPOUSE_ID: string | number | null; // Changed from string to string | number | null
   PR_ADDRESS: string;
+  PR_AREA_NAME: string;
   PR_PIN_CODE: string;
   PR_CITY_CODE: string;
   PR_DISTRICT_CODE: string;
@@ -62,6 +63,7 @@ const AddUserForm = () => {
     PR_SPOUSE_NAME: "",
     PR_SPOUSE_ID: null as string | number | null, // Updated
     PR_ADDRESS: "",
+    PR_AREA_NAME: "",
     PR_PIN_CODE: "",
     PR_CITY_CODE: "",
     PR_DISTRICT_CODE: "",
@@ -191,27 +193,9 @@ const AddUserForm = () => {
 
     if (userData) {
       // Set the name for display
-      if (fieldType === "father") {
-        setFatherName(userData.PR_FULL_NAME);
-        setFormData((prev) => ({
-          ...prev,
-          PR_FATHER_NAME: userData.PR_FULL_NAME,
-        }));
-      }
-      if (fieldType === "mother") {
-        setMotherName(userData.PR_FULL_NAME);
-        setFormData((prev) => ({
-          ...prev,
-          PR_MOTHER_NAME: userData.PR_FULL_NAME,
-        }));
-      }
-      if (fieldType === "spouse") {
-        setSpouseName(userData.PR_FULL_NAME);
-        setFormData((prev) => ({
-          ...prev,
-          PR_SPOUSE_NAME: userData.PR_FULL_NAME,
-        }));
-      }
+      if (fieldType === "father") setFatherName(userData.PR_FULL_NAME);
+      if (fieldType === "mother") setMotherName(userData.PR_FULL_NAME);
+      if (fieldType === "spouse") setSpouseName(userData.PR_FULL_NAME);
 
       return userData.PR_ID;
     } else {
@@ -1262,6 +1246,18 @@ const AddUserForm = () => {
                 <p className="text-sm text-red-500">{formErrors.PR_ADDRESS}</p>
               )}
             </div>
+            <div>
+              <Input
+                label="Area"
+                name="PR_AREA_NAME"
+                value={formData.PR_AREA_NAME}
+                onChange={handleChange}
+              />
+              {formErrors.PR_ADDRESS && (
+                <p className="text-sm text-red-500">{formErrors.PR_ADDRESS}</p>
+              )}
+            </div>
+            
             <div>
               <Select
                 label="Pincode"

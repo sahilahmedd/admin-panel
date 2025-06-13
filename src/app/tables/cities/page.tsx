@@ -9,6 +9,7 @@ import { ColorRing } from "react-loader-spinner";
 import Modal from "@/components/AddEdit";
 import Input from "@/components/FormInput";
 import TableHeader from "@/components/TableHeader";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const CitiesTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -167,6 +168,7 @@ const CitiesTable = () => {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
+      <Breadcrumbs />
       <div className="p-6">
         <TableHeader
           title="Cities"
