@@ -6,7 +6,8 @@ import DataTable from "react-data-table-component";
 import toast from "react-hot-toast";
 import TableHeader from "@/components/TableHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
-// import Modal from "@/components/AddEdit";
+import { Edit, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface City {
   CITY_ID: string;
@@ -23,6 +24,8 @@ const UserView = () => {
   const [selectedRow, setSelectedRow] = useState<any | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
+  const router = useRouter();
+
   const getUsers = async () => {
     setLoading(true);
     try {
@@ -35,6 +38,34 @@ const UserView = () => {
       toast.error("Failed to fetch users", error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to handle user deletion
+  const handleDeleteUser = async (prId: string | number) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete user with PR_ID: ${prId}?`
+      )
+    ) {
+      try {
+        const response = await fetch(
+          `https://node2-plum.vercel.app/api/admin/users/${prId}`,
+          {
+            method: "DELETE",
+          }
+        );
+        const result = await response.json();
+
+        if (result.success) {
+          toast.success(result.message);
+          getUsers(); // Refresh the user list
+        } else {
+          toast.error(result.message || "Failed to delete user.");
+        }
+      } catch (error: any) {
+        toast.error("Error deleting user: " + error.message);
+      }
     }
   };
 
@@ -79,18 +110,53 @@ const UserView = () => {
         </button>
       ),
     },
+    {
+      name: "Actions", // This is the new column
+      cell: (row: any) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => router.push(`/family/userview/${row.PR_ID}`)} // This line handles the dynamic routing
+            className="text-blue-600 hover:text-blue-900"
+            title="Edit User"
+          >
+            <Edit className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => handleDeleteUser(row.PR_ID)}
+            className="text-red-600 hover:text-red-900"
+          >
+            <Trash2 className="h-5 w-5" />{" "}
+            {/* Using Trash2 icon from lucide-react */}
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: "100px",
+    },
   ];
 
   return (
     <div className="p-6">
       <Breadcrumbs />
-      <TableHeader
+      {/* <TableHeader
         title="Users"
         text="Users"
         placeholder="Search for Users..."
         searchText={searchText}
         setSearchText={setSearchText}
         handleAdd={() => {}}
+      /> */}
+
+      <TableHeader
+        title="Users"
+        text="Users"
+        placeholder="Search for Users..."
+        searchText={searchText}
+        setSearchText={setSearchText}
+        // MODIFIED: Changed handleAdd to redirect to /family/register
+        handleAdd={() => router.push("/family/register")}
       />
 
       <DataTable

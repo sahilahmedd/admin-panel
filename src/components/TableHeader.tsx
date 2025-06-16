@@ -12,7 +12,7 @@ const TableHeader = ({
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
       <h1 className="text-2xl font-semibold text-gray-800">{title}</h1>
       <div className="w-full sm:w-64">
