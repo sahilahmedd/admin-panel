@@ -46,88 +46,82 @@ export interface ContentSectionType {
 export interface ContentSection {
   id: number;
   title: string;
-  id_id: number | null; // Ambiguous, but included as per schema, nullable
-  description: string;
-  image_path: string | null;
-  icon_path: string | null;
-//   from_date: string; // Will handle as 'YYYY-MM-DD' string
-//   upto_date: string; // Will handle as 'YYYY-MM-DD' string
-  active_yn: number;
-  created_by: number;
-  created_date: string;
-  updated_by: number | null;
-  updated_date: string | null;
-  page_id: number; // Required foreign key to pages
-  refrence_page_id: number | null;
-  lang_code: string;
-}
-
-// --- UPDATED Interface for the form data when creating/editing a Content Section ---
-export interface ContentSectionFormData {
-  title: string;
-  // id_id is not included in form data as its purpose is unclear and it's nullable
-  description: string;
-  image_path: string; // Frontend will treat as string, can be empty
-  icon_path: string; // Frontend will treat as string, can be empty
-//   from_date: string; // 'YYYY-MM-DD'
-//   upto_date: string; // 'YYYY-MM-DD'
-  active_yn: number;
-  created_by: number;
-  created_date: string; // As per API pattern, frontend will generate
-  updated_by: number | null;
-  page_id: number;
-  refrence_page_id: number | null;
-  lang_code: string;
-}
-
-// --- Content Section Item Types (if needed later) ---
-export interface ContentSectionItemType {
-  id: number;
-  type_name: string;
-  description: string;
-  active_yn: number;
-  created_by: number;
-  created_date: string;
-  updated_by: number | null;
-  updated_date: string | null;
-}
-
-export interface ContentSectionLang {
-  id: number; // Primary key for the translation, manually provided/unique from frontend
-  title: string;
-  id_id: number | null; // Ambiguous: FK to content_sections.id?
-  description: string;
-  image_path: string | null;
-  icon_path: string | null;
-  active_yn: number;
-  created_by: number;
-  created_date: string; // ISO string format
-  updated_by: number | null;
-  updated_date: string | null; // ISO string format
-  page_id: number;
-  refrence_page_id: number | null;
-  lang_code: string;
-}
-
-// Interface for the form data when creating/editing a Content Section Language entry
-// This will be used in ContentSectionTranslationsManager
-export interface ContentSectionLangFormData {
-  id: number; // Must be provided for new entries (manual ID assignment)
-  title: string;
   id_id: number | null;
   description: string;
-  image_path: string | null; // Changed to allow null
-  icon_path: string | null; // Changed to allow null
+  image_path: string | null;
+  icon_path: string | null;
+  active_yn: number;
+  created_by: number;
+  created_date: string;
+  updated_by: number | null;
+  updated_date: string | null;
+  page_id: number;
+  refrence_page_id: number | null;
+  lang_code: string; // This is the lang_code of the main content (expected 'en')
+  // Add the relation to translations
+  translations?: ContentSectionLang[]; // Optional, if API hydrates it
+}
+
+// --- UPDATED ContentSectionFormData (no changes from previous for form itself) ---
+export interface ContentSectionFormData {
+  title: string;
+  description: string;
+  image_path: string;
+  icon_path: string;
+  active_yn: number;
+  created_by: number;
+  created_date: string;
+  updated_by: number | null;
+  page_id: number;
+  refrence_page_id: number | null;
+  lang_code: string; // Frontend will send this, expected 'en'
+}
+
+
+// --- NEW/UPDATED Interface for a Content Section Language (Translation) record ---
+// This strictly follows the new Prisma schema for `content_sections_lang`.
+export interface ContentSectionLang {
+  id: number; // This is the FK to content_sections.id (part of composite PK)
+  lang_code: string; // Part of composite PK, e.g., 'hi', 'es', 'fr'
+  title: string;
+  description: string;
+  image_path: string | null;
+  icon_path: string | null;
+  active_yn: number; // Duplicated from main content section
+  created_by: number; // Duplicated from main content section
+  created_date: string; // Duplicated from main content section
+  updated_by: number | null; // Duplicated from main content section
+  updated_date: string | null; // Duplicated from main content section
+  page_id: number; // Duplicated from main content section
+  refrence_page_id: number | null; // Duplicated from main content section
+  id_id: number | null; // Still ambiguous - included if it's truly in your DB schema
+}
+
+// --- NEW/UPDATED Interface for the form data when creating/editing a Content Section Language entry ---
+// This will be used in ContentSectionTranslationsManager
+export interface ContentSectionLangFormData {
+  id: number; // This is the FK to content_sections.id (will be read-only from parentSectionId)
+  lang_code: string; // Must be provided (dropdown for supported languages, not 'en')
+  title: string;
+  description: string;
+  image_path: string | null; // Allow null
+  icon_path: string | null; // Allow null
   active_yn: number;
   created_by: number;
   created_date: string; // Frontend will generate current date for new entries
   updated_by: number | null;
   page_id: number;
   refrence_page_id: number | null;
-  lang_code: string;
+  id_id: number | null; // Included if present in DB schema
 }
 
 // Props interface for the ContentSectionTranslationsManager component
 export interface ContentSectionTranslationsManagerProps {
   parentSectionId: number; // The ID of the content_section this manager is for
+}
+
+export interface Page {
+  id: number;
+  page_name: string; // Or whatever field holds the display name of the page
+  // Add any other relevant page fields you might use for display or logic
 }
