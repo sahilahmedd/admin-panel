@@ -16,7 +16,6 @@ import useFormDataFetch from "../../hooks/useFormDataFetch";
 import useOtpManagement from "../../hooks/useOtpManagement"; // Can be adapted or removed if OTP not needed for edit
 import useIdMapping from "../../hooks/useIdMapping";
 import ChildrenDetails from "@/components/userRegister/ChildrenDetails";
-import Breadcrumbs from "../Breadcrumbs";
 
 const EditUserForm = () => {
   const router = useRouter();
@@ -492,7 +491,9 @@ const EditUserForm = () => {
         }
       );
 
-      const data = await res.json();
+        const data = await res.json();
+        console.log("Data post: ", data);
+        
 
       if (data.success) {
         toast.success("User updated successfully!!!");
@@ -536,7 +537,6 @@ const EditUserForm = () => {
 
   return (
     <>
-      <Breadcrumbs />
       <Toaster position="top-center" reverseOrder={true} />
       <form
         onSubmit={handleSubmit}

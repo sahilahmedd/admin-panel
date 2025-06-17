@@ -10,7 +10,6 @@ import Image from "next/image";
 import Modal from "@/components/AddEdit";
 import Input from "@/components/FormInput";
 import TableHeader from "@/components/TableHeader";
-import Breadcrumbs from "@/components/Breadcrumbs";
 
 const EducationTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -204,7 +203,6 @@ const EducationTable = () => {
 
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <Breadcrumbs />
       <div className="p-6">
         <TableHeader
           title="Educations"

@@ -9,7 +9,6 @@ import { Pencil, CircleX } from "lucide-react";
 import TableHeader from "@/components/TableHeader";
 import Modal from "@/components/AddEdit";
 import Input from "@/components/FormInput";
-import Breadcrumbs from "@/components/Breadcrumbs";
 
 const StreamTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -153,7 +152,6 @@ const StreamTable = () => {
   return (
     <>
       <div className="p-6">
-        <Breadcrumbs />
         <TableHeader
           title="Streams"
           text="Stream"

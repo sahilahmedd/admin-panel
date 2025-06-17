@@ -1,10 +1,10 @@
-import PaymentLogs from '@/components/PaymentLogs'
+import ContentSectionForm from '@/components/pages/content-section-form'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      <PaymentLogs />
+      <ContentSectionForm />
     </div>
   )
 }

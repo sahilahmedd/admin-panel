@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import toast from "react-hot-toast";
 import TableHeader from "@/components/TableHeader";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { Edit, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -139,7 +138,6 @@ const UserView = () => {
 
   return (
     <div className="p-6">
-      <Breadcrumbs />
       {/* <TableHeader
         title="Users"
         text="Users"

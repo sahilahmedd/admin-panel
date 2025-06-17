@@ -1328,6 +1328,7 @@ const AddUserForm = () => {
           PR_BUSS_STREAM: "",
           PR_BUSS_TYPE: "",
           PR_BUSS_INTER: "",
+          
         });
         setChildren([{ name: "", dob: "" }]);
         setFatherUniqueId("");
@@ -1895,7 +1896,7 @@ const AddUserForm = () => {
                 onChange={handleChange}
                 options={business.map((item: any) => ({
                   label: item.BUSS_STREM,
-                  value: item.BUSS_STREM,
+                  value: item.BUSS_CODE,
                 }))}
               />
               {formErrors.PR_BUSS_STREAM && (

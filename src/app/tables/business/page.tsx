@@ -7,7 +7,6 @@ import { Pencil, CircleX } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { ColorRing } from "react-loader-spinner";
 import TableHeader from "@/components/TableHeader";
-import Breadcrumbs from "@/components/Breadcrumbs";
 
 const BusinessTable = () => {
   const [data, setData] = useState<any[]>([]);
@@ -183,7 +182,6 @@ const BusinessTable = () => {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <Breadcrumbs />
       <div className="p-6">
         <TableHeader
           title="Business"

@@ -53,6 +53,7 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import Breadcrumbs from "./Breadcrumbs";
 
 interface LayoutProps {
   children: ReactNode;
@@ -104,7 +105,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
       <div className="flex-1 min-h-screen" onClick={(e) => e.stopPropagation()}>
         <Navbar toggleSidebar={toggleSidebar} userName={session?.user?.name || userName} />
-        <main className="p-6">{children}</main>
+        <main className="p-6">
+          <Breadcrumbs />
+          {children}</main>
       </div>
     </div>
   );

@@ -1,10 +1,10 @@
-import PaymentLogs from '@/components/PaymentLogs'
+import PageForm from '@/components/pages/pageFrom'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      <PaymentLogs />
+      <PageForm />
     </div>
   )
 }

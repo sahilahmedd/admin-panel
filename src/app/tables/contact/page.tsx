@@ -1,6 +1,5 @@
 'use client';
 
-import Breadcrumbs from '@/components/Breadcrumbs';
 import { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { Toaster, toast } from 'react-hot-toast';
@@ -103,7 +102,6 @@ const ContactTable = () => {
   return (
     <>
       <Toaster />
-      <Breadcrumbs />
       <div className="p-6">
         <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-2">
           <h2 className="text-xl font-bold">Contact Submissions</h2>

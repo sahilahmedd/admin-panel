@@ -19,7 +19,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
-import Breadcrumbs from "@/components/Breadcrumbs";
+
 
 const formSchema = z
   .object({
@@ -65,7 +65,6 @@ export default function ChangePasswordPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-20 px-4">
-      <Breadcrumbs />
       <Card className="shadow-md">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Change Password</CardTitle>
