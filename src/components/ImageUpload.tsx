@@ -7,7 +7,11 @@ interface ImageUploadProps {
   imageUrl: string;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ name, onChange, imageUrl }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  name,
+  onChange,
+  imageUrl,
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState(imageUrl);
 
@@ -21,23 +25,20 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ name, onChange, imageUrl }) =
 
   return (
     <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Upload Photo
-      </label>
       <div
         className="border border-dashed border-gray-400 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer bg-gray-50 hover:bg-gray-100 transition"
         onClick={() => inputRef.current?.click()}
       >
         {preview ? (
           <Image
-            width={40}
-            height={40}
+            width={120}
+            height={120}
             src={preview}
             alt="Preview"
-            className="h-32 w-32 object-cover rounded-full mb-2"
+            className="object-contain rounded-lg mb-2"
           />
         ) : (
-          <div className="text-gray-500 text-sm text-center">
+          <div className="text-gray-500 text-sm text-center py-4">
             Click to upload
           </div>
         )}

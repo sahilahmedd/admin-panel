@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Input from "../Input";
 import Select from "../Select";
 import ImageUpload from "../ImageUpload";
@@ -234,20 +234,30 @@ const EditUserForm = () => {
   }, [prId, city, professions, business]);
 
   useEffect(() => {
-    if (
-      Object.keys(formErrors).length > 0 ||
-      (formErrors.children &&
-        formErrors.children.some((c) => Object.keys(c).length > 0))
-    ) {
-      const newErrors = validateRegistrationForm({
-        formData,
-        genderErrors,
-        children,
-        otpVerified,
-        fatherUniqueId,
-        motherUniqueId,
-        spouseUniqueId,
-      });
+    // We'll use a debounce approach to prevent excessive validation
+    // Only validate when form fields change, not when errors change
+
+    // Skip validation if form is empty (initial load)
+    if (!formData.PR_FULL_NAME) return;
+
+    console.log("Running form validation");
+
+    const newErrors = validateRegistrationForm({
+      formData,
+      genderErrors,
+      children,
+      otpVerified,
+      fatherUniqueId,
+      motherUniqueId,
+      spouseUniqueId,
+    });
+
+    // Compare stringified versions to check for actual changes
+    const currentErrorsStr = JSON.stringify(formErrors);
+    const newErrorsStr = JSON.stringify(newErrors);
+
+    if (currentErrorsStr !== newErrorsStr) {
+      console.log("Updating form errors due to validation changes");
       setFormErrors(newErrors);
       setChildrenErrors(newErrors.children || []);
     }
@@ -262,26 +272,34 @@ const EditUserForm = () => {
   ]);
 
   useEffect(() => {
-    if (formData.PR_MARRIED_YN === "No") {
-      setFormData((prev) => ({
-        ...prev,
-        PR_SPOUSE_NAME: "",
-        PR_SPOUSE_ID: null,
-      }));
-      setSpouseUniqueId("");
-      setSpouseName("");
-      setGenderErrors((prev) => ({ ...prev, spouse: "" }));
-      setChildren([{ name: "", dob: "" }]);
-      setChildrenErrors([]);
-      const newFormErrors = { ...formErrors };
-      delete newFormErrors.PR_SPOUSE_NAME;
-      delete newFormErrors.PR_SPOUSE_ID;
-      if (newFormErrors.children) {
-        delete newFormErrors.children;
-      }
-      setFormErrors(newFormErrors);
-    }
-  }, [formData.PR_MARRIED_YN, formErrors]);
+    // Only run this effect when PR_MARRIED_YN changes to "No"
+    if (formData.PR_MARRIED_YN !== "No") return;
+
+    console.log("Married status changed to No, clearing related fields");
+
+    // Create a batch of updates to minimize renders
+    setFormData((prev) => ({
+      ...prev,
+      PR_SPOUSE_NAME: "",
+      PR_SPOUSE_ID: null,
+    }));
+
+    // Clear related state in a single batch
+    setSpouseUniqueId("");
+    setSpouseName("");
+    setGenderErrors((prev) => ({ ...prev, spouse: "" }));
+    setChildren([{ name: "", dob: "" }]);
+    setChildrenErrors([]);
+
+    // Clear related form errors
+    setFormErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors.PR_SPOUSE_NAME;
+      delete newErrors.PR_SPOUSE_ID;
+      delete newErrors.children;
+      return newErrors;
+    });
+  }, [formData.PR_MARRIED_YN]);
 
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -491,9 +509,8 @@ const EditUserForm = () => {
         }
       );
 
-        const data = await res.json();
-        console.log("Data post: ", data);
-        
+      const data = await res.json();
+      console.log("Data post: ", data);
 
       if (data.success) {
         toast.success("User updated successfully!!!");

@@ -1,0 +1,55 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🧠 Project Rules for Cursor AI – Admin Panel (Next.js)
+
+## 📁 Folder Structure
+- Pages go inside `app/` (App Router).
+- Components go in `src/components/`, grouped by domain (e.g., pages/, forms/, ui/).
+- API logic lives in `src/api/` or `app/api/` (depending on backend/frontend split).
+- Reusable hooks go in `src/hooks/`.
+
+---
+
+## 🧱 UI & Styling
+- Use `shadcn/ui` components as base (e.g., Button, Dialog, Input).
+- Use `Tailwind CSS` for all custom styles.
+- All components should be responsive.
+- Keep UI clean, flat, and admin-like (use gray tones, accent primary buttons).
+
+---
+
+## 🧭 Layout & Navigation
+- Use a sidebar layout with breadcrumbs for navigation clarity.
+- All pages should include a `<Breadcrumbs />` component at the top.
+- Use consistent page titles with `<CardTitle>` and actions (e.g., "Add +").
+
+---
+
+## 🧑‍💻 TypeScript Rules
+- Use strict typing for `formData`, `API responses`, and `prisma` models.
+- Avoid `any`. If unavoidable, isolate with comment and reason.
+- Always infer types from Prisma when possible using `typeof` or generated types.
+
+---
+
+## 📝 Forms
+- Use controlled components (`value`, `onChange`) only.
+- Group inputs logically with proper labels and spacing.
+- Use `onChange` handler with field-type safety (handle checkboxes, inputs, textareas correctly).
+- Boolean flags like `active_yn` should be 1 or 0 (not true/false).
+
+---
+
+## 🔄 API Handling
+- Always show a toast on success or failure (use `react-hot-toast`).
+- Standard API response format:
+  ```ts
+  {
+    success: boolean;
+    message: string;
+    data?: any;
+  }
+

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { usePagesFetch } from "@/hooks/usePagesFetch";
+import ImageUpload from "@/components/ImageUpload";
 
 // Import your defined types
 import { ContentSection, ContentSectionLang, ApiResponse } from "@/utils/types"; // Adjust path as needed
@@ -32,6 +34,7 @@ function ContentSectionForm() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string | undefined; // The ID of the content_section being edited
+  const { pages, loading: pagesLoading, error: pagesError } = usePagesFetch();
 
   const [loading, setLoading] = useState<boolean>(true); // Overall loading for form data
   const [error, setError] = useState<string | null>(null);
@@ -46,27 +49,28 @@ function ContentSectionForm() {
     image_path: null,
     icon_path: null,
     active_yn: 1,
-    created_by: 10, // Default for new creation
-    page_id: 1, // Default for new creation
+    created_by: 1,
+    updated_by: 1,
+    page_id: 1,
     refrence_page_id: null,
-    lang_code: "en", // Fixed for English content
-    id_id: null, // Keep if it exists in your content_sections schema
+    lang_code: "en",
+    id_id: null,
   });
 
   // State for Hindi translation (from content_sections_lang table)
   const [hiFormData, setHiFormData] = useState<Partial<ContentSectionLang>>({
-    id: 0, // This will be set to parentSectionId for new creation/edit
-    lang_code: "hi", // Fixed for Hindi translation
+    id: 0,
+    lang_code: "hi",
     title: "",
     description: "",
     image_path: null,
     icon_path: null,
     active_yn: 1,
-    created_by: 10, // Default for new creation
+    created_by: 1,
+    updated_by: 1,
     created_date: getCurrentDateFormatted(),
-    page_id: 1, // Will be copied from English content
+    page_id: 1,
     refrence_page_id: null,
-    // Removed id_id as it's not in content_sections_lang schema anymore
   });
   // --- End Form Data States ---
 
@@ -100,6 +104,7 @@ function ContentSectionForm() {
             icon_path: enData.data.icon_path,
             active_yn: enData.data.active_yn,
             created_by: enData.data.created_by,
+            updated_by: enData.data.updated_by,
             page_id: enData.data.page_id,
             refrence_page_id: enData.data.refrence_page_id,
             lang_code: enData.data.lang_code,
@@ -113,7 +118,15 @@ function ContentSectionForm() {
           const hiData: ApiResponse<ContentSectionLang> =
             await hiResponse.json();
 
+          console.log("Hindi translation fetch response:", {
+            status: hiResponse.status,
+            ok: hiResponse.ok,
+            success: hiData.success,
+            hasData: !!hiData.data,
+          });
+
           if (hiResponse.ok && hiData.success && hiData.data) {
+            console.log("Setting hiContentExists to true");
             setHiContentExists(true); // Hindi translation found
             // Set Hindi form data based on fetched translation
             setHiFormData({
@@ -125,12 +138,12 @@ function ContentSectionForm() {
               icon_path: hiData.data.icon_path,
               active_yn: hiData.data.active_yn,
               created_by: hiData.data.created_by,
+              updated_by: hiData.data.updated_by,
               created_date: hiData.data.created_date
                 ? new Date(hiData.data.created_date).toISOString().split("T")[0]
                 : getCurrentDateFormatted(),
               page_id: hiData.data.page_id,
               refrence_page_id: hiData.data.refrence_page_id,
-              // Removed id_id
             });
           } else if (hiResponse.status === 404) {
             setHiContentExists(false); // Hindi translation doesn't exist, prepare for creation
@@ -138,24 +151,20 @@ function ContentSectionForm() {
               ...prev,
               id: parseInt(id), // Set parent ID for new creation
               lang_code: "hi",
+              title: "", // Empty title for new Hindi translation
+              description: "", // Empty description for new Hindi translation
+              image_path: enData.data.image_path,
+              icon_path: enData.data.icon_path,
+              active_yn: enData.data.active_yn,
+              created_by: enData.data.created_by,
+              updated_by: enData.data.updated_by,
               created_date: getCurrentDateFormatted(),
-              title: `(hi) ${enData.data.title || ""}`, // Pre-fill with placeholder
-              description: `(hi) ${enData.data.description || ""}`,
-              active_yn: enData.data.active_yn, // Copy active status from main
-              created_by: enData.data.created_by, // Copy created_by from main
-              page_id: enData.data.page_id, // Copy page_id from main
-              refrence_page_id: enData.data.refrence_page_id, // Copy refrence_page_id from main
-              image_path: enData.data.image_path, // Copy image path from main
-              icon_path: enData.data.icon_path, // Copy icon path from main
-              // Removed id_id
+              page_id: enData.data.page_id,
+              refrence_page_id: enData.data.refrence_page_id,
             }));
             toast("Hindi translation not found, preparing form to create it.", {
               icon: "ℹ️",
             });
-          } else {
-            throw new Error(
-              hiData.message || "Failed to fetch Hindi translation."
-            );
           }
         } catch (err: any) {
           console.error("Error fetching multi-language content:", err);
@@ -172,23 +181,30 @@ function ContentSectionForm() {
       setLoading(false); // No data to fetch initially
       setEnFormData((prev) => ({
         ...prev,
-        created_by: 10, // Set default for new
-        page_id: 1, // Set default for new
+        created_by: 1,
+        updated_by: 1,
+        page_id: 1,
         lang_code: "en",
       }));
-      // HiFormData is not directly shown/edited on initial create of main content,
-      // but its defaults should be ready for the auto-creation in backend.
+      // Reset Hindi form data to empty state for new content
       setHiFormData((prev) => ({
         ...prev,
-        created_by: 10,
+        title: "",
+        description: "",
+        image_path: null,
+        icon_path: null,
+        active_yn: 1,
+        created_by: 1,
+        updated_by: 1,
         page_id: 1,
         created_date: getCurrentDateFormatted(),
+        refrence_page_id: null,
       }));
     }
   }, [id]);
 
   // Handle changes for English content form
-  const handleEnChange = (
+  const handleEnChange = async (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
@@ -198,8 +214,39 @@ function ContentSectionForm() {
     const checked = type === "checkbox" ? target.checked : undefined;
     let parsedValue: string | number | null = value;
 
+    if (type === "file" && target.files && target.files[0]) {
+      const file = target.files[0];
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const res = await fetch("/api/uploadImage", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+          const imageUrl = `https://rangrezsamaj.kunxite.com/${data.url}`;
+          setEnFormData((prev) => ({
+            ...prev,
+            [name === "image_upload" ? "image_path" : "icon_path"]: imageUrl,
+          }));
+          toast.success("Image uploaded successfully!");
+        } else {
+          console.error("Image upload failed: ", data.message);
+          toast.error("Image upload failed");
+        }
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+        toast.error("Error uploading image");
+      }
+      return;
+    }
+
     if (type === "number") {
-      parsedValue = safeParseNumber(value); // Use safeParseNumber
+      parsedValue = safeParseNumber(value);
     } else if (type === "checkbox") {
       parsedValue = checked ? 1 : 0;
     }
@@ -249,11 +296,14 @@ function ContentSectionForm() {
         image_path: enFormData.image_path === "" ? null : enFormData.image_path,
         icon_path: enFormData.icon_path === "" ? null : enFormData.icon_path,
         active_yn: Number(enFormData.active_yn),
-        created_by: safeParseNumber(enFormData.created_by), // Use safeParseNumber
-        page_id: safeParseNumber(enFormData.page_id), // Use safeParseNumber
-        refrence_page_id: safeParseNumber(enFormData.refrence_page_id), // Use safeParseNumber
-        lang_code: "en", // Explicitly set 'en'
-        id_id: safeParseNumber(enFormData.id_id), // Use safeParseNumber
+        created_by: isEditing
+          ? undefined
+          : safeParseNumber(enFormData.created_by),
+        updated_by: isEditing ? 1 : undefined,
+        page_id: safeParseNumber(enFormData.page_id),
+        refrence_page_id: safeParseNumber(enFormData.refrence_page_id),
+        lang_code: "en",
+        id_id: safeParseNumber(enFormData.id_id),
       };
 
       if (!isEditing) {
@@ -303,19 +353,20 @@ function ContentSectionForm() {
       // --- 2. Update/Create Hindi Content (content_sections_lang table) ---
       // This part only executes if we are editing
       const hiPayload = {
-        id: mainSectionId, // Crucial: This is the content_sections.id
+        id: mainSectionId,
         lang_code: "hi",
         title: hiFormData.title,
         description: hiFormData.description,
-        image_path: hiFormData.image_path === "" ? null : hiFormData.image_path,
-        icon_path: hiFormData.icon_path === "" ? null : hiFormData.icon_path,
-        active_yn: Number(hiFormData.active_yn),
-        created_by: safeParseNumber(enFormData.created_by), // FORCE from English, use safeParseNumber
-        created_date: hiFormData.created_date || getCurrentDateFormatted(),
-        updated_by: safeParseNumber(hiFormData.updated_by), // Use safeParseNumber
-        page_id: safeParseNumber(enFormData.page_id), // FORCE from English, use safeParseNumber
-        refrence_page_id: safeParseNumber(enFormData.refrence_page_id), // FORCE from English, use safeParseNumber
-        // Removed id_id
+        image_path: enFormData.image_path === "" ? null : enFormData.image_path,
+        icon_path: enFormData.icon_path === "" ? null : enFormData.icon_path,
+        active_yn: Number(enFormData.active_yn),
+        created_by: hiContentExists
+          ? undefined
+          : safeParseNumber(enFormData.created_by),
+        updated_by: hiContentExists ? 1 : undefined,
+        created_date: hiContentExists ? undefined : getCurrentDateFormatted(),
+        page_id: safeParseNumber(enFormData.page_id),
+        refrence_page_id: safeParseNumber(enFormData.refrence_page_id),
       };
 
       const hiMethod = hiContentExists ? "PUT" : "POST";
@@ -361,6 +412,7 @@ function ContentSectionForm() {
   };
 
   const handleDeleteHindi = async () => {
+    console.log("Delete Hindi triggered, hiContentExists:", hiContentExists);
     if (!hiContentExists) {
       toast.error("No Hindi translation to delete.");
       return;
@@ -374,13 +426,13 @@ function ContentSectionForm() {
     }
     setLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/v1/content-sections-lang/${id}/hi`,
-        {
-          method: "DELETE",
-        }
-      );
+      const deleteUrl = `${API_BASE_URL}/v1/content-sections-lang/${id}/hi`;
+      console.log("Attempting to delete Hindi translation at URL:", deleteUrl);
+      const response = await fetch(deleteUrl, {
+        method: "DELETE",
+      });
       const data: ApiResponse<any> = await response.json();
+      console.log("Delete response:", { status: response.status, data });
       if (response.ok && data.success) {
         toast.success("Hindi translation deleted successfully!");
         setHiContentExists(false); // Mark Hindi as not existing
@@ -389,12 +441,13 @@ function ContentSectionForm() {
           ...prev,
           id: parseInt(id as string), // Ensure parent ID is set for new creation
           lang_code: "hi",
-          title: `(hi) ${enFormData.title || ""}`, // Pre-fill with placeholder
-          description: `(hi) ${enFormData.description || ""}`,
+          title: "", // Removed (hi) prefix
+          description: "", // Removed (hi) prefix
           image_path: enFormData.image_path,
           icon_path: enFormData.icon_path,
           active_yn: enFormData.active_yn,
           created_by: enFormData.created_by,
+          updated_by: enFormData.updated_by,
           created_date: getCurrentDateFormatted(),
           page_id: enFormData.page_id,
           refrence_page_id: enFormData.refrence_page_id,
@@ -529,37 +582,43 @@ function ContentSectionForm() {
               <div>
                 <label
                   htmlFor="en_image_path"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Image Path (English, Optional)
+                  Image Upload (English, Optional)
                 </label>
-                <input
-                  type="text"
-                  id="en_image_path"
-                  name="image_path"
-                  value={enFormData.image_path || ""}
-                  onChange={handleEnChange}
-                  maxLength={250}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
+                <div className="space-y-2">
+                  <ImageUpload
+                    name="image_upload"
+                    imageUrl={enFormData.image_path || ""}
+                    onChange={handleEnChange}
+                  />
+                  {enFormData.image_path && (
+                    <p className="text-sm text-gray-500">
+                      Current image: {enFormData.image_path}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div>
                 <label
                   htmlFor="en_icon_path"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Icon Path (English, Optional)
+                  Icon Upload (English, Optional)
                 </label>
-                <input
-                  type="text"
-                  id="en_icon_path"
-                  name="icon_path"
-                  value={enFormData.icon_path || ""}
-                  onChange={handleEnChange}
-                  maxLength={250}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
+                <div className="space-y-2">
+                  <ImageUpload
+                    name="icon_upload"
+                    imageUrl={enFormData.icon_path || ""}
+                    onChange={handleEnChange}
+                  />
+                  {enFormData.icon_path && (
+                    <p className="text-sm text-gray-500">
+                      Current icon: {enFormData.icon_path}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -592,17 +651,31 @@ function ContentSectionForm() {
                   htmlFor="en_page_id"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Page ID (English)
+                  Page
                 </label>
-                <input
-                  type="number"
+                <select
                   id="en_page_id"
                   name="page_id"
                   value={enFormData.page_id || ""}
                   onChange={handleEnChange}
                   required
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
+                >
+                  <option value="">Select a page</option>
+                  {pages.map((page) => (
+                    <option key={page.id} value={page.id}>
+                      {page.title}
+                    </option>
+                  ))}
+                </select>
+                {pagesLoading && (
+                  <p className="text-sm text-gray-500 mt-1">Loading pages...</p>
+                )}
+                {pagesError && (
+                  <p className="text-sm text-red-500 mt-1">
+                    Error loading pages: {pagesError}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -610,33 +683,52 @@ function ContentSectionForm() {
                   htmlFor="en_refrence_page_id"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Reference Page ID (English, Optional)
+                  Reference Page (Optional)
                 </label>
-                <input
-                  type="number"
+                <select
                   id="en_refrence_page_id"
                   name="refrence_page_id"
                   value={enFormData.refrence_page_id || ""}
                   onChange={handleEnChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
+                >
+                  <option value="">None</option>
+                  {pages.map((page) => (
+                    <option key={page.id} value={page.id}>
+                      {page.title}
+                    </option>
+                  ))}
+                </select>
+                {pagesLoading && (
+                  <p className="text-sm text-gray-500 mt-1">Loading pages...</p>
+                )}
+                {pagesError && (
+                  <p className="text-sm text-red-500 mt-1">
+                    Error loading pages: {pagesError}
+                  </p>
+                )}
               </div>
 
               <div>
                 <label
-                  htmlFor="en_created_by"
+                  htmlFor="en_user_id"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Created By (English)
+                  {isEditing ? "Updated By" : "Created By"}
                 </label>
                 <input
                   type="number"
-                  id="en_created_by"
-                  name="created_by"
-                  value={enFormData.created_by || ""}
+                  id="en_user_id"
+                  name={isEditing ? "updated_by" : "created_by"}
+                  value={isEditing ? "1" : enFormData.created_by || ""}
                   onChange={handleEnChange}
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  readOnly={isEditing}
+                  className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
+                    isEditing
+                      ? "bg-gray-100 cursor-not-allowed"
+                      : "focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  } sm:text-sm`}
                 />
               </div>
 
@@ -658,50 +750,29 @@ function ContentSectionForm() {
           <div className="border border-green-200 rounded-lg p-4 bg-green-50">
             <h3 className="text-xl font-semibold mb-4 text-green-800 flex items-center">
               <span className="inline-block w-6 h-6 mr-2">🇮🇳</span> Hindi
-              Content
+              Translation
             </h3>
             <p className="text-sm text-gray-600 mb-4">
-              This data is stored in the `content_sections_lang` table.
+              Provide Hindi translations for the content. Other settings will be
+              automatically synced with the English version.
             </p>
 
             <div className="space-y-4">
-              {/* Parent ID (Read-only for translations) */}
-              <div>
-                <label
-                  htmlFor="hi_id"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Parent Section ID
-                </label>
-                <input
-                  type="number"
-                  id="hi_id"
-                  name="id"
-                  value={hiFormData.id || (id ? parseInt(id) : "")}
-                  readOnly
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed sm:text-sm"
-                />
-              </div>
+              {/* Parent ID (Hidden) */}
+              <input
+                type="hidden"
+                name="id"
+                value={hiFormData.id || (id ? parseInt(id) : "")}
+              />
 
-              {/* Language Code (Read-only) */}
-              <div>
-                <label
-                  htmlFor="hi_lang_code"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Language Code
-                </label>
-                <input
-                  type="text"
-                  id="hi_lang_code"
-                  name="lang_code"
-                  value={hiFormData.lang_code?.toUpperCase() || "HI"}
-                  readOnly
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed sm:text-sm"
-                />
-              </div>
+              {/* Language Code (Hidden) */}
+              <input
+                type="hidden"
+                name="lang_code"
+                value={hiFormData.lang_code || "hi"}
+              />
 
-              {/* Translatable Fields for Hindi */}
+              {/* Only show title and description fields */}
               <div>
                 <label
                   htmlFor="hi_title"
@@ -739,150 +810,50 @@ function ContentSectionForm() {
                 ></textarea>
               </div>
 
-              <div>
-                <label
-                  htmlFor="hi_image_path"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Image Path (Hindi, Optional)
-                </label>
-                <input
-                  type="text"
-                  id="hi_image_path"
-                  name="image_path"
-                  value={hiFormData.image_path || ""}
-                  onChange={handleHiChange}
-                  maxLength={250}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
+              {/* Information about synced fields */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-md">
+                <h4 className="text-sm font-medium text-blue-800 mb-2">
+                  Automatically Synced Fields
+                </h4>
+                <ul className="text-sm text-blue-600 space-y-1">
+                  <li>• Image Path: {enFormData.image_path || "None"}</li>
+                  <li>• Icon Path: {enFormData.icon_path || "None"}</li>
+                  <li>
+                    • Active Status: {enFormData.active_yn === 1 ? "Yes" : "No"}
+                  </li>
+                  <li>
+                    • Page:{" "}
+                    {pages.find((p) => p.id === enFormData.page_id)?.title ||
+                      "Loading..."}
+                  </li>
+                  <li>
+                    • Reference Page:{" "}
+                    {pages.find((p) => p.id === enFormData.refrence_page_id)
+                      ?.title || "None"}
+                  </li>
+                </ul>
               </div>
 
-              <div>
-                <label
-                  htmlFor="hi_icon_path"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Icon Path (Hindi, Optional)
-                </label>
-                <input
-                  type="text"
-                  id="hi_icon_path"
-                  name="icon_path"
-                  value={hiFormData.icon_path || ""}
-                  onChange={handleHiChange}
-                  maxLength={250}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="hi_active_yn"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Active (Hindi)
-                </label>
-                <div className="flex items-center mt-1">
-                  <input
-                    type="checkbox"
-                    id="hi_active_yn"
-                    name="active_yn"
-                    checked={hiFormData.active_yn === 1}
-                    onChange={handleHiChange}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label
-                    htmlFor="hi_active_yn"
-                    className="ml-2 block text-sm text-gray-900"
+              {/* Delete Hindi Translation Button */}
+              {hiContentExists && (
+                <div className="mt-6 border-t pt-4 border-gray-200">
+                  <button
+                    type="button"
+                    onClick={handleDeleteHindi}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    disabled={loading}
                   >
-                    Is Active
-                  </label>
+                    Delete Hindi Translation
+                  </button>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Note: This only deletes the Hindi translation, not the main
+                    English content.
+                  </p>
                 </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="hi_page_id"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Page ID (Hindi)
-                </label>
-                <input
-                  type="number"
-                  id="hi_page_id"
-                  name="page_id"
-                  value={hiFormData.page_id || ""}
-                  onChange={handleHiChange}
-                  required
-                  readOnly // Make read-only
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="hi_refrence_page_id"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Reference Page ID (Hindi, Optional)
-                </label>
-                <input
-                  type="number"
-                  id="hi_refrence_page_id"
-                  name="refrence_page_id"
-                  value={hiFormData.refrence_page_id || ""}
-                  onChange={handleHiChange}
-                  readOnly // Make read-only
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="hi_created_by"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Created By (Hindi)
-                </label>
-                <input
-                  type="number"
-                  id="hi_created_by"
-                  name="created_by"
-                  value={hiFormData.created_by || ""}
-                  onChange={handleHiChange}
-                  required
-                  readOnly // Make read-only
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed sm:text-sm"
-                />
-              </div>
-
-              <input
-                type="hidden"
-                name="created_date"
-                value={hiFormData.created_date || ""}
-              />
-              {/* Removed id_id */}
+              )}
             </div>
-
-            {/* Delete Hindi Translation Button */}
-            {hiContentExists && (
-              <div className="mt-6 border-t pt-4 border-gray-200">
-                <button
-                  type="button"
-                  onClick={handleDeleteHindi}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                  disabled={loading}
-                >
-                  Delete Hindi Translation
-                </button>
-                <p className="text-xs text-gray-500 mt-1">
-                  Note: This only deletes the Hindi translation, not the main
-                  English content.
-                </p>
-              </div>
-            )}
           </div>
-        )}{" "}
+        )}
         {/* End Hindi Content Section conditional rendering */}
         {/* Save All Changes Button */}
         <div className="flex justify-end mt-8 pt-6 border-t border-gray-200">
