@@ -8,42 +8,111 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast"; // Assuming you're using react-hot-toast
 
 // Import your defined types
-import { ContentSection, ApiResponse } from "@/utils/types"; // Adjust path if needed
+import { ContentSection, ContentSectionLang, ApiResponse } from "@/utils/types"; // Adjust path if needed
+import PageModal from "./PageModal"; // Import the PageModal component
+import { usePagesFetch } from "@/hooks/usePagesFetch"; // Import the pages fetch hook
 
 const API_BASE_URL = "https://node2-plum.vercel.app/api/admin";
 
+// Language display helpers
+const languageFlags: Record<string, string> = {
+  en: "🇬🇧",
+  hi: "🇮🇳",
+};
+
+const languageNames: Record<string, string> = {
+  en: "English",
+  hi: "Hindi",
+};
+
+type SectionWithTranslations = ContentSection & {
+  availableLanguages?: { code: string; active: boolean }[];
+};
+
 function ContentSectionList() {
-  const [sections, setSections] = useState<ContentSection[]>([]);
+  const [sections, setSections] = useState<SectionWithTranslations[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPageModalOpen, setIsPageModalOpen] = useState<boolean>(false);
+  const { pages, loading: pagesLoading, error: pagesError } = usePagesFetch(); // Use the hook to fetch pages
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchContentSections = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch(`${API_BASE_URL}/v1/content-sections`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data: ApiResponse<ContentSection[]> = await response.json();
-        if (data.success) {
-          setSections(data.data);
-        } else {
-          setError(data.message || "Failed to fetch content sections.");
-        }
-      } catch (err: any) {
-        console.error("Error fetching content sections:", err);
-        setError(`Failed to load content sections: ${err.message}`);
-        toast.error(`Failed to load sections: ${err.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Create a mapping of page IDs to page titles
+  const pageMap = new Map();
+  pages.forEach((page) => {
+    pageMap.set(page.id, page.title);
+  });
 
+  useEffect(() => {
     fetchContentSections();
   }, []);
+
+  const fetchContentSections = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`${API_BASE_URL}/v1/content-sections`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data: ApiResponse<ContentSection[]> = await response.json();
+      if (data.success) {
+        // Fetch translations for each section
+        const sectionsWithTranslations = await Promise.all(
+          data.data.map(async (section) => {
+            try {
+              // Main language is always English
+              const availableLanguages = [
+                { code: "en", active: section.active_yn === 1 },
+              ];
+
+              // Try to fetch Hindi translation
+              const hiResponse = await fetch(
+                `${API_BASE_URL}/v1/content-sections-lang/${section.id}/hi`
+              );
+
+              if (hiResponse.ok) {
+                const hiData = await hiResponse.json();
+                if (hiData.success && hiData.data) {
+                  availableLanguages.push({
+                    code: "hi",
+                    active: hiData.data.active_yn === 1,
+                  });
+                }
+              }
+
+              return {
+                ...section,
+                availableLanguages,
+              };
+            } catch (err) {
+              console.error(
+                `Error fetching translations for section ${section.id}:`,
+                err
+              );
+              // Return section with just the English language if there's an error
+              return {
+                ...section,
+                availableLanguages: [
+                  { code: "en", active: section.active_yn === 1 },
+                ],
+              };
+            }
+          })
+        );
+
+        setSections(sectionsWithTranslations);
+      } else {
+        setError(data.message || "Failed to fetch content sections.");
+      }
+    } catch (err: any) {
+      console.error("Error fetching content sections:", err);
+      setError(`Failed to load content sections: ${err.message}`);
+      toast.error(`Failed to load sections: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (id: number) => {
     if (
@@ -74,7 +143,15 @@ function ContentSectionList() {
     }
   };
 
-  if (loading) {
+  const handlePageCreationSuccess = (pageId: number, pageTitle: string) => {
+    toast.success(`Page "${pageTitle}" created successfully!`);
+    // Update the pageMap with the new page
+    pageMap.set(pageId, pageTitle);
+    // Refresh the sections list
+    fetchContentSections();
+  };
+
+  if (loading || pagesLoading) {
     return (
       <div className="p-5 max-w-6xl mx-auto text-center text-gray-700">
         <p>Loading content sections...</p>
@@ -90,13 +167,63 @@ function ContentSectionList() {
     );
   }
 
+  if (pagesError) {
+    toast.error(`Error loading pages: ${pagesError}`);
+  }
+
+  // Function to render language flags with status
+  const renderLanguages = (section: SectionWithTranslations) => {
+    if (
+      !section.availableLanguages ||
+      section.availableLanguages.length === 0
+    ) {
+      return <span className="text-gray-400">No languages</span>;
+    }
+
+    return (
+      <div className="flex flex-col space-y-1">
+        {section.availableLanguages.map((lang) => (
+          <div key={lang.code} className="flex items-center">
+            <span className="mr-1">
+              {languageFlags[lang.code] || lang.code}
+            </span>
+            <span className={lang.active ? "font-medium" : "text-gray-400"}>
+              {languageNames[lang.code] || lang.code}
+              {!lang.active && " (inactive)"}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="p-5 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         Content Section Management
       </h1>
 
-      <div className="mb-6 flex justify-end">
+      <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <p className="text-sm text-gray-700">
+          <span className="font-medium">Quick Guide:</span>
+          <br />•{" "}
+          <span className="font-medium text-green-600">Create New Page</span> -
+          Add a completely new page to the website.
+          <br />•{" "}
+          <span className="font-medium text-blue-600">
+            Create New Section
+          </span>{" "}
+          - Add content sections to existing pages.
+        </p>
+      </div>
+
+      <div className="mb-6 flex justify-end space-x-4">
+        <button
+          onClick={() => setIsPageModalOpen(true)}
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+        >
+          Create New Page
+        </button>
         <Link
           href="/content/add-new/new"
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
@@ -104,6 +231,13 @@ function ContentSectionList() {
           Create New Section
         </Link>
       </div>
+
+      {/* Page Modal */}
+      <PageModal
+        isOpen={isPageModalOpen}
+        onClose={() => setIsPageModalOpen(false)}
+        onSuccess={handlePageCreationSuccess}
+      />
 
       {sections.length === 0 ? (
         <p className="text-gray-600">
@@ -130,7 +264,7 @@ function ContentSectionList() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Page ID
+                  Page
                 </th>
                 {/* <th
                   scope="col"
@@ -154,7 +288,7 @@ function ContentSectionList() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Lang
+                  Languages
                 </th>
                 <th
                   scope="col"
@@ -174,7 +308,24 @@ function ContentSectionList() {
                     {section.title}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {section.page_id}
+                    {section.page_id ? (
+                      <div>
+                        <span className="font-medium">
+                          {pageMap.get(section.page_id) || "Unknown Page"}
+                        </span>
+                        <div className="text-xs text-gray-500">
+                          ID: {section.page_id}
+                        </div>
+                        <Link
+                          href={`/content/view-content/${section.page_id}`}
+                          className="text-xs text-blue-500 hover:text-blue-700"
+                        >
+                          (View Page)
+                        </Link>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">No Page Assigned</span>
+                    )}
                   </td>
                   {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(section.from_date).toLocaleDateString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(section.upto_date).toLocaleDateString()}</td> */}
@@ -190,7 +341,7 @@ function ContentSectionList() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {section.lang_code}
+                    {renderLanguages(section)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <Link

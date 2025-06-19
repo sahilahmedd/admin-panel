@@ -17,12 +17,14 @@ import {
   Package,
   Contact,
   TextCursorIcon,
+  FileText,
+  LayoutTemplate
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const [tablesOpen, setTablesOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const [contentOpen, setContentOpen] = useState(false)
+  const [contentOpen, setContentOpen] = useState(false);
 
   const tableLinks = [
     { name: "Cities", path: "cities", icon: <Building2 className="w-5 h-5" /> },
@@ -62,11 +64,11 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
 
   const contentSection = [
     {
-      name: "View",
+      name: "Pages",
       path: "view-content",
-      icon: <Database className="w-5 h-5" />,
+      icon: <FileText className="w-5 h-5" />,
     },
-    { name: "Add new", path: "add-new", icon: <Text className="w-5 h-5" /> },
+    { name: "Content", path: "add-new", icon: <LayoutTemplate className="w-5 h-5" /> },
   ];
   // console.log("Path: ", tableLinks[0].path);
 

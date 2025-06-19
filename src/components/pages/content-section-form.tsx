@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { usePagesFetch } from "@/hooks/usePagesFetch";
 import ImageUpload from "@/components/ImageUpload";
+import ClientSideCustomEditor from "@/components/clientside-editor";
 
 // Import your defined types
 import { ContentSection, ContentSectionLang, ApiResponse } from "@/utils/types"; // Adjust path as needed
@@ -40,6 +41,7 @@ function ContentSectionForm() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [currentTab, setCurrentTab] = useState<"en" | "hi">("en"); // Start with English tab
+  const [editorLoaded, setEditorLoaded] = useState<boolean>(false);
 
   // --- Form Data States ---
   // State for English content (from content_sections table)
@@ -202,6 +204,10 @@ function ContentSectionForm() {
       }));
     }
   }, [id]);
+
+  useEffect(() => {
+    setEditorLoaded(true);
+  }, []);
 
   // Handle changes for English content form
   const handleEnChange = async (
@@ -568,15 +574,19 @@ function ContentSectionForm() {
                 >
                   Description (English)
                 </label>
-                <textarea
-                  id="en_description"
-                  name="description"
-                  value={enFormData.description || ""}
-                  onChange={handleEnChange}
-                  required
-                  rows={4}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                ></textarea>
+                {editorLoaded && (
+                  <div className="mt-1">
+                    <ClientSideCustomEditor
+                      data={enFormData.description || ""}
+                      onChange={(html: string) =>
+                        setEnFormData((prev) => ({
+                          ...prev,
+                          description: html,
+                        }))
+                      }
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
@@ -799,15 +809,19 @@ function ContentSectionForm() {
                 >
                   Description (Hindi)
                 </label>
-                <textarea
-                  id="hi_description"
-                  name="description"
-                  value={hiFormData.description || ""}
-                  onChange={handleHiChange}
-                  required
-                  rows={4}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                ></textarea>
+                {editorLoaded && (
+                  <div className="mt-1">
+                    <ClientSideCustomEditor
+                      data={hiFormData.description || ""}
+                      onChange={(html: string) =>
+                        setHiFormData((prev) => ({
+                          ...prev,
+                          description: html,
+                        }))
+                      }
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Information about synced fields */}
