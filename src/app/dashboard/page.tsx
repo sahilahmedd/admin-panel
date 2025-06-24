@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
-import DashboardCard from "@/components/Card";
 import { fetchData } from "@/utils/api";
 import { ColorRing } from "react-loader-spinner";
 import {
@@ -12,10 +11,9 @@ import {
   Book,
   LayoutGrid,
   RefreshCw,
-  Users,
 } from "lucide-react";
-import DoughnutChart from "@/components/chart";
 import axios from "axios";
+import KpiDashboard from "@/components/KpiDashboard";
 
 const Dashboard = () => {
   const [tableCounts, setTableCounts] = useState<{ [key: string]: number }>({});
@@ -63,28 +61,23 @@ const Dashboard = () => {
       const res = await fetch("https://node2-plum.vercel.app/api/admin/users");
 
       const data = await res.json();
-      // console.log("Users: ", data.data.length);
-      setUserCount(data.data.length)
+      setUserCount(data.data.length);
     };
 
     getUsers();
   }, []);
 
-  const colors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-orange-500",
-    "bg-sky-500",
-  ];
-
   const iconMap: { [key: string]: React.ReactNode } = {
-    cities: <Building2 strokeWidth={1} className="w-20 h-20 text-white" />,
-    hobbies: <Heart strokeWidth={1} className="w-20 h-20 text-white" />,
-    events: <Calendar strokeWidth={1} className="w-20 h-20 text-white" />,
-    professions: <Briefcase strokeWidth={1} className="w-20 h-20 text-white" />,
-    education: <Book strokeWidth={1} className="w-20 h-20 text-white" />,
-    streams: <LayoutGrid strokeWidth={1} className="w-20 h-20 text-white" />,
+    cities: <Building2 strokeWidth={1.5} className="w-6 h-6 text-blue-600" />,
+    hobbies: <Heart strokeWidth={1.5} className="w-6 h-6 text-pink-600" />,
+    events: <Calendar strokeWidth={1.5} className="w-6 h-6 text-purple-600" />,
+    professions: (
+      <Briefcase strokeWidth={1.5} className="w-6 h-6 text-emerald-600" />
+    ),
+    education: <Book strokeWidth={1.5} className="w-6 h-6 text-amber-600" />,
+    streams: (
+      <LayoutGrid strokeWidth={1.5} className="w-6 h-6 text-indigo-600" />
+    ),
   };
 
   useEffect(() => {
@@ -95,123 +88,83 @@ const Dashboard = () => {
 
   if (!stats)
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
         <ColorRing
           visible={true}
           height="80"
           width="80"
           ariaLabel="color-ring-loading"
-          colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+          colors={["#4f46e5", "#3b82f6", "#0ea5e9", "#06b6d4", "#14b8a6"]}
         />
       </div>
     );
 
   return (
     <div className="p-6">
-      <div className="flex justify-between">
-        <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Dashboard Overview
+          </h1>
+          <p className="text-gray-500 mt-1">Welcome to your admin dashboard</p>
+        </div>
         <button
           onClick={fetchTableCounts}
-          className="px-2 py-2 bg-emerald-400 text-white rounded-full mb-4"
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex items-center gap-2 self-start sm:self-auto"
         >
-          <RefreshCw />
+          <RefreshCw size={16} />
+          <span>Refresh Data</span>
         </button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center h-[calc(100vh-200px)]">
           <ColorRing
             visible={true}
             height="80"
             width="80"
             ariaLabel="color-ring-loading"
-            colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+            colors={["#4f46e5", "#3b82f6", "#0ea5e9", "#06b6d4", "#14b8a6"]}
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {tables.map((table, index) => (
-            <DashboardCard
-              key={table}
-              title={table}
-              count={tableCounts[table] || 0}
-              color={colors[index % colors.length]}
-              icon={iconMap[table]}
-            />
-          ))}
-
-          <div
-            className={`p-4 rounded-lg shadow-md transform-3d md:transform-flat text-white flex items-start justify-around bg-amber-500`}
-          >
-            <div className=""><Users strokeWidth={1} className="w-20 h-20 text-white" /></div>
-            <div className="flex flex-col justify-end relative top-1">
-              <h3 className="text-lg font-bold uppercase">Users</h3>
-              <p className="text-2xl font-semibold">Entires: {userCount}</p>
+        <>
+          {/* Data Tables */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Data Tables Overview
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              {tables.map((table) => (
+                <div
+                  key={table}
+                  className="bg-gray-50 rounded-lg p-4 border border-gray-100"
+                >
+                  <div className="flex items-center mb-2">
+                    <div className="p-2 rounded-lg bg-white mr-3">
+                      {iconMap[table]}
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-700 capitalize">
+                      {table}
+                    </h3>
+                  </div>
+                  <div className="flex justify-between items-end">
+                    <p className="text-2xl font-bold text-gray-800">
+                      {tableCounts[table] || 0}
+                    </p>
+                    <span className="text-xs font-medium text-gray-500">
+                      entries
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+
+          {/* KPI Dashboard */}
+          <KpiDashboard data={stats} />
+        </>
       )}
-
-      <div className="mt-10 border border-gray-300 shadow-md">
-        <h2 className="text-xl font-bold text-center my-4">Statics</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
-          {/* Total Population */}
-          {/* <DoughnutChart
-            title="Total Population"
-            labels={["Population"]}
-            data={[stats.totalPopulation]}
-            colors={["#3B82F6"]}
-          /> */}
-
-          {/* Percentage Distribution */}
-          <DoughnutChart
-            title="Gender Distribution"
-            labels={["Male", "Female", "Child"]}
-            data={[
-              stats.totalPopulation,
-              stats.count.male,
-              stats.count.female,
-              stats.count.child,
-            ]}
-          />
-
-          {/* Children Distribution */}
-          <DoughnutChart
-            title="Children Distribution"
-            labels={["2 Children", "> 2 Children"]}
-            data={[
-              parseFloat(
-                stats.childrenDistribution.fromChildTable.familiesWith2Children
-              ),
-              parseFloat(
-                stats.childrenDistribution.fromChildTable
-                  .familiesWithMoreThan2Children
-              ),
-            ]}
-          />
-
-          {/* Donation Stats */}
-          <DoughnutChart
-            title="Donation Stats"
-            labels={["Total Donations", "Remaining"]}
-            data={[
-              stats.donationStats.totalDonations,
-              stats.totalPopulation - stats.donationStats.totalDonations,
-            ]}
-          />
-
-          {/* Business Interest Stats */}
-          <DoughnutChart
-            title="Business Interest"
-            labels={["Interested", "Not Interested"]}
-            data={[
-              stats.businessInterestStats.interestedCount,
-              stats.totalPopulation -
-                stats.businessInterestStats.interestedCount,
-            ]}
-          />
-        </div>
-      </div>
     </div>
   );
 };

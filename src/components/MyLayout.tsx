@@ -1,51 +1,3 @@
-// /* eslint-disable @typescript-eslint/no-unused-vars */
-// "use client";
-// import React, { useState, useEffect, ReactNode } from "react";
-// import Sidebar from "./Sidebar";
-// import Navbar from "./Navbar";
-
-// interface LayoutProps {
-//   children: ReactNode;
-// }
-
-// const Layout: React.FC<LayoutProps> = ({ children }) => {
-//   const [isOpen, setIsOpen] = useState(false);
-//   const [userName, setUserName] = useState("Admin");
-
-//   const setUsername = (name: string) => {
-//     setUserName(name);
-//   };
-
-//   const toggleSidebar = () => setIsOpen(!isOpen);
-//   const closeSidebar = () => setIsOpen(false);
-
-//   useEffect(() => {
-//     const handleOutsideClick = (e: MouseEvent) => {
-//     if (isOpen && !(e.target as HTMLElement)?.closest(".sidebar")) {
-//             closeSidebar();
-//      }
-//     };
-
-//     document.addEventListener("click", handleOutsideClick);
-//     return () => document.removeEventListener("click", handleOutsideClick);
-//   }, [isOpen]);
-
-//   return (
-//     <div className="flex" onClick={closeSidebar}>
-//       <div className="sidebar">
-//         <Sidebar isOpen={isOpen} closeSidebar={closeSidebar} />
-//       </div>
-//       <div className="flex-1 min-h-screen" onClick={(e) => e.stopPropagation()}>
-//         <Navbar toggleSidebar={toggleSidebar} userName={userName} />
-//         <main className="p-6">{children}</main>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Layout;
-
-
 "use client";
 
 import React, { useState, useEffect, ReactNode } from "react";
@@ -70,16 +22,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const isLoginPage = pathname === "/login";
 
+  // Auto-close sidebar when navigating
   useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (isOpen && !(e.target as HTMLElement)?.closest(".sidebar")) {
-        closeSidebar();
-      }
+    closeSidebar();
+  }, [pathname]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      // Always ensure sidebar is closed by default
+      setIsOpen(false);
     };
 
-    document.addEventListener("click", handleOutsideClick);
-    return () => document.removeEventListener("click", handleOutsideClick);
-  }, [isOpen]);
+    // Add resize listener
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Show nothing while session is loading
   if (status === "loading") return null;
@@ -99,15 +57,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Authenticated layout
   return (
-    <div className="flex" onClick={closeSidebar}>
-      <div className="sidebar">
-        <Sidebar isOpen={isOpen} closeSidebar={closeSidebar} />
-      </div>
-      <div className="flex-1 min-h-screen" onClick={(e) => e.stopPropagation()}>
-        <Navbar toggleSidebar={toggleSidebar} userName={session?.user?.name || userName} />
-        <main className="p-6">
-          <Breadcrumbs />
-          {children}</main>
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar isOpen={isOpen} closeSidebar={closeSidebar} />
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Navbar
+          toggleSidebar={toggleSidebar}
+          userName={session?.user?.name || userName}
+        />
+
+        <div className="flex-1 overflow-auto">
+          <div className="container mx-auto px-4 py-6">
+            <Breadcrumbs />
+            <div className="mt-4">{children}</div>
+          </div>
+        </div>
       </div>
     </div>
   );

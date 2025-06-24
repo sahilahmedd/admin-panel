@@ -4,9 +4,13 @@ const API_BASE_URL = "https://node2-plum.vercel.app/api/user";
 // Generic GET request function
 export async function fetchData(endpoint: string) {
   try {
+    console.log(`Fetching data from: ${API_BASE_URL}/${endpoint}`);
     const res = await fetch(`${API_BASE_URL}/${endpoint}`);
+    console.log(`Response status for ${endpoint}:`, res.status);
     if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
-    return await res.json();
+    const data = await res.json();
+    console.log(`Response data for ${endpoint}:`, data);
+    return data;
   } catch (error) {
     console.error("API GET Error:", error);
     return null;

@@ -1,39 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
+import TableHeader from "@/components/TableHeader";
 import { ColorRing } from "react-loader-spinner";
 import { Pencil, CircleX } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
-import TableHeader from "@/components/TableHeader";
-import educationService, {
-  EducationData,
-  EducationTranslation,
-} from "@/services/educationService";
+import toast from "react-hot-toast";
 
-const defaultEducation = {
-  EDUCATION_NAME: "",
-  EDUCATION_IMAGE_URL: "",
-  EDUCATION_CREATED_BY: 1,
+const defaultCategory = {
+  CATE_DESC: "",
+  CATE_CATE_ID: null,
+  CATE_CREATED_BY: 1,
 };
-
 const defaultTranslation = {
-  EDUCATION_NAME: "",
-  EDUCATION_ACTIVE_YN: "Y",
-  EDUCATION_CREATED_BY: 1,
+  CATE_DESC: "",
+  CATE_ACTIVE_YN: "Y",
+  CATE_CREATED_BY: 1,
   lang_code: "hi",
 };
 
-const EducationTable = () => {
-  const [data, setData] = useState<EducationData[]>([]);
+const CategoryTable = () => {
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [showPanel, setShowPanel] = useState<"add" | "edit" | null>(null);
-  const [selectedEducation, setSelectedEducation] =
-    useState<EducationData | null>(null);
-  const [educationForm, setEducationForm] =
-    useState<EducationData>(defaultEducation);
+  const [selectedCategory, setSelectedCategory] = useState<any>(null);
+  const [categoryForm, setCategoryForm] = useState(defaultCategory);
   const [tab, setTab] = useState<"en" | "hi">("en");
   const [translation, setTranslation] = useState<{ [lang: string]: any }>({
     en: defaultTranslation,
@@ -44,139 +36,120 @@ const EducationTable = () => {
   }>({ en: false, hi: false });
   const [showHindiTab, setShowHindiTab] = useState(true);
 
-  // Fetch education data
-  const getEducation = async () => {
+  // Fetch categories
+  const getCategories = async () => {
     setLoading(true);
     try {
-      const result = await educationService.getAllEducation();
-      console.log("Education data received in component:", result);
-      setData(result);
-      console.log("Education data after setState:", result);
+      const res = await fetch(
+        "https://node2-plum.vercel.app/api/admin/categories"
+      );
+      const result = await res.json();
+      if (result && result.categories) {
+        setData(result.categories);
+      }
     } catch (err) {
-      console.error("Error in getEducation:", err);
-      toast.error("Failed to fetch education data");
+      // handle error
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    getEducation();
+    getCategories();
   }, []);
 
   // Handle Search
   const filteredData = data.filter((item) =>
-    item.EDUCATION_NAME.toLowerCase().includes(searchText.toLowerCase())
+    item.CATE_DESC.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  console.log("Data before filtering:", data);
-  console.log("Filtered data for table:", filteredData);
-
-  // Handle file upload
-  const handleFileUpload = async (file: File): Promise<string | null> => {
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const response = await fetch("/api/uploadImage", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (result.status) {
-        const imageUrl = `https://rangrezsamaj.kunxite.com/${result.url}`;
-        return imageUrl;
-      } else {
-        toast.error("Image upload failed");
-        return null;
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Image upload error");
-      return null;
-    }
-  };
-
   // Table actions
-  const handleEdit = async (row: EducationData) => {
-    setSelectedEducation(row);
-    setEducationForm({
-      EDUCATION_NAME: row.EDUCATION_NAME,
-      EDUCATION_IMAGE_URL: row.EDUCATION_IMAGE_URL,
-      EDUCATION_CREATED_BY: row.EDUCATION_CREATED_BY || 1,
+  const handleEdit = async (row: any) => {
+    setSelectedCategory(row);
+    setCategoryForm({
+      CATE_DESC: row.CATE_DESC,
+      CATE_CATE_ID: row.CATE_CATE_ID || null,
+      CATE_CREATED_BY: row.CATE_CREATED_BY || 1,
     });
     setShowPanel("edit");
     setShowHindiTab(true);
-    if (row.EDUCATION_ID) {
-      await fetchTranslations(row.EDUCATION_ID);
-    }
+    await fetchTranslations(row.CATE_ID);
   };
 
   const handleAdd = () => {
-    setSelectedEducation(null);
-    setEducationForm(defaultEducation);
+    console.log("handleAdd called");
+    setSelectedCategory(null);
+    setCategoryForm(defaultCategory);
     setTranslation({ en: defaultTranslation, hi: defaultTranslation });
     setTranslationExists({ en: false, hi: false });
     setShowPanel("add");
     setTab("en");
     setShowHindiTab(false);
+    console.log("handleAdd completed", {
+      showPanel: "add",
+      tab: "en",
+      categoryForm: defaultCategory,
+      showHindiTab: false,
+    });
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this education?")) return;
-    const success = await educationService.deleteEducation(id);
-    if (success) {
-      toast.success("Education deleted");
-      getEducation();
+    if (!confirm("Are you sure you want to delete this category?")) return;
+    const res = await fetch(
+      `https://node2-plum.vercel.app/api/admin/categories/${id}`,
+      { method: "DELETE" }
+    );
+    if (res.ok) {
+      toast.success("Category deleted");
+      getCategories();
       setShowPanel(null);
     } else {
-      toast.error("Failed to delete education");
+      toast.error("Failed to delete category");
     }
   };
 
   // Translation fetch
-  const fetchTranslations = async (educationId: number) => {
-    console.log(`Fetching translations for education ID: ${educationId}`);
-
-    // Find the education by ID to get its English description
-    const education = data.find((item) => item.EDUCATION_ID === educationId);
-    console.log("Found education:", education);
+  const fetchTranslations = async (cateId: number) => {
+    // Find the category by ID to get its English description
+    const category = data.find((item) => item.CATE_ID === cateId);
 
     // English (default)
     setTranslation((prev) => ({
       ...prev,
-      en: {
-        EDUCATION_NAME: education?.EDUCATION_NAME || "",
-        EDUCATION_ACTIVE_YN: "Y",
-        EDUCATION_CREATED_BY: education?.EDUCATION_CREATED_BY || 1,
-        lang_code: "en",
-      },
+      en: { CATE_DESC: category?.CATE_DESC || "" },
     }));
     setTranslationExists((prev) => ({ ...prev, en: true }));
 
     // Hindi
     try {
-      console.log(
-        `Requesting Hindi translation for education ID: ${educationId}`
+      const res = await fetch(
+        `https://node2-plum.vercel.app/api/admin/categories/${cateId}/translation/hi`
       );
-      const hiData = await educationService.getTranslation(educationId, "hi");
-      console.log("Hindi translation response:", hiData);
+      console.log("Hindi translation API response status:", res.status);
 
-      if (hiData) {
-        console.log("Setting Hindi translation data:", hiData);
+      if (res.ok) {
+        const result = await res.json();
+        console.log("Full Hindi translation response:", result);
 
-        setTranslation((prev) => ({
-          ...prev,
-          hi: {
-            EDUCATION_NAME: hiData.EDUCATION_NAME || "",
-            EDUCATION_ACTIVE_YN: hiData.EDUCATION_ACTIVE_YN || "Y",
-            EDUCATION_CREATED_BY: hiData.EDUCATION_CREATED_BY || 1,
-            lang_code: hiData.lang_code || "hi",
-          },
-        }));
-        setTranslationExists((prev) => ({ ...prev, hi: true }));
-        console.log("Hindi translation exists set to true");
+        // The translation data is inside the "translation" property
+        const translationData = result.translation;
+
+        if (translationData) {
+          console.log("Processing Hindi translation data:", translationData);
+          setTranslation((prev) => ({
+            ...prev,
+            hi: {
+              CATE_DESC: translationData.CATE_DESC || "",
+              CATE_ACTIVE_YN: translationData.CATE_ACTIVE_YN || "Y",
+              CATE_CREATED_BY: translationData.CATE_CREATED_BY || 1,
+              lang_code: translationData.lang_code || "hi",
+            },
+          }));
+          setTranslationExists((prev) => ({ ...prev, hi: true }));
+        } else {
+          console.log("No valid Hindi translation data in response");
+          setTranslation((prev) => ({ ...prev, hi: defaultTranslation }));
+          setTranslationExists((prev) => ({ ...prev, hi: false }));
+        }
       } else {
         console.log("No Hindi translation found, using default");
         setTranslation((prev) => ({ ...prev, hi: defaultTranslation }));
@@ -190,27 +163,20 @@ const EducationTable = () => {
   };
 
   // Form handlers
-  const handleEducationChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value, type, files } = e.target;
-
-    if (type === "file" && files?.[0]) {
-      const imageUrl = await handleFileUpload(files[0]);
-      if (imageUrl) {
-        setEducationForm((prev) => ({
-          ...prev,
-          [name]: imageUrl,
-        }));
-      }
-    } else {
-      setEducationForm((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCategoryForm((prev) => ({
+      ...prev,
+      [name]:
+        name === "CATE_CATE_ID"
+          ? value === ""
+            ? null
+            : parseInt(value, 10)
+          : name === "CATE_CREATED_BY"
+          ? Number(value)
+          : value,
+    }));
   };
-
   const handleTranslationChange = (
     lang: "en" | "hi",
     field: string,
@@ -224,108 +190,94 @@ const EducationTable = () => {
 
   // Submit handlers
   const handleSubmit = async () => {
-    // Validate form data
-    if (!educationForm.EDUCATION_NAME.trim()) {
-      toast.error("Education name cannot be empty");
-      return;
-    }
-
-    if (!educationForm.EDUCATION_IMAGE_URL) {
-      toast.error("Please upload an image");
-      return;
-    }
-
-    // Add new education
-    const result = await educationService.createEducation(educationForm);
-    if (result) {
-      toast.success("Education added");
-      // Set the newly created education as selected
-      setSelectedEducation(result);
-      // Show Hindi tab and switch to it
-      setShowHindiTab(true);
-      setTab("hi");
-      // Update translations state for the new education
-      if (result.EDUCATION_ID) {
-        await fetchTranslations(result.EDUCATION_ID);
+    // Add new category
+    const payload = {
+      ...categoryForm,
+      CATE_CATE_ID:
+        categoryForm.CATE_CATE_ID === "" ? null : categoryForm.CATE_CATE_ID,
+      CATE_CREATED_BY: categoryForm.CATE_CREATED_BY,
+    };
+    const res = await fetch(
+      "https://node2-plum.vercel.app/api/admin/categories",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       }
-      // Refresh education list
-      getEducation();
+    );
+    if (res.ok) {
+      toast.success("Category added");
+      const result = await res.json();
+      if (result && result.category && result.category.CATE_ID) {
+        // Set the newly created category as selected
+        setSelectedCategory(result.category);
+        // Show Hindi tab and switch to it
+        setShowHindiTab(true);
+        setTab("hi");
+        // Update translations state for the new category
+        await fetchTranslations(result.category.CATE_ID);
+      } else {
+        // If we couldn't get the new category ID, just reset the form
+        setShowPanel(null);
+      }
+      // Refresh categories list
+      getCategories();
     } else {
-      toast.error("Failed to add education");
+      toast.error("Failed to add category");
     }
   };
-
   const handleUpdate = async () => {
-    if (!selectedEducation?.EDUCATION_ID) return;
-
-    // Validate form data
-    if (!educationForm.EDUCATION_NAME.trim()) {
-      toast.error("Education name cannot be empty");
-      return;
-    }
-
-    if (!educationForm.EDUCATION_IMAGE_URL) {
-      toast.error("Please upload an image");
-      return;
-    }
-
-    const result = await educationService.updateEducation(
-      selectedEducation.EDUCATION_ID,
-      educationForm
+    if (!selectedCategory) return;
+    const payload = {
+      ...categoryForm,
+      CATE_CATE_ID:
+        categoryForm.CATE_CATE_ID === "" ? null : categoryForm.CATE_CATE_ID,
+    };
+    const res = await fetch(
+      `https://node2-plum.vercel.app/api/admin/categories/${selectedCategory.CATE_ID}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
     );
-    if (result) {
-      toast.success("Education updated");
-      getEducation();
+    if (res.ok) {
+      toast.success("Category updated");
+      getCategories();
       setShowPanel(null);
     } else {
-      toast.error("Failed to update education");
+      toast.error("Failed to update category");
     }
   };
 
   // Translation submit
   const handleTranslationSave = async (lang: "hi") => {
-    if (!selectedEducation?.EDUCATION_ID) return;
-
-    // Validate translation data
-    if (!translation[lang].EDUCATION_NAME.trim()) {
-      toast.error(
-        `${lang === "hi" ? "Hindi" : "English"} name cannot be empty`
-      );
-      return;
-    }
-
+    if (!selectedCategory) return;
     const exists = translationExists[lang];
-
-    const translationData: EducationTranslation = {
-      EDUCATION_NAME: translation[lang].EDUCATION_NAME,
-      EDUCATION_ACTIVE_YN: translation[lang].EDUCATION_ACTIVE_YN,
-      EDUCATION_CREATED_BY: translation[lang].EDUCATION_CREATED_BY,
+    const url = exists
+      ? `https://node2-plum.vercel.app/api/admin/categories/${selectedCategory.CATE_ID}/translation/${lang}`
+      : `https://node2-plum.vercel.app/api/admin/categories/${selectedCategory.CATE_ID}/translation`;
+    const method = exists ? "PUT" : "POST";
+    const body = JSON.stringify({
       lang_code: lang,
-    };
-
-    let result;
-    if (exists) {
-      result = await educationService.updateTranslation(
-        selectedEducation.EDUCATION_ID,
-        lang,
-        translationData
-      );
-    } else {
-      result = await educationService.createTranslation(
-        selectedEducation.EDUCATION_ID,
-        translationData
-      );
-    }
-
-    if (result) {
+      CATE_DESC: translation[lang].CATE_DESC,
+      CATE_ACTIVE_YN: translation[lang].CATE_ACTIVE_YN,
+      CATE_CREATED_BY: translation[lang].CATE_CREATED_BY,
+    });
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body,
+    });
+    if (res.ok) {
       toast.success(`Translation (${lang}) saved`);
 
       // If this is a new Hindi translation (not an update), reset the form
       if (!exists && lang === "hi") {
         // Reset form
         setShowPanel(null);
-        setSelectedEducation(null);
-        setEducationForm(defaultEducation);
+        setSelectedCategory(null);
+        setCategoryForm(defaultCategory);
         setTranslation({
           en: defaultTranslation,
           hi: defaultTranslation,
@@ -333,27 +285,24 @@ const EducationTable = () => {
         setTranslationExists({ en: false, hi: false });
         setShowHindiTab(true);
 
-        // Refresh the education list
-        getEducation();
+        // Refresh the categories list
+        getCategories();
         return;
       }
 
       // Otherwise just update translations
-      fetchTranslations(selectedEducation.EDUCATION_ID);
+      fetchTranslations(selectedCategory.CATE_ID);
     } else {
       toast.error(`Failed to save translation (${lang})`);
     }
   };
-
   const handleTranslationDelete = async (lang: "hi") => {
-    if (!selectedEducation?.EDUCATION_ID) return;
-    const success = await educationService.deleteTranslation(
-      selectedEducation.EDUCATION_ID,
-      lang
-    );
-    if (success) {
+    if (!selectedCategory) return;
+    const url = `https://node2-plum.vercel.app/api/admin/categories/${selectedCategory.CATE_ID}/translation/${lang}`;
+    const res = await fetch(url, { method: "DELETE" });
+    if (res.ok) {
       toast.success(`Translation (${lang}) deleted`);
-      fetchTranslations(selectedEducation.EDUCATION_ID);
+      fetchTranslations(selectedCategory.CATE_ID);
     } else {
       toast.error(`Failed to delete translation (${lang})`);
     }
@@ -362,34 +311,22 @@ const EducationTable = () => {
   const columns = [
     {
       name: "ID",
-      selector: (row: EducationData) => row.EDUCATION_ID || 0,
-      sortable: true,
-      width: "80px",
-    },
-    {
-      name: "Name",
-      selector: (row: EducationData) => row.EDUCATION_NAME,
+      selector: (row: any) => row.CATE_ID,
       sortable: true,
     },
     {
-      name: "Image",
-      cell: (row: EducationData) =>
-        row.EDUCATION_IMAGE_URL ? (
-          <img
-            src={row.EDUCATION_IMAGE_URL}
-            alt="icon"
-            width={40}
-            height={40}
-            className="rounded"
-          />
-        ) : (
-          "No Image"
-        ),
-      width: "100px",
+      name: "Parent Category ID",
+      selector: (row: any) => row.CATE_CATE_ID ?? "-",
+      sortable: true,
+    },
+    {
+      name: "Description",
+      selector: (row: any) => row.CATE_DESC,
+      sortable: true,
     },
     {
       name: "Actions",
-      cell: (row: EducationData) => (
+      cell: (row: any) => (
         <div className="flex gap-1">
           <button
             onClick={() => handleEdit(row)}
@@ -398,27 +335,25 @@ const EducationTable = () => {
             <Pencil size={15} className="text-green-500" />
           </button>
           <button
-            onClick={() => handleDelete(row.EDUCATION_ID!)}
+            onClick={() => handleDelete(row.CATE_ID)}
             className="bg-transparent text-white px-2 cursor-pointer py-1 rounded-full hover:bg-red-200"
           >
             <CircleX size={15} className="text-red-500" />
           </button>
         </div>
       ),
-      width: "120px",
     },
   ];
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
       <div className="p-6">
         <TableHeader
-          title="Education"
+          title="Categories"
           searchText={searchText}
           onSearchChange={setSearchText}
           addNewLink="#"
-          addNewText="Add Education"
+          addNewText="Add Category"
           onAddClick={handleAdd}
         />
 
@@ -455,7 +390,7 @@ const EducationTable = () => {
             {showPanel ? (
               <>
                 <h2 className="text-xl font-semibold mb-4 text-center">
-                  {showPanel === "add" ? "Add New Education" : "Edit Education"}
+                  {showPanel === "add" ? "Add New Category" : "Edit Category"}
                 </h2>
                 <div className="mb-4 border-b border-gray-200">
                   <nav
@@ -490,7 +425,7 @@ const EducationTable = () => {
                     )}
                   </nav>
                 </div>
-                {/* English Tab (main education form) */}
+                {/* English Tab (main category form) */}
                 {tab === "en" && (
                   <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
                     <h3 className="text-xl font-semibold mb-4 text-blue-800 flex items-center">
@@ -500,47 +435,50 @@ const EducationTable = () => {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium">
-                          Name (English)
+                          Description (English)
                         </label>
                         <input
                           type="text"
-                          name="EDUCATION_NAME"
-                          value={educationForm.EDUCATION_NAME}
-                          onChange={handleEducationChange}
+                          name="CATE_DESC"
+                          value={categoryForm.CATE_DESC}
+                          onChange={handleCategoryChange}
                           className="w-full border px-3 py-2 rounded"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium">
-                          Upload Image
+                          Parent Category ID
                         </label>
                         <input
-                          type="file"
-                          name="EDUCATION_IMAGE_URL"
-                          onChange={handleEducationChange}
+                          type="number"
+                          name="CATE_CATE_ID"
+                          value={
+                            categoryForm.CATE_CATE_ID === null
+                              ? ""
+                              : categoryForm.CATE_CATE_ID
+                          }
+                          onChange={handleCategoryChange}
                           className="w-full border px-3 py-2 rounded"
                         />
-                        {educationForm.EDUCATION_IMAGE_URL && (
-                          <div className="mt-2">
-                            <p className="text-xs text-gray-500 mb-1">
-                              Current image:
-                            </p>
-                            <img
-                              src={educationForm.EDUCATION_IMAGE_URL}
-                              alt="Preview"
-                              width={100}
-                              height={100}
-                              className="rounded"
-                            />
-                          </div>
-                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium">
+                          Created By
+                        </label>
+                        <input
+                          type="number"
+                          name="CATE_CREATED_BY"
+                          value={categoryForm.CATE_CREATED_BY}
+                          onChange={handleCategoryChange}
+                          className="w-full border px-3 py-2 rounded"
+                        />
                       </div>
                       <div className="flex justify-end gap-2 pt-2">
                         <button
                           onClick={() => {
                             setShowPanel(null);
-                            setSelectedEducation(null);
-                            setEducationForm(defaultEducation);
+                            setSelectedCategory(null);
+                            setCategoryForm(defaultCategory);
                             setTranslation({
                               en: defaultTranslation,
                               hi: defaultTranslation,
@@ -573,15 +511,15 @@ const EducationTable = () => {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium">
-                          Name (Hindi)
+                          Description (Hindi)
                         </label>
                         <input
                           type="text"
-                          value={translation.hi.EDUCATION_NAME}
+                          value={translation.hi.CATE_DESC}
                           onChange={(e) =>
                             handleTranslationChange(
                               "hi",
-                              "EDUCATION_NAME",
+                              "CATE_DESC",
                               e.target.value
                             )
                           }
@@ -594,15 +532,43 @@ const EducationTable = () => {
                         </label>
                         <input
                           type="checkbox"
-                          checked={translation.hi.EDUCATION_ACTIVE_YN === "Y"}
+                          checked={translation.hi.CATE_ACTIVE_YN === "Y"}
                           onChange={(e) =>
                             handleTranslationChange(
                               "hi",
-                              "EDUCATION_ACTIVE_YN",
+                              "CATE_ACTIVE_YN",
                               e.target.checked ? "Y" : "N"
                             )
                           }
                           className="w-5 h-5"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium">
+                          Created By
+                        </label>
+                        <input
+                          type="number"
+                          value={translation.hi.CATE_CREATED_BY}
+                          onChange={(e) =>
+                            handleTranslationChange(
+                              "hi",
+                              "CATE_CREATED_BY",
+                              Number(e.target.value)
+                            )
+                          }
+                          className="w-full border px-3 py-2 rounded"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium">
+                          Language Code
+                        </label>
+                        <input
+                          type="text"
+                          value={translation.hi.lang_code}
+                          readOnly
+                          className="w-full border px-3 py-2 rounded bg-gray-100"
                         />
                       </div>
                       <div className="flex justify-end gap-2 pt-2">
@@ -628,16 +594,16 @@ const EducationTable = () => {
             ) : (
               <>
                 <h2 className="text-xl font-semibold mb-4 text-center">
-                  Education Details
+                  Category Details
                 </h2>
                 <p className="text-gray-500 text-center">
-                  Select an education to view details here.
+                  Select a category to view details here.
                 </p>
                 <button
                   onClick={handleAdd}
                   className="mt-4 px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 w-full"
                 >
-                  Add New Education
+                  Add New Category
                 </button>
               </>
             )}
@@ -648,4 +614,4 @@ const EducationTable = () => {
   );
 };
 
-export default EducationTable;
+export default CategoryTable;
