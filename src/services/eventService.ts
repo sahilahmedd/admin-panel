@@ -1,272 +1,240 @@
 import { toast } from "react-hot-toast";
 
-const BASE_URL = "https://node2-plum.vercel.app/api/admin";
-
-export interface EventTranslation {
-  description: string;
-  excerpt: string;
-  detail: string;
-  address: string;
-  city: string;
-}
+const ADMIN_API_URL = "https://node2-plum.vercel.app/api/admin";
 
 export interface EventData {
-  id: number;
-  categoryId: number;
-  subCategoryId?: number | null;
-  translations: {
-    en: EventTranslation;
-    hi?: EventTranslation;
+  ENVT_ID?: number;
+  ENVT_CATE_ID?: number;
+  ENVT_CATE_CATE_ID?: number;
+  lang_code?: string;
+  ENVT_DESC: string;
+  ENVT_EXCERPT?: string;
+  ENVT_DETAIL?: string;
+  ENVT_BANNER_IMAGE?: string;
+  ENVT_GALLERY_IMAGES?: string;
+  ENVT_CONTACT_NO?: string;
+  ENVT_ADDRESS?: string;
+  ENVT_CITY?: string;
+  EVNT_FROM_DT?: string;
+  EVNT_UPTO_DT?: string;
+  EVET_ACTIVE_YN?: string;
+  EVET_CREATED_BY?: number;
+  EVET_CREATED_DT?: string;
+  EVET_UPDATED_BY?: number | null;
+  EVET_UPDATED_DT?: string | null;
+  Category?: {
+    CATE_ID: number;
+    CATE_DESC: string;
   };
-  bannerImage: string;
-  galleryImages: string;
-  contactNo: string;
-  fromDate: string;
-  uptoDate: string;
-  isActive: boolean;
-  createdBy: number;
+  SubCategory?: {
+    CATE_ID: number;
+    CATE_DESC: string;
+  };
 }
 
-// Response type from the API
-export interface EventResponse {
-  success: boolean;
-  message: string;
-  events?: EventData[];
-  event?: EventData;
+export interface EventTranslation {
+  ENVT_TITLE?: string;
+  ENVT_DESC: string;
+  ENVT_LOCATION?: string;
+  ENVT_ACTIVE_YN?: string;
+  ENVT_CREATED_BY?: number;
+  lang_code: string;
 }
 
-// Type for creating a new event
-export type CreateEventData = Omit<EventData, "id">;
-
-// Type for updating an event
-export type UpdateEventData = Partial<Omit<EventData, "id">>;
-
-class EventService {
-  // Get all events
-  async getAllEvents(): Promise<EventData[]> {
+const eventService = {
+  getAllEvents: async (): Promise<EventData[]> => {
     try {
-      const response = await fetch(`${BASE_URL}/events`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch events");
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message);
-      }
-      // Group events by ENVT_ID and build translations
-      const grouped: Record<string, any> = {};
-      for (const item of data.events || []) {
-        const id = item.ENVT_ID;
-        if (!grouped[id]) {
-          grouped[id] = {
-            id,
-            categoryId: item.ENVT_CATE_ID,
-            subCategoryId: item.ENVT_CATE_CATE_ID,
-            translations: {},
-            bannerImage: item.ENVT_BANNER_IMAGE,
-            galleryImages: item.ENVT_GALLERY_IMAGES,
-            contactNo: item.ENVT_CONTACT_NO,
-            fromDate: item.EVNT_FROM_DT,
-            uptoDate: item.EVNT_UPTO_DT,
-            isActive: item.EVET_ACTIVE_YN === "Y",
-            createdBy: item.EVET_CREATED_BY,
-          };
-        }
-        grouped[id].translations[item.lang_code] = {
-          description: item.ENVT_DESC,
-          excerpt: item.ENVT_EXCERPT,
-          detail: item.ENVT_DETAIL,
-          address: item.ENVT_ADDRESS,
-          city: item.ENVT_CITY,
-        };
-        // Prefer English for top-level fields if available
-        if (item.lang_code === "en") {
-          grouped[id].bannerImage = item.ENVT_BANNER_IMAGE;
-          grouped[id].galleryImages = item.ENVT_GALLERY_IMAGES;
-          grouped[id].contactNo = item.ENVT_CONTACT_NO;
-          grouped[id].fromDate = item.EVNT_FROM_DT;
-          grouped[id].uptoDate = item.EVNT_UPTO_DT;
-          grouped[id].isActive = item.EVET_ACTIVE_YN === "Y";
-          grouped[id].createdBy = item.EVET_CREATED_BY;
-        }
-      }
-      return Object.values(grouped);
+      const res = await fetch(`${ADMIN_API_URL}/events`);
+      if (!res.ok) throw new Error(`Failed to fetch events`);
+      const data = await res.json();
+      return data.events || [];
     } catch (error) {
       console.error("Error fetching events:", error);
-      toast.error("Failed to fetch events");
       return [];
     }
-  }
+  },
 
-  // Get single event by ID
-  async getEventById(id: string): Promise<EventData | null> {
+  getEventById: async (id: string | number): Promise<EventData | null> => {
     try {
-      const response = await fetch(`${BASE_URL}/events/${id}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch event");
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message);
-      }
-      // If the backend returns an array of language versions for the event
-      const items = Array.isArray(data.event) ? data.event : [data.event];
-      if (!items[0]) return null;
-      // Group by ENVT_ID and build translations (should be only one group)
-      const grouped: Record<string, any> = {};
-      for (const item of items) {
-        const eid = item.ENVT_ID;
-        if (!grouped[eid]) {
-          grouped[eid] = {
-            id: eid,
-            categoryId: item.ENVT_CATE_ID,
-            subCategoryId: item.ENVT_CATE_CATE_ID,
-            translations: {},
-            bannerImage: item.ENVT_BANNER_IMAGE,
-            galleryImages: item.ENVT_GALLERY_IMAGES,
-            contactNo: item.ENVT_CONTACT_NO,
-            fromDate: item.EVNT_FROM_DT,
-            uptoDate: item.EVNT_UPTO_DT,
-            isActive: item.EVET_ACTIVE_YN === "Y",
-            createdBy: item.EVET_CREATED_BY,
-          };
-        }
-        grouped[eid].translations[item.lang_code] = {
-          description: item.ENVT_DESC,
-          excerpt: item.ENVT_EXCERPT,
-          detail: item.ENVT_DETAIL,
-          address: item.ENVT_ADDRESS,
-          city: item.ENVT_CITY,
-        };
-        if (item.lang_code === "en") {
-          grouped[eid].bannerImage = item.ENVT_BANNER_IMAGE;
-          grouped[eid].galleryImages = item.ENVT_GALLERY_IMAGES;
-          grouped[eid].contactNo = item.ENVT_CONTACT_NO;
-          grouped[eid].fromDate = item.EVNT_FROM_DT;
-          grouped[eid].uptoDate = item.EVNT_UPTO_DT;
-          grouped[eid].isActive = item.EVET_ACTIVE_YN === "Y";
-          grouped[eid].createdBy = item.EVET_CREATED_BY;
-        }
-      }
-      return Object.values(grouped)[0];
+      const res = await fetch(`${ADMIN_API_URL}/events/${id}`);
+      if (!res.ok) throw new Error(`Failed to fetch event ${id}`);
+      const data = await res.json();
+      return data.event || null;
     } catch (error) {
-      console.error("Error fetching event:", error);
-      toast.error("Failed to fetch event");
+      console.error(`Error fetching event ${id}:`, error);
       return null;
     }
-  }
+  },
 
-  // Utility to map frontend EventData to backend API payload
-  mapEventDataToApiPayload(
-    event: Partial<EventData>,
-    lang: "en" | "hi" = "en"
-  ) {
-    return {
-      ENVT_CATE_ID: event.categoryId,
-      ENVT_CATE_CATE_ID: event.subCategoryId ?? null,
-      ENVT_DESC: event.translations?.[lang]?.description ?? "",
-      ENVT_EXCERPT: event.translations?.[lang]?.excerpt ?? "",
-      ENVT_DETAIL: event.translations?.[lang]?.detail ?? "",
-      ENVT_BANNER_IMAGE: event.bannerImage,
-      ENVT_GALLERY_IMAGES: event.galleryImages,
-      ENVT_CONTACT_NO: event.contactNo,
-      ENVT_ADDRESS: event.translations?.[lang]?.address ?? "",
-      ENVT_CITY: event.translations?.[lang]?.city ?? "",
-      EVNT_FROM_DT: event.fromDate,
-      EVNT_UPTO_DT: event.uptoDate,
-      EVET_ACTIVE_YN: event.isActive ? "Y" : "N",
-      EVET_CREATED_BY: event.createdBy,
-      lang_code: lang,
-    };
-  }
-
-  // Create new event
-  async createEvent(
-    eventData: Partial<EventData>,
-    lang: "en" | "hi" = "en"
-  ): Promise<any> {
+  createEvent: async (event: EventData): Promise<EventData | null> => {
     try {
-      const payload = this.mapEventDataToApiPayload(eventData, lang);
-      const response = await fetch(`${BASE_URL}/events`, {
+      const res = await fetch(`${ADMIN_API_URL}/events`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(event),
       });
-      if (!response.ok) {
-        throw new Error("Failed to create event");
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message);
-      }
-      toast.success("Event created successfully");
+      if (!res.ok) throw new Error(`Failed to create event`);
+      const data = await res.json();
       return data.event || null;
     } catch (error) {
       console.error("Error creating event:", error);
-      toast.error("Failed to create event");
       return null;
     }
-  }
+  },
 
-  // Update event
-  async updateEvent(
-    id: string,
-    eventData: Partial<EventData>,
-    lang: "en" | "hi" = "en"
-  ): Promise<EventData | null> {
+  updateEvent: async (
+    id: string | number,
+    event: EventData
+  ): Promise<EventData | null> => {
     try {
-      const payload = this.mapEventDataToApiPayload(eventData, lang);
-      const response = await fetch(`${BASE_URL}/events/${id}`, {
+      const res = await fetch(`${ADMIN_API_URL}/events/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(event),
       });
-      if (!response.ok) {
-        throw new Error("Failed to update event");
-      }
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message);
-      }
-      toast.success("Event updated successfully");
+      if (!res.ok) throw new Error(`Failed to update event ${id}`);
+      const data = await res.json();
       return data.event || null;
     } catch (error) {
-      console.error("Error updating event:", error);
-      toast.error("Failed to update event");
+      console.error(`Error updating event ${id}:`, error);
       return null;
     }
-  }
+  },
 
-  // Delete event
-  async deleteEvent(id: string): Promise<boolean> {
+  deleteEvent: async (id: string | number): Promise<boolean> => {
     try {
-      const response = await fetch(`${BASE_URL}/events/${id}`, {
+      const res = await fetch(`${ADMIN_API_URL}/events/${id}`, {
         method: "DELETE",
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete event");
-      }
-
-      const data: EventResponse = await response.json();
-      if (!data.success) {
-        throw new Error(data.message);
-      }
-
-      toast.success("Event deleted successfully");
+      if (!res.ok) throw new Error(`Failed to delete event ${id}`);
       return true;
     } catch (error) {
-      console.error("Error deleting event:", error);
-      toast.error("Failed to delete event");
+      console.error(`Error deleting event ${id}:`, error);
       return false;
     }
-  }
-}
+  },
 
-// Create a singleton instance
-const eventService = new EventService();
+  // Translation functions
+  getTranslation: async (
+    eventId: string | number,
+    langCode: string
+  ): Promise<EventTranslation | null> => {
+    try {
+      const res = await fetch(
+        `${ADMIN_API_URL}/events/${eventId}/translations/`
+      );
+      if (!res.ok) {
+        if (res.status === 404) return null;
+        throw new Error(
+          `Failed to fetch translation for event ${eventId} in ${langCode}`
+        );
+      }
+      const responseData = await res.json();
+      if (responseData && responseData.data) {
+        if (
+          responseData.data.translations &&
+          Array.isArray(responseData.data.translations)
+        ) {
+          const translation = responseData.data.translations.find(
+            (item: any) => item.lang_code === langCode
+          );
+          if (translation) {
+            return translation;
+          }
+        }
+        if (
+          responseData.data.main &&
+          responseData.data.main.lang_code === langCode
+        ) {
+          return responseData.data.main;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error(
+        `Error fetching translation for event ${eventId} in ${langCode}:`,
+        error
+      );
+      return null;
+    }
+  },
+
+  createTranslation: async (
+    eventId: string | number,
+    translation: EventTranslation
+  ): Promise<EventTranslation | null> => {
+    try {
+      const res = await fetch(
+        `${ADMIN_API_URL}/events/${eventId}/translations`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(translation),
+        }
+      );
+      if (!res.ok)
+        throw new Error(`Failed to create translation for event ${eventId}`);
+      const data = await res.json();
+      return data.translation || null;
+    } catch (error) {
+      console.error(`Error creating translation for event ${eventId}:`, error);
+      return null;
+    }
+  },
+
+  updateTranslation: async (
+    eventId: string | number,
+    langCode: string,
+    translation: EventTranslation
+  ): Promise<EventTranslation | null> => {
+    try {
+      const res = await fetch(
+        `${ADMIN_API_URL}/events/${eventId}/translations/${langCode}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(translation),
+        }
+      );
+      if (!res.ok)
+        throw new Error(
+          `Failed to update translation for event ${eventId} in ${langCode}`
+        );
+      const data = await res.json();
+      return data.translation || null;
+    } catch (error) {
+      console.error(
+        `Error updating translation for event ${eventId} in ${langCode}:`,
+        error
+      );
+      return null;
+    }
+  },
+
+  deleteTranslation: async (
+    eventId: string | number,
+    langCode: string
+  ): Promise<boolean> => {
+    try {
+      const res = await fetch(
+        `${ADMIN_API_URL}/events/${eventId}/translations/${langCode}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!res.ok)
+        throw new Error(
+          `Failed to delete translation for event ${eventId} in ${langCode}`
+        );
+      return true;
+    } catch (error) {
+      console.error(
+        `Error deleting translation for event ${eventId} in ${langCode}:`,
+        error
+      );
+      return false;
+    }
+  },
+};
+
 export default eventService;

@@ -54,7 +54,7 @@ function PageList() {
       return;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/v1/pages/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/v1/pages/id/${id}`, {
         method: "DELETE",
       });
       // Explicitly type the API response for deletion
@@ -166,7 +166,7 @@ function PageList() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <Link
-                      href={`/content/view-content/${page.id}`}
+                      href={`/content/view-content/id/${page.id}`}
                       className="text-indigo-600 hover:text-indigo-900 mr-4"
                     >
                       Edit

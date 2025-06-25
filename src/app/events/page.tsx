@@ -8,35 +8,7 @@ import eventService, { EventData } from "@/services/eventService";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
-
-const languageFlags: Record<string, string> = {
-  en: "🇬🇧",
-  hi: "🇮🇳",
-};
-const languageNames: Record<string, string> = {
-  en: "English",
-  hi: "Hindi",
-};
-
-function renderLanguages(event: EventData) {
-  const langs = [
-    { code: "en", active: true },
-    ...(event.translations.hi ? [{ code: "hi", active: true }] : []),
-  ];
-  return (
-    <div className="flex flex-col space-y-1">
-      {langs.map((lang) => (
-        <div key={lang.code} className="flex items-center">
-          <span className="mr-1">{languageFlags[lang.code] || lang.code}</span>
-          <span className={lang.active ? "font-medium" : "text-gray-400"}>
-            {languageNames[lang.code] || lang.code}
-            {!lang.active && " (inactive)"}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
+import { Toaster } from "react-hot-toast";
 
 const EventsTable = () => {
   const [data, setData] = useState<EventData[]>([]);
@@ -49,24 +21,17 @@ const EventsTable = () => {
     setData(events);
     setLoading(false);
   };
- 
+
   console.log("Data: ", data);
-  
+
   useEffect(() => {
     getEvents();
   }, []);
 
   const filteredData = data.filter(
     (item) =>
-      item.translations?.en?.description
-        ?.toLowerCase()
-        .includes(searchText.toLowerCase()) ||
-      item.translations?.en?.excerpt
-        ?.toLowerCase()
-        .includes(searchText.toLowerCase()) ||
-      item.translations?.en?.city
-        ?.toLowerCase()
-        .includes(searchText.toLowerCase())
+      (item.ENVT_DESC || "").toLowerCase().includes(searchText.toLowerCase()) ||
+      (item.ENVT_CITY || "").toLowerCase().includes(searchText.toLowerCase())
   );
 
   const handleDelete = async (id: number) => {
@@ -79,6 +44,7 @@ const EventsTable = () => {
 
   return (
     <div className="p-5 max-w-6xl mx-auto">
+      <Toaster position="top-right" reverseOrder={false} />
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
         Event Management
       </h1>
@@ -124,10 +90,7 @@ const EventsTable = () => {
                 Upto Date
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Active
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Languages
+                Category
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -137,51 +100,40 @@ const EventsTable = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-gray-500">
+                <td colSpan={7} className="text-center py-8 text-gray-500">
                   Loading events...
                 </td>
               </tr>
             ) : filteredData.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-gray-500">
+                <td colSpan={7} className="text-center py-8 text-gray-500">
                   No events found.
                 </td>
               </tr>
             ) : (
               filteredData.map((event) => (
-                <tr key={event.id} className="hover:bg-gray-50">
+                <tr key={event.ENVT_ID} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {event.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {event.translations?.en?.description || "-"}
+                    {event.ENVT_ID}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {event.translations?.en?.city || "-"}
+                    {event.ENVT_DESC || "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {event.fromDate}
+                    {event.ENVT_CITY || "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {event.uptoDate}
+                    {event.EVNT_FROM_DT || "-"}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {event.isActive ? (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Yes
-                      </span>
-                    ) : (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                        No
-                      </span>
-                    )}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {event.EVNT_UPTO_DT || "-"}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {renderLanguages(event)}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {event.Category?.CATE_DESC || "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <Link
-                      href={`/events/${event.id}`}
+                      href={`/events/${event.ENVT_ID}`}
                       className="text-indigo-600 hover:text-indigo-900 mr-4"
                     >
                       <span className="inline-flex items-center">
@@ -190,7 +142,7 @@ const EventsTable = () => {
                       </span>
                     </Link>
                     <button
-                      onClick={() => handleDelete(event.id)}
+                      onClick={() => handleDelete(event.ENVT_ID!)}
                       className="text-red-600 hover:text-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
                     >
                       <span className="inline-flex items-center">

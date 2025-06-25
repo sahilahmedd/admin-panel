@@ -12,6 +12,7 @@ export interface Page {
   created_date: string; // Assuming ISO string format from database
   updated_by: number | null;
   updated_date: string | null; // Assuming ISO string format
+  screen_type?: string;
 }
 
 // Define the structure of your API response (common for success/error)
@@ -29,6 +30,7 @@ export interface PageFormData {
   created_by: number;
   created_date: string; // <-- ADD THIS FIELD (as a string for date 'YYYY-MM-DD')
   updated_by: number | null;
+  screen_type?: string;
 }
 
 export interface ContentSectionType {
@@ -58,6 +60,7 @@ export interface ContentSection {
   page_id: number;
   refrence_page_id: number | null;
   lang_code: string; // This is the lang_code of the main content (expected 'en')
+  // screen_type?: string; // REMOVE this line if present
   // Add the relation to translations
   translations?: ContentSectionLang[]; // Optional, if API hydrates it
 }
@@ -76,7 +79,6 @@ export interface ContentSectionFormData {
   refrence_page_id: number | null;
   lang_code: string; // Frontend will send this, expected 'en'
 }
-
 
 // --- NEW/UPDATED Interface for a Content Section Language (Translation) record ---
 // This strictly follows the new Prisma schema for `content_sections_lang`.

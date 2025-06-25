@@ -3,12 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import toast, { Toaster } from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast";
 
 import { Page, ApiResponse, PageFormData } from "@/utils/types"; // Adjust path if needed
 
-const API_BASE_URL =
-  "https://node2-plum.vercel.app/api/admin";
+const API_BASE_URL = "https://node2-plum.vercel.app/api/admin";
 
 // Helper function to get current date in YYYY-MM-DD format
 const getCurrentDateFormatted = (): string => {
@@ -30,7 +29,8 @@ function PageForm() {
     active_yn: 1,
     created_by: 10,
     created_date: getCurrentDateFormatted(), // <-- Initialize with current date
-    updated_by: null,
+    updated_by: 1,
+    screen_type: "both",
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +43,7 @@ function PageForm() {
         try {
           setLoading(true);
           setError(null);
-          const response = await fetch(`${API_BASE_URL}/v1/pages/${id}`);
+          const response = await fetch(`${API_BASE_URL}/v1/pages/id/${id}`);
           if (!response.ok) {
             throw new Error(
               `Failed to fetch page data: ${response.statusText}`
@@ -62,7 +62,8 @@ function PageForm() {
               active_yn: data.data.active_yn === 1 ? 1 : 0,
               created_by: data.data.created_by,
               created_date: fetchedCreatedDate, // <-- Use fetched date
-              updated_by: data.data.updated_by || null,
+              updated_by: data.data.updated_by || 1,
+              screen_type: data.data.screen_type || "both",
             });
           } else {
             setError(data.message || "Failed to fetch page for editing.");
@@ -84,34 +85,27 @@ function PageForm() {
         active_yn: 1,
         created_by: 1,
         created_date: getCurrentDateFormatted(), // <-- Reset to current date
-        updated_by: null,
+        updated_by: 1,
+        screen_type: "both",
       });
     }
   }, [id]);
 
-  // const handleChange = (
-  //   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  // ) => {
-  //   const { name, value, type, checked } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: type === "checkbox" ? (checked ? 1 : 0) : value,
-  //   }));
-  // };
-
   const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-) => {
-  const target = e.target as HTMLInputElement;
-  const { name, value, type } = target;
-  const checked = type === "checkbox" ? target.checked : undefined;
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const target = e.target as HTMLInputElement;
+    const { name, value, type } = target;
+    const checked = type === "checkbox" ? target.checked : undefined;
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: type === "checkbox" ? (checked ? 1 : 0) : value,
-  }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? (checked ? 1 : 0) : value,
+    }));
   };
-  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -119,7 +113,7 @@ function PageForm() {
 
     const method = isEditing ? "PUT" : "POST";
     const url = isEditing
-      ? `${API_BASE_URL}/v1/pages/${id}`
+      ? `${API_BASE_URL}/v1/pages/id/${id}`
       : `${API_BASE_URL}/v1/pages`;
 
     try {
@@ -127,9 +121,12 @@ function PageForm() {
         title: formData.title,
         link_url: formData.link_url,
         active_yn: Number(formData.active_yn),
-        created_by: Number(formData.created_by),
+        created_by: isEditing
+          ? formData.created_by
+          : Number(formData.created_by),
         created_date: formData.created_date, // <-- INCLUDE created_date in payload
-        updated_by: formData.updated_by ? Number(formData.updated_by) : null,
+        updated_by: isEditing ? Number(formData.updated_by) : null,
+        screen_type: formData.screen_type,
       };
 
       const response = await fetch(url, {
@@ -145,7 +142,7 @@ function PageForm() {
       if (response.ok && data.success) {
         alert(`Page ${isEditing ? "updated" : "created"} successfully!`);
         // toast.success(`Page ${isEditing ? "updated" : "created"} successfully!`)
-        router.push('/content/view-content');
+        router.push("/content/view-content");
       } else {
         throw new Error(
           data.message || `Failed to ${isEditing ? "update" : "create"} page.`
@@ -205,6 +202,28 @@ function PageForm() {
           />
         </div>
 
+        {/* Screen Type */}
+        <div>
+          <label
+            htmlFor="screen_type"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Screen Type
+          </label>
+          <select
+            id="screen_type"
+            name="screen_type"
+            value={formData.screen_type || "both"}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            <option value="both">Both</option>
+            <option value="app">App</option>
+            <option value="web">Web</option>
+          </select>
+        </div>
+
         {/* Link URL */}
         <div>
           <label
@@ -243,19 +262,19 @@ function PageForm() {
           </label>
         </div>
 
-        {/* Created By */}
+        {/* Created By / Updated By */}
         <div>
           <label
-            htmlFor="created_by"
+            htmlFor={isEditing ? "updated_by" : "created_by"}
             className="block text-sm font-medium text-gray-700"
           >
-            Created By (User ID)
+            {isEditing ? "Updated By (User ID)" : "Created By (User ID)"}
           </label>
           <input
             type="number"
-            id="created_by"
-            name="created_by"
-            value={formData.created_by}
+            id={isEditing ? "updated_by" : "created_by"}
+            name={isEditing ? "updated_by" : "created_by"}
+            value={isEditing ? formData.updated_by || 1 : formData.created_by}
             onChange={handleChange}
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
