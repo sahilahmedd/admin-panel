@@ -35,6 +35,7 @@ interface EventTranslationsManagerProps {
       hi?: Partial<EventTranslation>;
     };
   };
+  showEnglishTab?: boolean;
 }
 
 const API_BASE_URL = "https://node2-plum.vercel.app/api/admin";
@@ -46,6 +47,7 @@ const EventTranslationsManager: React.FC<EventTranslationsManagerProps> = ({
   translations,
   onChange,
   errors = {},
+  showEnglishTab = true,
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,11 +105,14 @@ const EventTranslationsManager: React.FC<EventTranslationsManagerProps> = ({
     setLoading(true);
     try {
       const translationData = {
-        description: translations.hi?.description || "",
-        excerpt: translations.hi?.excerpt || "",
-        detail: translations.hi?.detail || "",
-        address: translations.hi?.address || "",
-        city: translations.hi?.city || "",
+        ENVT_DESC: translations.hi?.description || "",
+        ENVT_EXCERPT: translations.hi?.excerpt || "",
+        ENVT_DETAIL: translations.hi?.detail || "",
+        ENVT_ADDRESS: translations.hi?.address || "",
+        ENVT_CITY: translations.hi?.city || "",
+        lang_code: "hi",
+        ENVT_ACTIVE_YN: "Y",
+        ENVT_CREATED_BY: 1,
       };
 
       const method = hiTranslationExists ? "PUT" : "POST";
@@ -208,209 +213,213 @@ const EventTranslationsManager: React.FC<EventTranslationsManagerProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* English Translations */}
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">English Translation</h3>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="en-description">Description *</Label>
-            <Input
-              id="en-description"
-              value={translations.en.description}
-              onChange={(e) =>
-                handleTranslationChange("en", "description", e.target.value)
-              }
-              className={
-                errors?.translations?.en?.description ? "border-red-500" : ""
-              }
-            />
-            {errors?.translations?.en?.description && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.en.description}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="en-excerpt">Excerpt *</Label>
-            <Input
-              id="en-excerpt"
-              value={translations.en.excerpt}
-              onChange={(e) =>
-                handleTranslationChange("en", "excerpt", e.target.value)
-              }
-              className={
-                errors?.translations?.en?.excerpt ? "border-red-500" : ""
-              }
-            />
-            {errors?.translations?.en?.excerpt && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.en.excerpt}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="en-detail">Detail *</Label>
-            <div
-              className={
-                errors?.translations?.en?.detail ? "border-red-500" : ""
-              }
-            >
-              <CustomEditor
-                data={translations.en.detail}
-                onChange={(value) =>
-                  handleTranslationChange("en", "detail", value)
+      {showEnglishTab ? (
+        <Card className="p-4">
+          <h3 className="text-lg font-semibold mb-4">English Translation</h3>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="en-description">Description *</Label>
+              <Input
+                id="en-description"
+                value={translations.en.description}
+                onChange={(e) =>
+                  handleTranslationChange("en", "description", e.target.value)
+                }
+                className={
+                  errors?.translations?.en?.description ? "border-red-500" : ""
                 }
               />
+              {errors?.translations?.en?.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.en.description}
+                </p>
+              )}
             </div>
-            {errors?.translations?.en?.detail && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.en.detail}
-              </p>
-            )}
-          </div>
 
-          <div>
-            <Label htmlFor="en-address">Address *</Label>
-            <Textarea
-              id="en-address"
-              value={translations.en.address}
-              onChange={(e) =>
-                handleTranslationChange("en", "address", e.target.value)
-              }
-              className={
-                errors?.translations?.en?.address ? "border-red-500" : ""
-              }
-            />
-            {errors?.translations?.en?.address && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.en.address}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="en-city">City *</Label>
-            <Input
-              id="en-city"
-              value={translations.en.city}
-              onChange={(e) =>
-                handleTranslationChange("en", "city", e.target.value)
-              }
-              className={errors?.translations?.en?.city ? "border-red-500" : ""}
-            />
-            {errors?.translations?.en?.city && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.en.city}
-              </p>
-            )}
-          </div>
-        </div>
-      </Card>
-
-      {/* Hindi Translations */}
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">
-          Hindi Translation (Optional)
-        </h3>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="hi-description">Description</Label>
-            <Input
-              id="hi-description"
-              value={translations.hi?.description || ""}
-              onChange={(e) =>
-                handleTranslationChange("hi", "description", e.target.value)
-              }
-              className={
-                errors?.translations?.hi?.description ? "border-red-500" : ""
-              }
-            />
-            {errors?.translations?.hi?.description && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.hi.description}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="hi-excerpt">Excerpt</Label>
-            <Input
-              id="hi-excerpt"
-              value={translations.hi?.excerpt || ""}
-              onChange={(e) =>
-                handleTranslationChange("hi", "excerpt", e.target.value)
-              }
-              className={
-                errors?.translations?.hi?.excerpt ? "border-red-500" : ""
-              }
-            />
-            {errors?.translations?.hi?.excerpt && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.hi.excerpt}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="hi-detail">Detail</Label>
-            <div
-              className={
-                errors?.translations?.hi?.detail ? "border-red-500" : ""
-              }
-            >
-              <CustomEditor
-                data={translations.hi?.detail || ""}
-                onChange={(value) =>
-                  handleTranslationChange("hi", "detail", value)
+            <div>
+              <Label htmlFor="en-excerpt">Excerpt *</Label>
+              <Input
+                id="en-excerpt"
+                value={translations.en.excerpt}
+                onChange={(e) =>
+                  handleTranslationChange("en", "excerpt", e.target.value)
+                }
+                className={
+                  errors?.translations?.en?.excerpt ? "border-red-500" : ""
                 }
               />
+              {errors?.translations?.en?.excerpt && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.en.excerpt}
+                </p>
+              )}
             </div>
-            {errors?.translations?.hi?.detail && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.hi.detail}
-              </p>
-            )}
-          </div>
 
-          <div>
-            <Label htmlFor="hi-address">Address</Label>
-            <Textarea
-              id="hi-address"
-              value={translations.hi?.address || ""}
-              onChange={(e) =>
-                handleTranslationChange("hi", "address", e.target.value)
-              }
-              className={
-                errors?.translations?.hi?.address ? "border-red-500" : ""
-              }
-            />
-            {errors?.translations?.hi?.address && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.hi.address}
-              </p>
-            )}
-          </div>
+            <div>
+              <Label htmlFor="en-detail">Detail *</Label>
+              <div
+                className={
+                  errors?.translations?.en?.detail ? "border-red-500" : ""
+                }
+              >
+                <CustomEditor
+                  data={translations.en.detail}
+                  onChange={(value) =>
+                    handleTranslationChange("en", "detail", value)
+                  }
+                />
+              </div>
+              {errors?.translations?.en?.detail && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.en.detail}
+                </p>
+              )}
+            </div>
 
-          <div>
-            <Label htmlFor="hi-city">City</Label>
-            <Input
-              id="hi-city"
-              value={translations.hi?.city || ""}
-              onChange={(e) =>
-                handleTranslationChange("hi", "city", e.target.value)
-              }
-              className={errors?.translations?.hi?.city ? "border-red-500" : ""}
-            />
-            {errors?.translations?.hi?.city && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.translations.hi.city}
-              </p>
-            )}
+            <div>
+              <Label htmlFor="en-address">Address *</Label>
+              <Textarea
+                id="en-address"
+                value={translations.en.address}
+                onChange={(e) =>
+                  handleTranslationChange("en", "address", e.target.value)
+                }
+                className={
+                  errors?.translations?.en?.address ? "border-red-500" : ""
+                }
+              />
+              {errors?.translations?.en?.address && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.en.address}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="en-city">City *</Label>
+              <Input
+                id="en-city"
+                value={translations.en.city}
+                onChange={(e) =>
+                  handleTranslationChange("en", "city", e.target.value)
+                }
+                className={
+                  errors?.translations?.en?.city ? "border-red-500" : ""
+                }
+              />
+              {errors?.translations?.en?.city && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.en.city}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      ) : (
+        <Card className="p-4">
+          <h3 className="text-lg font-semibold mb-4">
+            Hindi Translation (Optional)
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="hi-description">Description</Label>
+              <Input
+                id="hi-description"
+                value={translations.hi?.description || ""}
+                onChange={(e) =>
+                  handleTranslationChange("hi", "description", e.target.value)
+                }
+                className={
+                  errors?.translations?.hi?.description ? "border-red-500" : ""
+                }
+              />
+              {errors?.translations?.hi?.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.hi.description}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="hi-excerpt">Excerpt</Label>
+              <Input
+                id="hi-excerpt"
+                value={translations.hi?.excerpt || ""}
+                onChange={(e) =>
+                  handleTranslationChange("hi", "excerpt", e.target.value)
+                }
+                className={
+                  errors?.translations?.hi?.excerpt ? "border-red-500" : ""
+                }
+              />
+              {errors?.translations?.hi?.excerpt && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.hi.excerpt}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="hi-detail">Detail</Label>
+              <div
+                className={
+                  errors?.translations?.hi?.detail ? "border-red-500" : ""
+                }
+              >
+                <CustomEditor
+                  data={translations.hi?.detail || ""}
+                  onChange={(value) =>
+                    handleTranslationChange("hi", "detail", value)
+                  }
+                />
+              </div>
+              {errors?.translations?.hi?.detail && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.hi.detail}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="hi-address">Address</Label>
+              <Textarea
+                id="hi-address"
+                value={translations.hi?.address || ""}
+                onChange={(e) =>
+                  handleTranslationChange("hi", "address", e.target.value)
+                }
+                className={
+                  errors?.translations?.hi?.address ? "border-red-500" : ""
+                }
+              />
+              {errors?.translations?.hi?.address && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.hi.address}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="hi-city">City</Label>
+              <Input
+                id="hi-city"
+                value={translations.hi?.city || ""}
+                onChange={(e) =>
+                  handleTranslationChange("hi", "city", e.target.value)
+                }
+                className={
+                  errors?.translations?.hi?.city ? "border-red-500" : ""
+                }
+              />
+              {errors?.translations?.hi?.city && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.translations.hi.city}
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
 
       <div className="mt-6 flex justify-between">
         <button

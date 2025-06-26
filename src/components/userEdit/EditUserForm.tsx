@@ -52,6 +52,7 @@ const EditUserForm = () => {
     PR_BUSS_TYPE: "",
     PR_BUSS_CODE: "",
     PR_BUSS_INTER: "",
+    PR_LANG: "",
   });
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -68,7 +69,8 @@ const EditUserForm = () => {
   );
 
   // Use custom hook for form data fetching
-  const { hobby, city, edu, professions, business } = useFormDataFetch();
+  const { hobby, city, edu, professions, business, streams } =
+    useFormDataFetch();
 
   // Use custom hook for OTP management - can be adapted or removed if OTP not needed for edit
   const {
@@ -190,6 +192,8 @@ const EditUserForm = () => {
             PR_BUSS_TYPE: userData.BUSSINESS?.BUSS_TYPE || "",
             PR_BUSS_CODE: userData.BUSSINESS?.BUSS_ID || "",
             PR_BUSS_INTER: mappedMarriedStatus(userData.PR_BUSS_INTER),
+            PR_LANG: userData.PR_LANG || "",
+            PR_STREAM: userData.PR_STREAM || "",
           }));
 
           // Set unique IDs for mapping hook.
@@ -489,9 +493,17 @@ const EditUserForm = () => {
       return;
     }
 
+    // Filter out empty children objects
+    const validChildren = children.filter(
+      (child) => child.name.trim() && child.dob
+    );
+
     const submissionData = {
       ...formData,
-      Children: children,
+      ...(validChildren.length > 0 ? { Children: validChildren } : {}),
+      ...(formData.PR_BUSS_INTER !== "Yes" || !formData.PR_BUSS_STREAM
+        ? { PR_BUSS_CODE: null }
+        : {}),
     };
 
     console.log("Submitting formData:", submissionData);
@@ -551,6 +563,31 @@ const EditUserForm = () => {
     "CITY_DS_CODE"
   );
   const uniqueStates = getUniqueOptions(city, "CITY_ST_NAME", "CITY_ST_CODE");
+
+  // Ensure filteredCities is set correctly on initial load or when pincode/city changes
+  useEffect(() => {
+    if (formData.PR_PIN_CODE) {
+      const selectedCitiesForPincode = city.filter(
+        (c: any) => c.CITY_PIN_CODE === formData.PR_PIN_CODE
+      );
+      setFilteredCities(
+        selectedCitiesForPincode.length > 0
+          ? [
+              {
+                CITY_ID: "",
+                CITY_NAME: "Select City",
+                CITY_PIN_CODE: "",
+                CITY_DS_CODE: "",
+                CITY_ST_CODE: "",
+              },
+              ...selectedCitiesForPincode,
+            ]
+          : []
+      );
+    } else {
+      setFilteredCities([]);
+    }
+  }, [formData.PR_PIN_CODE, city]);
 
   return (
     <>
@@ -835,29 +872,31 @@ const EditUserForm = () => {
 
             {formData.PR_MARRIED_YN === "Yes" && (
               <>
-                <Input
-                  label="Spouse Name"
-                  name="PR_SPOUSE_NAME"
-                  value={formData.PR_SPOUSE_NAME} // Use formData.PR_SPOUSE_NAME directly
-                  onChange={(e) => {
-                    setFormData((prev) => {
-                      const updatedData = {
-                        ...prev,
-                        PR_SPOUSE_NAME: e.target.value,
-                      };
-                      console.log(
-                        "Updated formData (Spouse Name):",
-                        updatedData
-                      );
-                      return updatedData;
-                    });
-                  }}
-                />
-                {formErrors.PR_SPOUSE_NAME && (
-                  <p className="text-sm text-red-500">
-                    {formErrors.PR_SPOUSE_NAME}
-                  </p>
-                )}
+                <div>
+                  <Input
+                    label="Spouse Name"
+                    name="PR_SPOUSE_NAME"
+                    value={formData.PR_SPOUSE_NAME} // Use formData.PR_SPOUSE_NAME directly
+                    onChange={(e) => {
+                      setFormData((prev) => {
+                        const updatedData = {
+                          ...prev,
+                          PR_SPOUSE_NAME: e.target.value,
+                        };
+                        console.log(
+                          "Updated formData (Spouse Name):",
+                          updatedData
+                        );
+                        return updatedData;
+                      });
+                    }}
+                  />
+                  {formErrors.PR_SPOUSE_NAME && (
+                    <p className="text-sm text-red-500">
+                      {formErrors.PR_SPOUSE_NAME}
+                    </p>
+                  )}
+                </div>
                 <div>
                   <Input
                     label="Spouse ID (Enter Unique ID)"
@@ -1018,14 +1057,18 @@ const EditUserForm = () => {
               )}
             </div>
             <div>
-              <Input
+              <Select
                 label="Education Description"
                 name="PR_EDUCATION_DESC"
                 value={formData.PR_EDUCATION_DESC}
                 onChange={handleChange}
+                options={streams.map((item: any) => ({
+                  label: item.STREAM_NAME,
+                  value: item.STREAM_NAME,
+                }))}
               />
               {formErrors.PR_EDUCATION_DESC && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm relative -top-4 text-red-500">
                   {formErrors.PR_EDUCATION_DESC}
                 </p>
               )}
@@ -1073,44 +1116,14 @@ const EditUserForm = () => {
           </div>
         </div>
 
-        {/* Business Details */}
+        {/* Business Interest and Details */}
         <div>
           <h3 className="text-xl p-2 bg-gray-200 rounded font-medium mb-3">
-            Business Details
+            Business Interest
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Select
-                label="Business"
-                name="PR_BUSS_STREAM"
-                value={formData.PR_BUSS_STREAM}
-                onChange={handleChange}
-                options={business.map((item: any) => ({
-                  label: item.BUSS_STREM,
-                  value: item.BUSS_STREM,
-                }))}
-              />
-              {formErrors.PR_BUSS_STREAM && (
-                <p className="text-sm relative -top-4 text-red-500">
-                  {formErrors.PR_BUSS_STREAM}
-                </p>
-              )}
-            </div>
-            <div>
-              <Input
-                label="Business Type"
-                name="PR_BUSS_TYPE"
-                value={formData.PR_BUSS_TYPE}
-                onChange={handleChange}
-              />
-              {formErrors.PR_BUSS_TYPE && (
-                <p className="text-sm text-red-500">
-                  {formErrors.PR_BUSS_TYPE}
-                </p>
-              )}
-            </div>
             <Select
-              label="Business Intrest"
+              label="Business Interest"
               name="PR_BUSS_INTER"
               value={formData.PR_BUSS_INTER}
               onChange={handleChange}
@@ -1118,6 +1131,57 @@ const EditUserForm = () => {
             />
           </div>
         </div>
+
+        {/* Business Details - only show if interested */}
+        {formData.PR_BUSS_INTER === "Yes" && (
+          <div>
+            <h3 className="text-xl p-2 bg-gray-200 rounded font-medium mb-3">
+              Business Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Select
+                  label="Business"
+                  name="PR_BUSS_STREAM"
+                  value={formData.PR_BUSS_STREAM}
+                  onChange={handleChange}
+                  options={business.map((item: any) => ({
+                    label: item.BUSS_STREM,
+                    value: item.BUSS_STREM,
+                  }))}
+                />
+                {formErrors.PR_BUSS_STREAM && (
+                  <p className="text-sm relative -top-4 text-red-500">
+                    {formErrors.PR_BUSS_STREAM}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Input
+                  label="Business Type"
+                  name="PR_BUSS_TYPE"
+                  value={formData.PR_BUSS_TYPE}
+                  onChange={handleChange}
+                  disabled={true}
+                />
+                {formErrors.PR_BUSS_TYPE && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.PR_BUSS_TYPE}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Input
+                  label="Business ID"
+                  name="PR_BUSS_CODE"
+                  value={formData.PR_BUSS_CODE}
+                  onChange={handleChange}
+                  disabled={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="text-center mt-8 flex justify-center gap-4">
           <button

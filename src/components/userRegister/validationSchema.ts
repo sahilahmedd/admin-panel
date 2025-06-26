@@ -29,6 +29,7 @@ type UserFormData = {
   PR_BUSS_TYPE: string;
   PR_BUSS_CODE: string; // Added PR_BUSS_CODE
   PR_BUSS_INTER: string;
+  PR_LANG: string; // Added language field
 };
 
 type FormErrors = Partial<Record<keyof UserFormData | "otp", string>> & {
@@ -78,6 +79,7 @@ export const validateRegistrationForm = ({
   if (!formData.PR_ROLE) errors.PR_ROLE = "Role is required";
   if (!formData.PR_FULL_NAME.trim())
     errors.PR_FULL_NAME = "Full name is required";
+  if (!formData.PR_LANG) errors.PR_LANG = "Language is required";
   if (!formData.PR_FATHER_NAME.trim())
     errors.PR_FATHER_NAME = "Father's name is required";
   if (!formData.PR_MOTHER_NAME.trim())
@@ -132,12 +134,17 @@ export const validateRegistrationForm = ({
       }
 
       if (!/^[a-zA-Z\s]+$/.test(formData.PR_SPOUSE_NAME.trim())) {
-        errors.PR_SPOUSE_NAME = "Spouse name can only contain letters and spaces";
+        errors.PR_SPOUSE_NAME =
+          "Spouse name can only contain letters and spaces";
       }
 
       // Cross-validation for spouse ID
-      if (spouseUniqueId && (spouseUniqueId === fatherUniqueId || spouseUniqueId === motherUniqueId)) {
-        errors.PR_SPOUSE_ID = "Spouse ID cannot be the same as Father or Mother ID";
+      if (
+        spouseUniqueId &&
+        (spouseUniqueId === fatherUniqueId || spouseUniqueId === motherUniqueId)
+      ) {
+        errors.PR_SPOUSE_ID =
+          "Spouse ID cannot be the same as Father or Mother ID";
       }
     }
   }
@@ -159,30 +166,33 @@ export const validateRegistrationForm = ({
   // Education validation
   if (!formData.PR_EDUCATION) errors.PR_EDUCATION = "Education is required";
   if (!formData.PR_EDUCATION_DESC.trim()) {
-    errors.PR_EDUCATION_DESC = "Education Description is required";
-  } else if (formData.PR_EDUCATION_DESC.trim().length < 10) {
-    errors.PR_EDUCATION_DESC = "Description must be at least 10 characters";
+    errors.PR_EDUCATION_DESC = "Education Stream is required";
   }
 
   // Profession validation
-  if (!formData.PR_PROFESSION)
-    errors.PR_PROFESSION = "Profession is required";
+  if (!formData.PR_PROFESSION) errors.PR_PROFESSION = "Profession is required";
   if (!formData.PR_PROFESSION_DETA.trim()) {
     errors.PR_PROFESSION_DETA = "Profession Description is required";
   } else if (formData.PR_PROFESSION_DETA.trim().length < 10) {
     errors.PR_PROFESSION_DETA = "Description must be at least 10 characters";
   }
 
-  if (!formData.PR_BUSS_STREAM)
-    errors.PR_BUSS_STREAM = "Business stream is required";
-  if (!formData.PR_BUSS_TYPE)
-    errors.PR_BUSS_TYPE = "Business type is required";
-  
+  // Business validation: Only require if user is interested
+  if (formData.PR_BUSS_INTER === "Yes") {
+    if (!formData.PR_BUSS_STREAM)
+      errors.PR_BUSS_STREAM = "Business stream is required";
+    if (!formData.PR_BUSS_TYPE)
+      errors.PR_BUSS_TYPE = "Business type is required";
+    if (!formData.PR_BUSS_CODE) errors.PR_BUSS_CODE = "Business ID is required";
+  }
+
   // Children validation
   const childValidationErrors: { name?: string; dob?: string }[] = [];
   const parentNames = [
     formData.PR_FULL_NAME.trim().toLowerCase(),
-    formData.PR_MARRIED_YN === "Yes" ? formData.PR_SPOUSE_NAME.trim().toLowerCase() : '',
+    formData.PR_MARRIED_YN === "Yes"
+      ? formData.PR_SPOUSE_NAME.trim().toLowerCase()
+      : "",
   ].filter(Boolean); // Filter out empty strings
 
   children.forEach((child, index) => {
@@ -215,7 +225,7 @@ export const validateRegistrationForm = ({
 
   // Assign the collected child errors to the main errors object
   errors.children = childValidationErrors;
-  
+
   return errors;
 };
 

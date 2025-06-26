@@ -47,6 +47,7 @@ const AddUserForm = () => {
     PR_BUSS_TYPE: "",
     PR_BUSS_CODE: "",
     PR_BUSS_INTER: "",
+    PR_LANG: "",
   });
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -61,7 +62,8 @@ const AddUserForm = () => {
   const router = useRouter();
 
   // Use custom hook for form data fetching
-  const { hobby, city, edu, professions, business } = useFormDataFetch();
+  const { hobby, city, edu, professions, business, streams } =
+    useFormDataFetch();
 
   // Use custom hook for OTP management
   const {
@@ -196,6 +198,13 @@ const AddUserForm = () => {
   useEffect(() => {
     console.log("Current formData:", formData);
   }, [formData]);
+
+  // Log prId after OTP verification
+  useEffect(() => {
+    if (otpVerified && prId) {
+      console.log("prId after OTP verification:", prId);
+    }
+  }, [otpVerified, prId]);
 
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -351,6 +360,16 @@ const AddUserForm = () => {
           PR_BUSS_TYPE: "",
         }));
       }
+    } else if (name === "PR_LANG") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    } else if (name === "PR_STREAM") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -388,9 +407,18 @@ const AddUserForm = () => {
       return;
     }
 
+    // Filter out empty children objects
+    const validChildren = children.filter(
+      (child) => child.name.trim() && child.dob
+    );
+
+    // Only include Children if user is married and has valid children data
     const submissionData = {
       ...formData,
-      Children: children,
+      ...(formData.PR_MARRIED_YN === "Yes" && validChildren.length > 0
+        ? { Children: validChildren }
+        : {}),
+      ...(formData.PR_BUSS_INTER !== "Yes" ? { PR_BUSS_CODE: null } : {}),
     };
 
     // Detailed console log of submission data
@@ -470,6 +498,89 @@ const AddUserForm = () => {
 
       if (data.success) {
         toast.success("User Added successfully!!!");
+
+        // Fetch PR_UNIQUE_ID using prId
+        let uniqueId = prId;
+        try {
+          const userDetailsRes = await fetch(
+            `https://node2-plum.vercel.app/api/admin/users/${prId}`
+          );
+          const userDetails = await userDetailsRes.json();
+          if (
+            userDetails.success &&
+            userDetails.data &&
+            userDetails.data.PR_UNIQUE_ID
+          ) {
+            uniqueId = userDetails.data.PR_UNIQUE_ID;
+          }
+        } catch (err) {
+          console.warn(
+            "Failed to fetch user details for PR_UNIQUE_ID, using prId as fallback.",
+            err
+          );
+        }
+
+        // Fetch admin FCM tokens and send notification after successful registration
+        try {
+          // 1. Fetch all admin FCM tokens
+          const tokensRes = await fetch(
+            "https://node2-plum.vercel.app/api/fcm/get-all-admin-fcm-tokens"
+          );
+          const tokensData = await tokensRes.json();
+          if (
+            tokensData.success &&
+            Array.isArray(tokensData.data) &&
+            tokensData.data.length > 0
+          ) {
+            // Extract just the fcmToken values
+            const tokens = tokensData.data.map((item) => item.fcmToken);
+            // Prepare notification title and body based on selected language
+            let notificationTitle = "New User Registration";
+            let notificationBody = `${formData.PR_FULL_NAME} has registered with Unique ID: ${uniqueId}`;
+            if (formData.PR_LANG === "hi") {
+              notificationTitle = "नया उपयोगकर्ता पंजीकरण";
+              notificationBody = `${formData.PR_FULL_NAME} ने यूनिक आईडी: ${uniqueId} के साथ पंजीकरण किया है`;
+            }
+            const notificationPayload = {
+              title: notificationTitle,
+              body: notificationBody,
+              tokens,
+              data: {
+                type: "NEW_USER_REGISTRATION",
+                prUniqueId: String(uniqueId),
+                fullName: formData.PR_FULL_NAME,
+                timestamp: new Date().toISOString(),
+              },
+            };
+            console.log("Sending notification to admin FCM tokens:", tokens);
+            console.log("Notification payload:", notificationPayload);
+            // 2. Send notification to those tokens
+            const notificationResponse = await fetch(
+              "https://node2-plum.vercel.app/api/fcm/send-notification-to-admins",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(notificationPayload),
+              }
+            );
+            const notificationResult = await notificationResponse.json();
+            console.log(
+              "FCM notification sent for new user registration:",
+              notificationResult
+            );
+          } else {
+            console.warn(
+              "No admin FCM tokens found or failed to fetch tokens.",
+              tokensData
+            );
+          }
+        } catch (notificationError) {
+          // Just log the error but don't block the user registration flow
+          console.error("Failed to send FCM notification:", notificationError);
+        }
+
         // Reset form data and states
         setFormData({
           PR_ROLE: "",
@@ -501,6 +612,7 @@ const AddUserForm = () => {
           PR_BUSS_STREAM: "",
           PR_BUSS_TYPE: "",
           PR_BUSS_INTER: "",
+          PR_LANG: "",
         });
         setChildren([{ name: "", dob: "" }]);
         setFatherUniqueId("");
@@ -526,10 +638,12 @@ const AddUserForm = () => {
   };
 
   const getUniqueOptions = (
-    items: any[],
+    items: any[] | undefined,
     labelKey: string,
     valueKey: string
   ) => {
+    if (!items || !Array.isArray(items)) return [];
+
     return Array.from(
       new Map(
         items.map((item) => [
@@ -594,6 +708,22 @@ const AddUserForm = () => {
                 <p className="text-sm text-red-500">
                   {formErrors.PR_FULL_NAME}
                 </p>
+              )}
+            </div>
+            {/* Language Dropdown */}
+            <div>
+              <Select
+                label="Language"
+                name="PR_LANG"
+                value={formData.PR_LANG || ""}
+                onChange={handleChange}
+                options={[
+                  { label: "English", value: "en" },
+                  { label: "Hindi", value: "hi" },
+                ]}
+              />
+              {formErrors.PR_LANG && (
+                <p className="text-sm text-red-500">{formErrors.PR_LANG}</p>
               )}
             </div>
             <div>
@@ -786,7 +916,7 @@ const AddUserForm = () => {
                 name="PR_HOBBY"
                 value={formData.PR_HOBBY}
                 onChange={handleChange}
-                options={hobby.map((item: any) => ({
+                options={(hobby || []).map((item: any) => ({
                   label: item.HOBBY_NAME,
                   value: item.HOBBY_NAME,
                 }))}
@@ -987,11 +1117,17 @@ const AddUserForm = () => {
                 name="PR_EDUCATION"
                 value={formData.PR_EDUCATION}
                 onChange={handleChange}
-                options={edu.map((item: any) => ({
+                options={(edu || []).map((item: any) => ({
                   label: item.EDUCATION_NAME,
                   value: item.EDUCATION_NAME,
                 }))}
               />
+              {/* Debug info - remove after fixing */}
+              {edu?.length === 0 && (
+                <p className="text-xs text-orange-500 mt-1">
+                  No education options loaded. Check console for details.
+                </p>
+              )}
               {formErrors.PR_EDUCATION && (
                 <p className="text-sm relative -top-4 text-red-500">
                   {formErrors.PR_EDUCATION}
@@ -999,14 +1135,18 @@ const AddUserForm = () => {
               )}
             </div>
             <div>
-              <Input
-                label="Education Description"
+              <Select
+                label="Education Stream"
                 name="PR_EDUCATION_DESC"
                 value={formData.PR_EDUCATION_DESC}
                 onChange={handleChange}
+                options={(streams || []).map((item: any) => ({
+                  label: item.STREAM_NAME,
+                  value: item.STREAM_NAME,
+                }))}
               />
               {formErrors.PR_EDUCATION_DESC && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm relative -top-4 text-red-500">
                   {formErrors.PR_EDUCATION_DESC}
                 </p>
               )}
@@ -1026,7 +1166,7 @@ const AddUserForm = () => {
                 name="PR_PROFESSION"
                 value={formData.PR_PROFESSION}
                 onChange={handleChange}
-                options={professions.map((item: any) => ({
+                options={(professions || []).map((item: any) => ({
                   label: item.PROF_NAME,
                   value: item.PROF_NAME,
                 }))}
@@ -1054,63 +1194,67 @@ const AddUserForm = () => {
           </div>
         </div>
 
-        {/* Business Details */}
+        {/* Business Interest */}
         <div>
-          <h3 className="text-xl p-2 bg-gray-200 rounded font-medium mb-3">
-            Business Details
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Select
-                label="Business"
-                name="PR_BUSS_STREAM"
-                value={formData.PR_BUSS_STREAM}
-                onChange={handleChange}
-                options={business.map((item: any) => ({
-                  label: item.BUSS_STREM,
-                  value: item.BUSS_STREM,
-                }))}
-              />
-              {formErrors.PR_BUSS_STREAM && (
-                <p className="text-sm relative -top-4 text-red-500">
-                  {formErrors.PR_BUSS_STREAM}
-                </p>
-              )}
-            </div>
-            <div>
-              <Input
-                label="Business Type"
-                name="PR_BUSS_TYPE"
-                value={formData.PR_BUSS_TYPE}
-                onChange={handleChange}
-                disabled={true}
-              />
-              {formErrors.PR_BUSS_TYPE && (
-                <p className="text-sm text-red-500">
-                  {formErrors.PR_BUSS_TYPE}
-                </p>
-              )}
-            </div>
-            <div>
-              <Input
-                label="Business ID"
-                name="PR_BUSS_CODE"
-                value={formData.PR_BUSS_CODE}
-                onChange={handleChange}
-                disabled={true}
-              />
-            </div>
-            <div>
-              <Select
-                label="Business Interest"
-                name="PR_BUSS_INTER"
-                value={formData.PR_BUSS_INTER}
-                onChange={handleChange}
-                options={["Yes", "No"]}
-              />
+          <Select
+            label="Business Interest"
+            name="PR_BUSS_INTER"
+            value={formData.PR_BUSS_INTER}
+            onChange={handleChange}
+            options={["Yes", "No"]}
+          />
+        </div>
+
+        {/* Business Details - only show if interested */}
+        {formData.PR_BUSS_INTER === "Yes" && (
+          <div>
+            <h3 className="text-xl p-2 bg-gray-200 rounded font-medium mb-3">
+              Business Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Select
+                  label="Business"
+                  name="PR_BUSS_STREAM"
+                  value={formData.PR_BUSS_STREAM}
+                  onChange={handleChange}
+                  options={(business || []).map((item: any) => ({
+                    label: item.BUSS_STREM,
+                    value: item.BUSS_STREM,
+                  }))}
+                />
+                {formErrors.PR_BUSS_STREAM && (
+                  <p className="text-sm relative -top-4 text-red-500">
+                    {formErrors.PR_BUSS_STREAM}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Input
+                  label="Business Type"
+                  name="PR_BUSS_TYPE"
+                  value={formData.PR_BUSS_TYPE}
+                  onChange={handleChange}
+                  disabled={true}
+                />
+                {formErrors.PR_BUSS_TYPE && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.PR_BUSS_TYPE}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Input
+                  label="Business ID"
+                  name="PR_BUSS_CODE"
+                  value={formData.PR_BUSS_CODE}
+                  onChange={handleChange}
+                  disabled={true}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="text-center mt-8 flex justify-center gap-4">
           <button

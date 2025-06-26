@@ -10,6 +10,16 @@ export async function fetchData(endpoint: string) {
     if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
     const data = await res.json();
     console.log(`Response data for ${endpoint}:`, data);
+
+    // Special logging for education endpoint
+    if (endpoint === "education") {
+      console.log("Education endpoint response keys:", Object.keys(data));
+      console.log(
+        "Education data available:",
+        data.educations || data.education || "Not found"
+      );
+    }
+
     return data;
   } catch (error) {
     console.error("API GET Error:", error);

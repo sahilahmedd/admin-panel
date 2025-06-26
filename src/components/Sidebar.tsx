@@ -179,58 +179,28 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                 </Link>
               </li>
 
-              <li>
-                <button
-                  className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-all ${
-                    pathname?.includes("/tables")
-                      ? "bg-gray-100 text-gray-800"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setTablesOpen(!tablesOpen);
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <Table className="w-5 h-5" />
-                    <span>Tables</span>
-                  </div>
-                  {tablesOpen ? (
-                    <ChevronDown className="w-4 h-4 text-gray-500" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4 text-gray-500" />
-                  )}
-                </button>
+              {/* Table links as top-level items */}
+              {tableLinks.map((item) => (
+                <li key={item.path}>
+                  <Link
+                    href={
+                      item.path.startsWith("/")
+                        ? item.path
+                        : `/tables/${item.path}`
+                    }
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                      isActivePath(item.path)
+                        ? "bg-indigo-50 text-indigo-700 font-medium"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {item.icon}
+                    <span>{item.name}</span>
+                  </Link>
+                </li>
+              ))}
 
-                <div
-                  className={`mt-1 overflow-hidden transition-all ${
-                    tablesOpen ? "max-h-96" : "max-h-0"
-                  }`}
-                >
-                  <ul className="pl-10 pr-2 py-1 space-y-1">
-                    {tableLinks.map((item) => (
-                      <li key={item.path}>
-                        <Link
-                          href={
-                            item.path.startsWith("/")
-                              ? item.path
-                              : `/tables/${item.path}`
-                          }
-                          className={`flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-all ${
-                            isActivePath(item.path)
-                              ? "bg-indigo-50 text-indigo-700 font-medium"
-                              : "text-gray-600 hover:bg-gray-100"
-                          }`}
-                        >
-                          {item.icon}
-                          <span>{item.name}</span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </li>
-
+              {/* Users dropdown */}
               <li>
                 <button
                   className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-all ${
@@ -293,6 +263,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                 </Link>
               </li>
 
+              {/* Content Section dropdown */}
               <li>
                 <button
                   className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-all ${

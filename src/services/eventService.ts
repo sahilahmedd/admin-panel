@@ -5,7 +5,7 @@ const ADMIN_API_URL = "https://node2-plum.vercel.app/api/admin";
 export interface EventData {
   ENVT_ID?: number;
   ENVT_CATE_ID?: number;
-  ENVT_CATE_CATE_ID?: number;
+  ENVT_CATE_CATE_ID?: number | null;
   lang_code?: string;
   ENVT_DESC: string;
   ENVT_EXCERPT?: string;
@@ -33,9 +33,11 @@ export interface EventData {
 }
 
 export interface EventTranslation {
-  ENVT_TITLE?: string;
   ENVT_DESC: string;
-  ENVT_LOCATION?: string;
+  ENVT_EXCERPT: string;
+  ENVT_DETAIL: string;
+  ENVT_ADDRESS: string;
+  ENVT_CITY: string;
   ENVT_ACTIVE_YN?: string;
   ENVT_CREATED_BY?: number;
   lang_code: string;
@@ -68,16 +70,37 @@ const eventService = {
 
   createEvent: async (event: EventData): Promise<EventData | null> => {
     try {
+      console.log("[createEvent] Sending payload:", event);
       const res = await fetch(`${ADMIN_API_URL}/events`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(event),
       });
-      if (!res.ok) throw new Error(`Failed to create event`);
+      console.log("[createEvent] API response status:", res.status);
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage =
+          errorData.message || `Failed to create event (Status: ${res.status})`;
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
       const data = await res.json();
-      return data.event || null;
+      console.log("[createEvent] API response data:", data);
+
+      if (data.event) {
+        toast.success("Event created successfully!");
+        return data.event;
+      } else {
+        toast.error("Failed to create event - Invalid response format");
+        return null;
+      }
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("[createEvent] Error creating event:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create event"
+      );
       return null;
     }
   },
