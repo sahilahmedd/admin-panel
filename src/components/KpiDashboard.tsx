@@ -106,14 +106,14 @@ export default function KpiDashboard({ data }: KpiDashboardProps) {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Gender Distribution Chart */}
-            <div className="bg-gray-50 rounded-lg p-3">
+            <div className="bg-gray-50 rounded-lg p-3 flex flex-col h-full justify-between">
               <DoughnutChart
                 title="Gender & Age Distribution"
                 labels={["Male", "Female", "Children"]}
                 data={[data.count.male, data.count.female, data.count.child]}
                 colors={["#3b82f6", "#ec4899", "#8b5cf6"]}
               />
-              <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2 pt-3">
                 <div className="text-center p-1 bg-white rounded-lg">
                   <div className="flex items-center justify-center">
                     <User size={14} className="text-blue-600 mr-1" />
@@ -145,7 +145,7 @@ export default function KpiDashboard({ data }: KpiDashboardProps) {
             </div>
 
             {/* Children Distribution Chart */}
-            <div className="bg-gray-50 rounded-lg p-3">
+            <div className="bg-gray-50 rounded-lg p-3 flex flex-col h-full justify-between">
               <DoughnutChart
                 title="Children Distribution"
                 labels={["2 Children", ">2 Children"]}
@@ -161,7 +161,7 @@ export default function KpiDashboard({ data }: KpiDashboardProps) {
                 ]}
                 colors={["#10b981", "#f59e0b"]}
               />
-              <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 pt-3">
                 <div className="text-center p-1 bg-white rounded-lg">
                   <p className="text-xs text-gray-500">2 Children</p>
                   <p className="text-sm font-semibold text-emerald-600">
@@ -192,7 +192,7 @@ export default function KpiDashboard({ data }: KpiDashboardProps) {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Donation Stats */}
-            <div className="bg-gray-50 rounded-lg p-3">
+            <div className="bg-gray-50 rounded-lg p-3 flex flex-col h-full justify-between">
               <DoughnutChart
                 title="Donation Statistics"
                 labels={["Donors", "Non-Donors"]}
@@ -202,7 +202,7 @@ export default function KpiDashboard({ data }: KpiDashboardProps) {
                 ]}
                 colors={["#22c55e", "#e5e7eb"]}
               />
-              <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 pt-3">
                 <div className="text-center p-2 bg-white rounded-lg">
                   <p className="text-xs text-gray-500">Total Amount</p>
                   <p className="text-sm font-semibold text-green-600">
@@ -219,7 +219,7 @@ export default function KpiDashboard({ data }: KpiDashboardProps) {
             </div>
 
             {/* Business Interest Stats */}
-            <div className="bg-gray-50 rounded-lg p-3">
+            <div className="bg-gray-50 rounded-lg p-3 flex flex-col h-full justify-between">
               <DoughnutChart
                 title="Business Interest"
                 labels={["Interested", "Not Interested"]}
@@ -230,7 +230,7 @@ export default function KpiDashboard({ data }: KpiDashboardProps) {
                 ]}
                 colors={["#eab308", "#e5e7eb"]}
               />
-              <div className="mt-3 p-2 bg-white rounded-lg text-center">
+              <div className="p-2 bg-white rounded-lg text-center mt-0 pt-3">
                 <p className="text-xs text-gray-500">Business Interest</p>
                 <p className="text-sm font-semibold text-amber-600">
                   {data.businessInterestStats.percentageOfPopulation} of
@@ -243,11 +243,11 @@ export default function KpiDashboard({ data }: KpiDashboardProps) {
       </div>
 
       {/* Comparative Analysis */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div className="bg-white h-full rounded-xl shadow-sm border border-gray-100 p-4">
         <h2 className="text-base font-semibold text-gray-800 mb-4">
           Comparative Analysis
         </h2>
-        <div className="h-64">
+        <div className="h-64 mb-4 md:mb-10">
           <BarChart
             title="Population Metrics"
             labels={[
