@@ -60,6 +60,11 @@ export interface ContentSection {
   page_id: number;
   refrence_page_id: number | null;
   lang_code: string; // This is the lang_code of the main content (expected 'en')
+  button_one: string | null;
+  button_one_slug: string | null;
+  button_two: string | null;
+  button_two_slug: string | null;
+  flex_01: string | null;
   // screen_type?: string; // REMOVE this line if present
   // Add the relation to translations
   translations?: ContentSectionLang[]; // Optional, if API hydrates it
@@ -78,6 +83,11 @@ export interface ContentSectionFormData {
   page_id: number;
   refrence_page_id: number | null;
   lang_code: string; // Frontend will send this, expected 'en'
+  button_one: string | null;
+  button_one_slug: string | null;
+  button_two: string | null;
+  button_two_slug: string | null;
+  flex_01: string | null;
 }
 
 // --- NEW/UPDATED Interface for a Content Section Language (Translation) record ---
@@ -97,6 +107,11 @@ export interface ContentSectionLang {
   page_id: number; // Duplicated from main content section
   refrence_page_id: number | null; // Duplicated from main content section
   id_id: number | null; // Still ambiguous - included if it's truly in your DB schema
+  button_one: string | null;
+  button_one_slug: string | null;
+  button_two: string | null;
+  button_two_slug: string | null;
+  flex_01: string | null;
 }
 
 // --- NEW/UPDATED Interface for the form data when creating/editing a Content Section Language entry ---
@@ -115,6 +130,11 @@ export interface ContentSectionLangFormData {
   page_id: number;
   refrence_page_id: number | null;
   id_id: number | null; // Included if present in DB schema
+  button_one: string | null;
+  button_one_slug: string | null;
+  button_two: string | null;
+  button_two_slug: string | null;
+  flex_01: string | null;
 }
 
 // Props interface for the ContentSectionTranslationsManager component

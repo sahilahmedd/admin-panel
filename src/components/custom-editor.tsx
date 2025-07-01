@@ -16,10 +16,20 @@ export default function CustomEditor({ data, onChange }: CustomEditorProps) {
   return (
     <CKEditor
       editor={ClassicEditor}
-      data={data}
+      data={data || ""}
+      onReady={(editor) => {
+        // You can store the "editor" and use when it is needed.
+        console.log("Editor is ready to use!", editor);
+      }}
       onChange={(event, editor) => {
         const data = editor.getData();
         onChange(data);
+      }}
+      onBlur={(event, editor) => {
+        console.log("Blur.", editor);
+      }}
+      onFocus={(event, editor) => {
+        console.log("Focus.", editor);
       }}
       config={{
         toolbar: {

@@ -197,6 +197,42 @@ function ContentSectionList() {
     );
   };
 
+  // Function to render buttons if they exist
+  const renderButtons = (section: ContentSection) => {
+    if (!section.button_one && !section.button_two) {
+      return <span className="text-gray-400">No buttons</span>;
+    }
+
+    return (
+      <div className="flex flex-col space-y-1">
+        {section.button_one && (
+          <div className="flex items-center">
+            <span className="font-medium text-blue-600">
+              {section.button_one}
+            </span>
+            {section.button_one_slug && (
+              <span className="ml-2 text-xs text-gray-500">
+                → {section.button_one_slug}
+              </span>
+            )}
+          </div>
+        )}
+        {section.button_two && (
+          <div className="flex items-center">
+            <span className="font-medium text-green-600">
+              {section.button_two}
+            </span>
+            {section.button_two_slug && (
+              <span className="ml-2 text-xs text-gray-500">
+                → {section.button_two_slug}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="p-5 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">
@@ -266,18 +302,12 @@ function ContentSectionList() {
                 >
                   Page
                 </th>
-                {/* <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  From Date
-                </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  Upto Date
-                </th> */}
+                  Buttons
+                </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -327,8 +357,9 @@ function ContentSectionList() {
                       <span className="text-gray-400">No Page Assigned</span>
                     )}
                   </td>
-                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(section.from_date).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(section.upto_date).toLocaleDateString()}</td> */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {renderButtons(section)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {section.active_yn === 1 ? (
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">

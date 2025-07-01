@@ -57,6 +57,11 @@ function ContentSectionForm() {
     refrence_page_id: null,
     lang_code: "en",
     id_id: null,
+    button_one: "",
+    button_one_slug: "",
+    button_two: "",
+    button_two_slug: "",
+    flex_01: "",
   });
 
   // State for Hindi translation (from content_sections_lang table)
@@ -73,6 +78,11 @@ function ContentSectionForm() {
     created_date: getCurrentDateFormatted(),
     page_id: 1,
     refrence_page_id: null,
+    button_one: "",
+    button_one_slug: "",
+    button_two: "",
+    button_two_slug: "",
+    flex_01: "",
   });
   // --- End Form Data States ---
 
@@ -111,6 +121,11 @@ function ContentSectionForm() {
             refrence_page_id: enData.data.refrence_page_id,
             lang_code: enData.data.lang_code,
             id_id: enData.data.id_id,
+            button_one: enData.data.button_one || "",
+            button_one_slug: enData.data.button_one_slug || "",
+            button_two: enData.data.button_two || "",
+            button_two_slug: enData.data.button_two_slug || "",
+            flex_01: enData.data.flex_01 || "",
           });
 
           // 2. Fetch Hindi translation
@@ -146,6 +161,11 @@ function ContentSectionForm() {
                 : getCurrentDateFormatted(),
               page_id: hiData.data.page_id,
               refrence_page_id: hiData.data.refrence_page_id,
+              button_one: hiData.data.button_one || "",
+              button_one_slug: hiData.data.button_one_slug || "",
+              button_two: hiData.data.button_two || "",
+              button_two_slug: hiData.data.button_two_slug || "",
+              flex_01: hiData.data.flex_01 || "",
             });
           } else if (hiResponse.status === 404) {
             setHiContentExists(false); // Hindi translation doesn't exist, prepare for creation
@@ -163,6 +183,11 @@ function ContentSectionForm() {
               created_date: getCurrentDateFormatted(),
               page_id: enData.data.page_id,
               refrence_page_id: enData.data.refrence_page_id,
+              button_one: enData.data.button_one || "",
+              button_one_slug: enData.data.button_one_slug || "",
+              button_two: enData.data.button_two || "",
+              button_two_slug: enData.data.button_two_slug || "",
+              flex_01: enData.data.flex_01 || "",
             }));
             toast("Hindi translation not found, preparing form to create it.", {
               icon: "ℹ️",
@@ -261,6 +286,14 @@ function ContentSectionForm() {
       ...prev,
       [name]: parsedValue,
     }));
+
+    // Synchronize button slugs between English and Hindi
+    if (name === "button_one_slug" || name === "button_two_slug") {
+      setHiFormData((prev) => ({
+        ...prev,
+        [name]: parsedValue,
+      }));
+    }
   };
 
   // Handle changes for Hindi content form
@@ -310,6 +343,11 @@ function ContentSectionForm() {
         refrence_page_id: safeParseNumber(enFormData.refrence_page_id),
         lang_code: "en",
         id_id: safeParseNumber(enFormData.id_id),
+        button_one: enFormData.button_one || null,
+        button_one_slug: enFormData.button_one_slug || null,
+        button_two: enFormData.button_two || null,
+        button_two_slug: enFormData.button_two_slug || null,
+        flex_01: enFormData.flex_01 || null,
       };
 
       if (!isEditing) {
@@ -373,6 +411,11 @@ function ContentSectionForm() {
         created_date: hiContentExists ? undefined : getCurrentDateFormatted(),
         page_id: safeParseNumber(enFormData.page_id),
         refrence_page_id: safeParseNumber(enFormData.refrence_page_id),
+        button_one: hiFormData.button_one || null,
+        button_one_slug: enFormData.button_one_slug || null,
+        button_two: hiFormData.button_two || null,
+        button_two_slug: enFormData.button_two_slug || null,
+        flex_01: hiFormData.flex_01 || null,
       };
 
       const hiMethod = hiContentExists ? "PUT" : "POST";
@@ -742,6 +785,102 @@ function ContentSectionForm() {
                 />
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="en_button_one"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Button One Text
+                  </label>
+                  <input
+                    type="text"
+                    id="en_button_one"
+                    name="button_one"
+                    value={enFormData.button_one || ""}
+                    onChange={handleEnChange}
+                    maxLength={50}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="en_button_one_slug"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Button One Link
+                  </label>
+                  <input
+                    type="text"
+                    id="en_button_one_slug"
+                    name="button_one_slug"
+                    value={enFormData.button_one_slug || ""}
+                    onChange={handleEnChange}
+                    maxLength={100}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="en_button_two"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Button Two Text
+                  </label>
+                  <input
+                    type="text"
+                    id="en_button_two"
+                    name="button_two"
+                    value={enFormData.button_two || ""}
+                    onChange={handleEnChange}
+                    maxLength={50}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="en_button_two_slug"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Button Two Link
+                  </label>
+                  <input
+                    type="text"
+                    id="en_button_two_slug"
+                    name="button_two_slug"
+                    value={enFormData.button_two_slug || ""}
+                    onChange={handleEnChange}
+                    maxLength={100}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="en_flex_01"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Additional Field (Flex 01)
+                </label>
+                <input
+                  type="text"
+                  id="en_flex_01"
+                  name="flex_01"
+                  value={enFormData.flex_01 || ""}
+                  onChange={handleEnChange}
+                  maxLength={250}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  This is a flexible field that can be used for additional data
+                  (max 250 characters).
+                </p>
+              </div>
+
               <input
                 type="hidden"
                 name="lang_code"
@@ -763,8 +902,8 @@ function ContentSectionForm() {
               Translation
             </h3>
             <p className="text-sm text-gray-600 mb-4">
-              Provide Hindi translations for the content. Other settings will be
-              automatically synced with the English version.
+              Provide Hindi translations for the content. Button links are
+              automatically synced with English version.
             </p>
 
             <div className="space-y-4">
@@ -782,7 +921,7 @@ function ContentSectionForm() {
                 value={hiFormData.lang_code || "hi"}
               />
 
-              {/* Only show title and description fields */}
+              {/* Title and description fields - normal */}
               <div>
                 <label
                   htmlFor="hi_title"
@@ -824,6 +963,84 @@ function ContentSectionForm() {
                 )}
               </div>
 
+              {/* Hindi Button Fields - Only button text fields */}
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <h4 className="text-md font-medium text-gray-800 mb-3">
+                  Button Translations
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="hi_button_one"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Button One Text (Hindi)
+                    </label>
+                    <input
+                      type="text"
+                      id="hi_button_one"
+                      name="button_one"
+                      value={hiFormData.button_one || ""}
+                      onChange={handleHiChange}
+                      maxLength={50}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="hi_button_two"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Button Two Text (Hindi)
+                    </label>
+                    <input
+                      type="text"
+                      id="hi_button_two"
+                      name="button_two"
+                      value={hiFormData.button_two || ""}
+                      onChange={handleHiChange}
+                      maxLength={50}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Hidden fields for button slugs - synced with English */}
+                <input
+                  type="hidden"
+                  name="button_one_slug"
+                  value={hiFormData.button_one_slug || ""}
+                />
+                <input
+                  type="hidden"
+                  name="button_two_slug"
+                  value={hiFormData.button_two_slug || ""}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="hi_flex_01"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Additional Field (Flex 01) (Hindi)
+                </label>
+                <input
+                  type="text"
+                  id="hi_flex_01"
+                  name="flex_01"
+                  value={hiFormData.flex_01 || ""}
+                  onChange={handleHiChange}
+                  maxLength={250}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  This is a flexible field that can be used for additional data
+                  (max 250 characters).
+                </p>
+              </div>
+
               {/* Information about synced fields */}
               <div className="mt-6 p-4 bg-blue-50 rounded-md">
                 <h4 className="text-sm font-medium text-blue-800 mb-2">
@@ -832,6 +1049,10 @@ function ContentSectionForm() {
                 <ul className="text-sm text-blue-600 space-y-1">
                   <li>• Image Path: {enFormData.image_path || "None"}</li>
                   <li>• Icon Path: {enFormData.icon_path || "None"}</li>
+                  <li>
+                    • Button Links: {enFormData.button_one_slug || "None"} /{" "}
+                    {enFormData.button_two_slug || "None"}
+                  </li>
                   <li>
                     • Active Status: {enFormData.active_yn === 1 ? "Yes" : "No"}
                   </li>
