@@ -2,23 +2,23 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 // Extend the Session and User types to include token
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      name?: string;
-      email?: string;
-      token?: string;
-    };
-  }
+// declare module "next-auth" {
+//   interface Session {
+//     user: {
+//       id: string;
+//       name?: string;
+//       email?: string;
+//       token?: string;
+//     };
+//   }
 
-  interface User {
-    id: string;
-    name?: string;
-    email?: string;
-    token?: string;
-  }
-}
+//   interface User {
+//     id: string;
+//     name?: string;
+//     email?: string;
+//     token?: string;
+//   }
+// }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
